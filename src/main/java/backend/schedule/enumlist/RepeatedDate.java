@@ -1,0 +1,5 @@
+package backend.schedule.enumlist;
+
+public enum RepeatedDate {
+    EVERYDAY, EVERYWEEKMON, EVERYWEEKTUE, EVERYWEEKWED, EVERYWEEKTHU, EVERYWEEKFRI, EVERYWEEKSAT, EVERYWEEKSUN, NOT
+}
