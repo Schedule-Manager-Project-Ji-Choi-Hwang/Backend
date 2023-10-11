@@ -10,11 +10,13 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SequenceGenerator(name = "STUDYCOMMENT_SEQ_GENERATOR",
+        sequenceName = "STUDYCOMMENT_SEQ")
 public class StudyComment {
 
     @Id
-    @GeneratedValue
-    @Column(name = "studycommnet_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYCOMMENT_SEQ_GENERATOR")
+    @Column(name = "studycommnet_id", updatable = false)
     private Long id;
 
     private String comment;

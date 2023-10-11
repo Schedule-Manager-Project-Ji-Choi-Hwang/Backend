@@ -2,6 +2,7 @@ package backend.schedule.entity;
 
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,11 +13,13 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SequenceGenerator(name = "MEMBER_SEQ_GENERATOR",
+        sequenceName = "MEMBER_SEQ")
 public class Member {
 
     @Id
-    @GeneratedValue
-    @Column(name = "member_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "MEMBER_SEQ_GENERATOR")
+    @Column(name = "member_id", updatable = false)
     private Long id;
 
     private String loginId;
@@ -59,6 +62,7 @@ public class Member {
         studyComment.setMember(this);
     }
 
+    @Builder
     public Member(String loginId, String password, String nickname, String email) {
         this.loginId = loginId;
         this.password = password;

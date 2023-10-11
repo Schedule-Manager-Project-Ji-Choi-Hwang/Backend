@@ -7,11 +7,13 @@ import javax.persistence.*;
 
 @Entity
 @Getter
+@SequenceGenerator(name = "APPLICATIONMEMBER_SEQ_GENERATOR",
+        sequenceName = "APPLICATIONMEMBER_SEQ")
 public class ApplicationMember {
 
     @Id
-    @GeneratedValue
-    @Column(name = "application_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "APPLICATIONMEMBER_SEQ_GENERATOR")
+    @Column(name = "application_id", updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -5,27 +5,29 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SequenceGenerator(name = "STUDYSCHEDULE_SEQ_GENERATOR",
+        sequenceName = "STUDYSCHEDULE_SEQ")
 public class StudySchedule {
 
     @Id
-    @GeneratedValue
-    @Column(name = "studyschedule_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYSCHEDULE_SEQ_GENERATOR")
+    @Column(name = "studyschedule_id", updatable = false)
     private Long id;
 
     private String scheduleName;
 
-    private Date period;
+    private LocalDate period;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "studypost_id")
     private StudyPost studyPost;
 
-    public StudySchedule(String scheduleName, Date period) {
+    public StudySchedule(String scheduleName, LocalDate period) {
         this.scheduleName = scheduleName;
         this.period = period;
     }

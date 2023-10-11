@@ -3,22 +3,25 @@ package backend.schedule.entity;
 
 import backend.schedule.enumlist.FieldTag;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR",
+        sequenceName = "STUDYPOST_SEQ")
 public class StudyPost {
 
     @Id
-    @GeneratedValue
-    @Column(name = "studypost_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYPOST_SEQ_GENERATOR")
+    @Column(name = "studypost_id", updatable = false)
     private Long id;
 
     private String studyName;
@@ -26,7 +29,7 @@ public class StudyPost {
     @Enumerated(EnumType.STRING)
     private FieldTag tag;
 
-    private Date period;
+    private LocalDate period;
 
     private int recruitMember;
 
@@ -34,6 +37,7 @@ public class StudyPost {
 
     private String area; //이거도 나중에 enum으로 바꿀예정
 
+    @Lob
     private String post;
 
     @OneToMany(mappedBy = "studyPost")
@@ -69,7 +73,8 @@ public class StudyPost {
     }
 
 
-    public StudyPost(String studyName, FieldTag tag, Date period, int recruitMember, boolean onOff, String area, String post) {
+    @Builder
+    public StudyPost(String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
         this.studyName = studyName;
         this.tag = tag;
         this.period = period;

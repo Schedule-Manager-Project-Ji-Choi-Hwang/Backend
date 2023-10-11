@@ -12,11 +12,13 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SequenceGenerator(name = "PERSONALSUBJECT_SEQ_GENERATOR",
+        sequenceName = "PERSONALSUBJECT_SEQ")
 public class PersonalSubject {
 
     @Id
-    @GeneratedValue
-    @Column(name = "ps_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERSONALSUBJECT_SEQ_GENERATOR")
+    @Column(name = "ps_id", updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

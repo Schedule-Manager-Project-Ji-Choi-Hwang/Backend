@@ -11,11 +11,13 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@SequenceGenerator(name = "STUDYMEMBER_SEQ_GENERATOR",
+        sequenceName = "STUDYMEMBER_SEQ")
 public class StudyMember {
 
     @Id
-    @GeneratedValue
-    @Column(name = "studymember_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYMEMBER_SEQ_GENERATOR")
+    @Column(name = "studymember_id", updatable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
