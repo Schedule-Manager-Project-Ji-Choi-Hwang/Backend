@@ -1,10 +1,7 @@
 package backend.schedule.entity;
 
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -13,6 +10,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor
 @SequenceGenerator(name = "MEMBER_SEQ_GENERATOR",
         sequenceName = "MEMBER_SEQ")
 public class Member {
@@ -61,14 +60,4 @@ public class Member {
         studyComments.add(studyComment);
         studyComment.setMember(this);
     }
-
-    @Builder
-    public Member(String loginId, String password, String nickname, String email) {
-        this.loginId = loginId;
-        this.password = password;
-        this.nickname = nickname;
-        this.email = email;
-    }
-
-
 }
