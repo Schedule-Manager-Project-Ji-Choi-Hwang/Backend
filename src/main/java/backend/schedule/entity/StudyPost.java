@@ -2,10 +2,7 @@ package backend.schedule.entity;
 
 
 import backend.schedule.enumlist.FieldTag;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -14,6 +11,8 @@ import java.util.List;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 @Getter
 @SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR",
         sequenceName = "STUDYPOST_SEQ")
@@ -70,17 +69,5 @@ public class StudyPost {
     public void addStudyAnnouncements(StudyAnnouncement studyAnnouncement) {
         studyAnnouncements.add(studyAnnouncement);
         studyAnnouncement.setStudyPost(this);
-    }
-
-
-    @Builder
-    public StudyPost(String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
-        this.studyName = studyName;
-        this.tag = tag;
-        this.period = period;
-        this.recruitMember = recruitMember;
-        this.onOff = onOff;
-        this.area = area;
-        this.post = post;
     }
 }

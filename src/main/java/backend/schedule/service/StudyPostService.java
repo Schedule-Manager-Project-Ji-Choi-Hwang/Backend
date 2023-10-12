@@ -1,6 +1,7 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.StudyPostDto;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,18 @@ public class StudyPostService {
 
     private final StudyPostRepository studyPostRepository;
 
-    public void save(StudyPost studyPost) {
-        studyPostRepository.save(studyPost);
+    public void save(StudyPostDto postDto) {
+        StudyPost post = StudyPost.builder()
+                .studyName(postDto.getStudyName())
+                .tag(postDto.getTag())
+                .period(postDto.getPeriod())
+                .recruitMember(postDto.getRecruitMember())
+                .onOff(postDto.isOnOff())
+                .area(postDto.getArea())
+                .post(postDto.getPost())
+                .build();
+
+        studyPostRepository.save(post);
     }
 
     public Optional<StudyPost> findById(Long id) {
