@@ -1,36 +1,39 @@
 package backend.schedule.configuration;
 
+import backend.schedule.jwt.JwtTokenFilter;
+import backend.schedule.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable() // CSRF 공격 방지 기능을 비활성화 (테스트용으로만 사용하세요)
-                .authorizeRequests()
-                .antMatchers("/member/sign-up").authenticated() // 특정 엔드포인트에 대한 인증 요구
-                .anyRequest().permitAll()
-                .and()
-                .httpBasic(); // 기본 인증 방식을 사용
-    }
+@EnableWebSecurity
+@RequiredArgsConstructor
+public class SpringSecurityConfig{
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .inMemoryAuthentication()
-                .withUser("cmh").password(passwordEncoder().encode("456456")).roles("USER");
-    }
+    private final MemberService memberService;
+    private static String secretKey = "secret-key-456456";
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .httpBasic().disable()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilterBefore(new JwtTokenFilter(memberService, secretKey), UsernamePasswordAuthenticationFilter.class)
+                .authorizeRequests()
+                .antMatchers("/member/**").permitAll()
+                .anyRequest().authenticated()
+                .and().build();
     }
-
 }

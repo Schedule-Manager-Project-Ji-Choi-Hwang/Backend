@@ -1,12 +1,16 @@
 package backend.schedule.service;
 
 import backend.schedule.dto.MemberJoinDto;
+import backend.schedule.dto.MemberLoginDto;
+import backend.schedule.entity.Member;
 import backend.schedule.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -35,5 +39,34 @@ public class MemberService {
      */
     public void join(MemberJoinDto memberJoinDto) {
         memberRepository.save(memberJoinDto.toEntity(encoder.encode(memberJoinDto.getPassword())));
+    }
+
+    /**
+     * 로그인 기능
+     */
+    public Member login(MemberLoginDto memberLoginDto) {
+        Optional<Member> optionalMember = memberRepository.findByLoginId(memberLoginDto.getLoginId());
+
+        if (optionalMember.isEmpty()) {
+            return null;
+        }
+
+        Member member = optionalMember.get();
+
+        if (!encoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
+            return null;
+        }
+
+        return member;
+    }
+
+    public Member getLoginMemberByLoginId(String loginId) {
+        if (loginId == null) {
+            return null;
+        }
+
+        Optional<Member> optionalMember = memberRepository.findByLoginId(loginId);
+
+        return optionalMember.orElse(null);
     }
 }
