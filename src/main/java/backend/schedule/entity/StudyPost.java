@@ -70,4 +70,14 @@ public class StudyPost {
         studyAnnouncements.add(studyAnnouncement);
         studyAnnouncement.setStudyPost(this);
     }
+
+    public void updatePost(String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
+        this.studyName = studyName;
+        this.tag = tag;
+        this.period = period;
+        this.recruitMember = recruitMember;
+        this.onOff = onOff;
+        this.area = area;
+        this.post = post;
+    }
 }

@@ -2,6 +2,7 @@ package backend.schedule.dto;
 
 
 import backend.schedule.enumlist.FieldTag;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
+@Builder
 public class StudyPostDto {
 
     //String만 NotEmpty지원
