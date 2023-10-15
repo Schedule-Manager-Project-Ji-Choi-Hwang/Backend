@@ -1,11 +1,13 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.StudyScheduleDto;
 import backend.schedule.entity.StudySchedule;
 import backend.schedule.repository.StudyScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -14,8 +16,11 @@ public class StudyScheduleService {
 
     private final StudyScheduleRepository studyScheduleRepository;
 
-    public void save(StudySchedule studySchedule) {
-        studyScheduleRepository.save(studySchedule);
+    public StudySchedule save(StudyScheduleDto studyScheduleDto) {
+        StudySchedule studySchedule = new StudySchedule(studyScheduleDto.getScheduleName(), studyScheduleDto.getPeriod());
+        StudySchedule schedule = studyScheduleRepository.save(studySchedule);
+
+        return schedule;
     }
 
     public Optional<StudySchedule> findById(Long id) {
@@ -24,6 +29,10 @@ public class StudyScheduleService {
 
     public void delete(StudySchedule schedule) {
         studyScheduleRepository.delete(schedule);
+    }
+
+    public List<StudySchedule> findAll() {
+        return studyScheduleRepository.findAll();
     }
 
 }

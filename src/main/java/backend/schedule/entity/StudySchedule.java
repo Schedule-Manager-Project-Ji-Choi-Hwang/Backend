@@ -32,6 +32,11 @@ public class StudySchedule {
         this.period = period;
     }
 
+    public void updateSchedule(String scheduleName, LocalDate period) {
+        this.scheduleName = scheduleName;
+        this.period = period;
+    }
+
     public void setStudyPost(StudyPost studyPost) {
         this.studyPost = studyPost;
     }

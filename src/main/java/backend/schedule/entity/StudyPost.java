@@ -39,17 +39,22 @@ public class StudyPost {
     @Lob
     private String post;
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<StudyMember> studyMembers = new ArrayList<>();
+    private List<StudyMember> studyMembers = new ArrayList<StudyMember>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<ApplicationMember> applicationMembers = new ArrayList();
+    private List<ApplicationMember> applicationMembers = new ArrayList<ApplicationMember>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<StudySchedule> studySchedules = new ArrayList<>();
+    private List<StudySchedule> studySchedules = new ArrayList<StudySchedule>();
 
+    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<StudyAnnouncement> studyAnnouncements = new ArrayList<>();
+    private List<StudyAnnouncement> studyAnnouncements = new ArrayList<StudyAnnouncement>();
+
 
     public void addStudyMember(StudyMember studyMember) {
         studyMembers.add(studyMember);
@@ -64,6 +69,10 @@ public class StudyPost {
     public void addStudySchedule(StudySchedule studySchedule) {
         studySchedules.add(studySchedule);
         studySchedule.setStudyPost(this);
+    }
+
+    public void removeStudySchedule(StudySchedule studySchedule) {
+        studySchedules.remove(studySchedule);
     }
 
     public void addStudyAnnouncements(StudyAnnouncement studyAnnouncement) {
