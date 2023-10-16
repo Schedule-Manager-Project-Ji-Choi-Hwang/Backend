@@ -120,13 +120,14 @@ public class StudyPostManageController {
         return scheduleDto;
     }
 
+    @Transactional
     @DeleteMapping("/studyboard/{boardId}/study-schedule/{id}/delete")
     public String studyScheduleDelete(@PathVariable Long boardId, @PathVariable Long id) {
-//        StudyPost findPost = studyPostService.findById(boardId).get();
+        StudyPost findPost = studyPostService.findById(boardId).get();
         StudySchedule findSchedule = studyScheduleService.findById(id).get();
-        studyScheduleService.delete(findSchedule);
+//        studyScheduleService.delete(findSchedule);
 
-//        findPost.removeStudySchedule(findSchedule);
+        findPost.removeStudySchedule(findSchedule);
 //        List<StudySchedule> studySchedules = findPost.getStudySchedules();
 //        for (StudySchedule studySchedule : studySchedules) {
 //            log.info("ddd={}", studySchedule.getScheduleName());

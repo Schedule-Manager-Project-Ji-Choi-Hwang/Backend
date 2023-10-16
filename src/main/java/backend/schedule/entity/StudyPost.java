@@ -48,7 +48,7 @@ public class StudyPost {
     private List<ApplicationMember> applicationMembers = new ArrayList<ApplicationMember>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudySchedule> studySchedules = new ArrayList<StudySchedule>();
 
     @Builder.Default
