@@ -1,7 +1,6 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.MemberJoinDto;
-import backend.schedule.dto.MemberLoginDto;
+import backend.schedule.dto.*;
 import backend.schedule.entity.Member;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
@@ -11,10 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -123,6 +119,54 @@ public class MemberController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + reissuanceAccessToken)
                 .build();
+    }
+
+    @GetMapping("/member/findLoginId")
+    public ResponseEntity<?> findLoginId(@Valid @RequestBody FindLoginIdReqDto findLoginIdReqDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+
+        FindLoginIdResDto findLoginIdResDto = memberService.findLoginId(findLoginIdReqDto.getEmail());
+
+        return ResponseEntity.ok().body(findLoginIdResDto);
+    }
+
+    @PostMapping("/member/findPassword")
+    public ResponseEntity<?> findPassword(@Valid @RequestBody FindPasswordReqDto findPasswordReqDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+
+        if (!memberService.checkLoginIdAndEmail(findPasswordReqDto.getLoginId(), findPasswordReqDto.getEmail())) {
+            return ResponseEntity.badRequest().body("아이디 및 이메일을 다시 확인해 주세요");
+        }
+
+        EmailMessageDto emailMessageDto = EmailMessageDto.builder()
+                .to(findPasswordReqDto.getEmail())
+                .subject("[일정관리 앱] 임시 비밀번호 발급")
+                .build();
+
+        String result = memberService.sendMail(emailMessageDto, "password");
+
+        if (result.equals("fail")) {
+            return ResponseEntity.badRequest().body("임시 비밀번호 발급이 실패하였습니다.");
+        }
+
+        return ResponseEntity.ok().body("임시 비밀번호 발급이 성공 하였습니다. 이메일을 확인해 주세요");
+    }
+
+    @GetMapping("/haha")
+    public String test() {
+        return "성공!!!";
     }
 
     public boolean validateHeader(HttpServletRequest request) {
