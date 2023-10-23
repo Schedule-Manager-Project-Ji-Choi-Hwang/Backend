@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @SequenceGenerator(name = "STUDYANNOUNCEMENT_SEQ_GENERATOR",
         sequenceName = "STUDYANNOUNCEMENT_SEQ")
-public class StudyAnnouncement {
+public class StudyAnnouncement extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYANNOUNCEMENT_SEQ_GENERATOR")

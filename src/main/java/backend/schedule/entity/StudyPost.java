@@ -1,8 +1,10 @@
 package backend.schedule.entity;
 
 
+import backend.schedule.dto.StudyPostDto;
 import backend.schedule.enumlist.FieldTag;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -10,13 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Getter
-@SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR",
-        sequenceName = "STUDYPOST_SEQ")
-public class StudyPost {
+@SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR", sequenceName = "STUDYPOST_SEQ")
+public class StudyPost extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYPOST_SEQ_GENERATOR")
@@ -80,13 +78,26 @@ public class StudyPost {
         studyAnnouncement.setStudyPost(this);
     }
 
-    public void updatePost(String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
-        this.studyName = studyName;
-        this.tag = tag;
-        this.period = period;
-        this.recruitMember = recruitMember;
-        this.onOff = onOff;
-        this.area = area;
-        this.post = post;
+    protected StudyPost() {
+    }
+
+    public StudyPost(StudyPostDto studyPostDto) {
+        this.studyName = studyPostDto.getStudyName();
+        this.tag = studyPostDto.getTag();
+        this.period = studyPostDto.getPeriod();
+        this.recruitMember = studyPostDto.getRecruitMember();
+        this.onOff = studyPostDto.isOnOff();
+        this.area = studyPostDto.getArea();
+        this.post = studyPostDto.getPost();
+    }
+
+    public void updatePost(StudyPostDto studyPostDto) {
+        this.studyName = studyPostDto.getStudyName();
+        this.tag = studyPostDto.getTag();
+        this.period = studyPostDto.getPeriod();
+        this.recruitMember = studyPostDto.getRecruitMember();
+        this.onOff = studyPostDto.isOnOff();
+        this.area = studyPostDto.getArea();
+        this.post = studyPostDto.getPost();
     }
 }

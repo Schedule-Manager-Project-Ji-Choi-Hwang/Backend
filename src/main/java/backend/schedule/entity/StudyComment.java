@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @SequenceGenerator(name = "STUDYCOMMENT_SEQ_GENERATOR",
         sequenceName = "STUDYCOMMENT_SEQ")
-public class StudyComment {
+public class StudyComment extends BaseTimeEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYCOMMENT_SEQ_GENERATOR")
