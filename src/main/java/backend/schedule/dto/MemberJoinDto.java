@@ -4,6 +4,7 @@ import backend.schedule.entity.Member;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Getter
@@ -20,6 +21,7 @@ public class MemberJoinDto {
     private String nickname;
 
     @NotBlank(message = "이메일이 비어있습니다.")
+    @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
 
     /**
