@@ -45,7 +45,7 @@ public class StudyPost extends BaseTimeEntity {
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudySchedule> studySchedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudyAnnouncement> studyAnnouncements = new ArrayList<>();
 
 
@@ -64,13 +64,17 @@ public class StudyPost extends BaseTimeEntity {
         studySchedule.setStudyPost(this);
     }
 
+    public void addStudyAnnouncements(StudyAnnouncement studyAnnouncement) {
+        studyAnnouncements.add(studyAnnouncement);
+        studyAnnouncement.setStudyPost(this);
+    }
+
     public void removeStudySchedule(StudySchedule studySchedule) {
         studySchedules.remove(studySchedule);
     }
 
-    public void addStudyAnnouncements(StudyAnnouncement studyAnnouncement) {
-        studyAnnouncements.add(studyAnnouncement);
-        studyAnnouncement.setStudyPost(this);
+    public void removeStudyAnnouncement(StudyAnnouncement studyAnnouncement) {
+        studyAnnouncements.remove(studyAnnouncement);
     }
 
     protected StudyPost() {

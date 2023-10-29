@@ -15,9 +15,9 @@ public class StudyAnnouncementService {
 
     private final StudyAnnouncementRepository studyAnnouncementRepository;
 
-    public void save(StudyAnnouncementDto announcementDto) {
+    public StudyAnnouncement save(StudyAnnouncementDto announcementDto) {
         StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
-        studyAnnouncementRepository.save(announcement);
+        return studyAnnouncementRepository.save(announcement);
     }
 
     public Optional<StudyAnnouncement> findById(Long id) {

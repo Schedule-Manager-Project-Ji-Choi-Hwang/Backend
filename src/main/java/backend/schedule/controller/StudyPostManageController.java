@@ -2,12 +2,10 @@ package backend.schedule.controller;
 
 
 import backend.schedule.dto.*;
+import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.entity.StudySchedule;
-import backend.schedule.service.ApplicationMemberService;
-import backend.schedule.service.StudyMemberService;
-import backend.schedule.service.StudyPostService;
-import backend.schedule.service.StudyScheduleService;
+import backend.schedule.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +22,7 @@ public class StudyPostManageController {
     private final StudyPostService studyPostService;
     private final StudyMemberService studyMemberService;
     private final ApplicationMemberService applicationMemberService;
+    private final StudyAnnouncementService studyAnnouncementService;
     private final StudyScheduleService studyScheduleService;
 
     /**
@@ -100,7 +99,8 @@ public class StudyPostManageController {
     public StudyScheduleDto studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long boardId) {
         StudyPost findPost = studyPostService.findById(boardId).get();
 
-        StudySchedule studySchedule = studyScheduleService.save(scheduleDto);
+//        StudySchedule studySchedule = studyScheduleService.save(scheduleDto);
+        StudySchedule studySchedule = new StudySchedule(scheduleDto);
         findPost.addStudySchedule(studySchedule); //편의 메서드
         //쿼리 3번나감 개선방법 생각
         return scheduleDto;
@@ -117,7 +117,10 @@ public class StudyPostManageController {
 
     @Transactional
     @PostMapping("/studyboard/{boardId}/study-schedule/{id}/edit")
-    public StudyScheduleDto studyScheduleUpdate(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long id, @PathVariable Long boardId) {
+    public StudyScheduleDto studyScheduleUpdate(
+            @Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult,
+            @PathVariable Long id, @PathVariable Long boardId) {
+
         StudySchedule findSchedule = studyScheduleService.findById(id).get();
 
         findSchedule.updateSchedule(scheduleDto.getScheduleName(), scheduleDto.getPeriod());
@@ -152,15 +155,50 @@ public class StudyPostManageController {
         return announcementDto;
     }
 
+    @Transactional
     @PostMapping("/studyboard/{boardId}/study-announcements/add")//스터디 공지 추가
     public StudyAnnouncementDto studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
                                                       BindingResult bindingResult, @PathVariable Long boardId) {
-//        StudyPost findPost = studyPostService.findById(boardId).get();
-//
-//        StudySchedule studySchedule = studyScheduleService.save(scheduleDto);
-//        findPost.addStudySchedule(studySchedule);
-        return null;
+        StudyPost findPost = studyPostService.findById(boardId).get();
+        StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
+//        StudyAnnouncement studyAnnouncement = studyAnnouncementService.save(announcementDto);
+        findPost.addStudyAnnouncements(announcement); //이 편의 메서드 때문에 update쿼리 한번 더 나감
+                                                      //쿼리 총 3번 cascade로 더티체킹하면 자동안될라나?
+                                                      //된다
+        return announcementDto;
     }
+
+    @GetMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
+    public StudyAnnouncementDto studyAnnouncementUpdateForm(@PathVariable Long id, @PathVariable Long boardId) {
+        StudyAnnouncement announcement = studyAnnouncementService.findById(id).get();
+
+        return new StudyAnnouncementDto(announcement);
+    }
+
+    @Transactional
+    @PatchMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
+    public StudyAnnouncementDto studyAnnouncementUpdate(
+            @Validated @RequestBody StudyAnnouncementDto announcementDto,
+            BindingResult bindingResult, @PathVariable Long id, @PathVariable Long boardId) {
+
+        StudyAnnouncement announcement = studyAnnouncementService.findById(id).get();
+        announcement.announcementUpdate(announcementDto);
+
+        return announcementDto;
+    }
+
+    @Transactional
+    @DeleteMapping("/studyboard/{boardId}/study-announcements/{id}/delete")
+    public String studyAnnouncementDelete(@PathVariable Long boardId, @PathVariable Long id) {
+        StudyPost findPost = studyPostService.findById(boardId).get();
+        StudyAnnouncement announcement = studyAnnouncementService.findById(id).get();
+
+        findPost.removeStudyAnnouncement(announcement);
+        //쿼리 4번 개선방법 생각
+        return "삭제되었습니다.";
+    }
+
+
 
 
 
