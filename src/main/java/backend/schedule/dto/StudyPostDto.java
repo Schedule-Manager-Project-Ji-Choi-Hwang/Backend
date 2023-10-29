@@ -40,7 +40,7 @@ public class StudyPostDto {
     @NotEmpty
     private String area;
 
-    @Lob
+//    @Lob
     @NotEmpty
     private String post;
 

@@ -1,7 +1,9 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.SearchPostCondition;
 import backend.schedule.dto.StudyPostDto;
+import backend.schedule.dto.StudyPostResponseDto;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,10 @@ public class StudyPostService {
 
     public Slice<StudyPost> findAll(Pageable pageable) {
         return studyPostRepository.findAll(pageable);
+    }
+
+    public Slice<StudyPostResponseDto> search(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
+        return studyPostRepository.searchPost(lastPostId, condition, pageable);
     }
 
     public void delete(Long id) {

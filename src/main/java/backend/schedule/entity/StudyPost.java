@@ -3,7 +3,6 @@ package backend.schedule.entity;
 
 import backend.schedule.dto.StudyPostDto;
 import backend.schedule.enumlist.FieldTag;
-import lombok.Builder;
 import lombok.Getter;
 
 import javax.persistence.*;
@@ -37,21 +36,17 @@ public class StudyPost extends BaseTimeEntity {
     @Lob
     private String post;
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<StudyMember> studyMembers = new ArrayList<StudyMember>();
+    private List<StudyMember> studyMembers = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<ApplicationMember> applicationMembers = new ArrayList<ApplicationMember>();
+    private List<ApplicationMember> applicationMembers = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StudySchedule> studySchedules = new ArrayList<StudySchedule>();
+    private List<StudySchedule> studySchedules = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<StudyAnnouncement> studyAnnouncements = new ArrayList<StudyAnnouncement>();
+    private List<StudyAnnouncement> studyAnnouncements = new ArrayList<>();
 
 
     public void addStudyMember(StudyMember studyMember) {
@@ -99,5 +94,10 @@ public class StudyPost extends BaseTimeEntity {
         this.onOff = studyPostDto.isOnOff();
         this.area = studyPostDto.getArea();
         this.post = studyPostDto.getPost();
+    }
+
+    public StudyPost(String studyName, LocalDate period) {
+        this.studyName = studyName;
+        this.period = period;
     }
 }

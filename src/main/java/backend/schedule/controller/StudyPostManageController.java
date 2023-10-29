@@ -1,10 +1,7 @@
 package backend.schedule.controller;
 
 
-import backend.schedule.dto.Result;
-import backend.schedule.dto.StudyPostDto;
-import backend.schedule.dto.StudyPostScheduleSetDto;
-import backend.schedule.dto.StudyScheduleDto;
+import backend.schedule.dto.*;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.entity.StudySchedule;
 import backend.schedule.service.ApplicationMemberService;
@@ -60,16 +57,27 @@ public class StudyPostManageController {
 
     @Transactional
     @PostMapping("/studyboard/{id}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
-    public StudyPostDto studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult, @PathVariable Long id) {
+    public StudyPostDto studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
+                                         @PathVariable Long id) {
         StudyPost findStudyPost = studyPostService.findById(id).get();
         findStudyPost.updatePost(studyPostDto);
 
         return studyPostDto;
     }
 
+//    @GetMapping("/studyboard") //스터디 게시글 전체 조회
+//    public Result studyBoardList(Pageable pageable) {
+//        return new Result(studyPostService.findAll(pageable).map(StudyPostDto::new));
+//    }
+
+    /**
+     * @param lastPostId 마지막 조회 id (처음 조회 시는 null)
+     * @param condition 게시글 검색 조건 (게시글 제목)
+     */
     @GetMapping("/studyboard") //스터디 게시글 전체 조회
-    public Result studyBoardList(Pageable pageable) {
-        return new Result(studyPostService.findAll(pageable).map(StudyPostDto::new));
+    public Result studyBoardLists(@RequestParam(required = false) Long lastPostId,
+                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
+        return new Result(studyPostService.search(lastPostId, condition, pageable));
     }
 
     @DeleteMapping("/studyboard/{id}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
@@ -135,4 +143,64 @@ public class StudyPostManageController {
 
         return new Result(new StudyPostScheduleSetDto(studyPost));
     }
+
+    /**
+     * 스터디 공지사항 관련
+     */
+    @GetMapping("/studyboard/{boardId}/study-announcements/add")
+    public StudyAnnouncementDto studyAnnouncementForm(@RequestBody StudyAnnouncementDto announcementDto) {
+        return announcementDto;
+    }
+
+    @PostMapping("/studyboard/{boardId}/study-announcements/add")//스터디 공지 추가
+    public StudyAnnouncementDto studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
+                                                      BindingResult bindingResult, @PathVariable Long boardId) {
+//        StudyPost findPost = studyPostService.findById(boardId).get();
+//
+//        StudySchedule studySchedule = studyScheduleService.save(scheduleDto);
+//        findPost.addStudySchedule(studySchedule);
+        return null;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

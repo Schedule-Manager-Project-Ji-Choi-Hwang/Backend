@@ -1,6 +1,7 @@
 package backend.schedule.entity;
 
 
+import backend.schedule.dto.StudyAnnouncementDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,12 +38,12 @@ public class StudyAnnouncement extends BaseTimeEntity{
         studyComment.setStudyAnnouncement(this);
     }
 
-    public StudyAnnouncement(String announcementTitle, String announcementPost) {
-        this.announcementTitle = announcementTitle;
-        this.announcementPost = announcementPost;
-    }
-
     public void setStudyPost(StudyPost studyPost) {
         this.studyPost = studyPost;
+    }
+
+    public StudyAnnouncement(StudyAnnouncementDto announcementDto) {
+        this.announcementTitle = announcementDto.getAnnouncementTitle();
+        this.announcementPost = announcementDto.getAnnouncementPost();
     }
 }
