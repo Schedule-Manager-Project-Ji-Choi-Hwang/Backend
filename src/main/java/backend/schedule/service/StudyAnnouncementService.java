@@ -27,4 +27,8 @@ public class StudyAnnouncementService {
     public void delete(Long id) {
         studyAnnouncementRepository.deleteById(id);
     }
+
+    public StudyAnnouncement announcementCommentList(Long id) {
+        return studyAnnouncementRepository.announcementCommentList(id);
+    }
 }

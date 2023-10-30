@@ -43,4 +43,12 @@ public class StudyPostService {
     public StudyPost studyScheduleList(Long id) {
         return studyPostRepository.studyScheduleList(id);
     }
+
+    public StudyPost studyAnnouncement(Long boardId, Long id) {
+        return studyPostRepository.studyAnnouncement(boardId, id);
+    }
+
+    public StudyPost studyAnnouncements(Long boardId) {
+        return studyPostRepository.studyAnnouncements(boardId);
+    }
 }

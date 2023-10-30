@@ -30,6 +30,7 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
 
     /**
      * 스터디 게시판 검색 쿼리
+     * 조건: 스터디 이름 검색 조건
      */
     @Override
     public Slice<StudyPostResponseDto> searchPost(Long lastPostId, SearchPostCondition condition, Pageable pageable) {

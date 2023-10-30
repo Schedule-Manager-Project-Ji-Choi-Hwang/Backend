@@ -1,6 +1,7 @@
 package backend.schedule.entity;
 
 
+import backend.schedule.dto.StudyCommentDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,15 +30,19 @@ public class StudyComment extends BaseTimeEntity{
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public StudyComment(String comment) {
-        this.comment = comment;
-    }
-
     public void setStudyAnnouncement(StudyAnnouncement studyAnnouncement) {
         this.studyAnnouncement = studyAnnouncement;
     }
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public StudyComment(StudyCommentDto commentDto) {
+        this.comment = commentDto.getComment();
+    }
+
+    public void commentUpdate(StudyCommentDto commentDto) {
+        this.comment = commentDto.getComment();
     }
 }
