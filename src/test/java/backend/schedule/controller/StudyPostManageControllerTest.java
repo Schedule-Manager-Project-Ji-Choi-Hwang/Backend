@@ -1,21 +1,17 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.StudyPostDto;
-import backend.schedule.dto.StudyScheduleDto;
-import backend.schedule.entity.StudyPost;
-import backend.schedule.entity.StudySchedule;
-import backend.schedule.enumlist.FieldTag;
+import backend.schedule.entity.Member;
+import backend.schedule.entity.QMember;
 import backend.schedule.service.StudyPostService;
 import backend.schedule.service.StudyScheduleService;
+import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.util.List;
+import javax.persistence.EntityManager;
 
 @SpringBootTest
 @Transactional
@@ -27,41 +23,19 @@ class StudyPostManageControllerTest {
     @Autowired
     StudyScheduleService studyScheduleService;
 
-    @Test
-    @Rollback(value = false)
-    void studyScheduleTest() {
-        StudyPostDto build = StudyPostDto.builder()
-                .studyName("spring")
-                .tag(FieldTag.DEVELOP)
-                .period(LocalDate.now())
-                .recruitMember(10)
-                .onOff(true)
-                .area("seoul")
-                .post("hi!")
-                .build();
+    @Autowired
+    EntityManager em;
 
-        studyPostService.save(build);
-
-        StudyScheduleDto studyScheduleDto = new StudyScheduleDto("스프링", LocalDate.now());
-        StudySchedule save = studyScheduleService.save(studyScheduleDto);
-        StudyPost studyPost = studyPostService.findById(1L).get();
-        studyPost.addStudySchedule(save);
-
-        List<StudySchedule> studySchedules = studyPost.getStudySchedules();
-        for (StudySchedule studySchedule : studySchedules) {
-            System.out.println(studySchedule.getScheduleName());
-        }
-
-        StudySchedule studySchedule = studyScheduleService.findById(1L).get();
-        studySchedule.updateSchedule("Java", LocalDate.now());
-
-        studyScheduleService.delete(studySchedule);
-        studyPost.removeStudySchedule(studySchedule);
-
-        List<StudySchedule> studySchedules1 = studyPost.getStudySchedules();
-        for (StudySchedule schedule : studySchedules1) {
-            System.out.println("data= "+schedule.getScheduleName());
-        }
-
-    }
+//    @Test
+//    void test() {
+//        Member member = new Member("1111", "222");
+//        em.persist(member);
+//
+//        JPAQueryFactory query = new JPAQueryFactory(em);
+//        QMember qMember = new QMember("m");
+//
+//        Member result = query.selectFrom(qMember).fetchOne();
+//
+//        Assertions.assertThat(result).isEqualTo(member);
+//    }
 }

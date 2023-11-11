@@ -1,8 +1,11 @@
 package backend.schedule.dto;
 
 
+import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.FieldTag;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Lob;
 import javax.validation.constraints.Max;
@@ -13,8 +16,6 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
 public class StudyPostDto {
 
@@ -39,8 +40,17 @@ public class StudyPostDto {
     @NotEmpty
     private String area;
 
-    @Lob
+//    @Lob
     @NotEmpty
     private String post;
 
+    public StudyPostDto(StudyPost studyPost) {
+        this.studyName = studyPost.getStudyName();
+        this.tag = studyPost.getTag();
+        this.period = studyPost.getPeriod();
+        this.recruitMember = studyPost.getRecruitMember();
+        this.onOff = studyPost.isOnOff();
+        this.area = studyPost.getArea();
+        this.post = studyPost.getPost();
+    }
 }

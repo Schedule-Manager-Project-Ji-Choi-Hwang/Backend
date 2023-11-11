@@ -17,10 +17,10 @@ public class StudyScheduleService {
     private final StudyScheduleRepository studyScheduleRepository;
 
     public StudySchedule save(StudyScheduleDto studyScheduleDto) {
-        StudySchedule studySchedule = new StudySchedule(studyScheduleDto.getScheduleName(), studyScheduleDto.getPeriod());
-        StudySchedule schedule = studyScheduleRepository.save(studySchedule);
+        StudySchedule studySchedule =
+                new StudySchedule(studyScheduleDto);
 
-        return schedule;
+        return studyScheduleRepository.save(studySchedule);
     }
 
     public Optional<StudySchedule> findById(Long id) {

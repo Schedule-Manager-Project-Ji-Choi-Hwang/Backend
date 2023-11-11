@@ -1,24 +1,19 @@
 package backend.schedule.controller;
 
 
-import backend.schedule.dto.StudyPostDto;
-import backend.schedule.dto.StudyScheduleDto;
+import backend.schedule.dto.*;
+import backend.schedule.entity.StudyAnnouncement;
+import backend.schedule.entity.StudyComment;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.entity.StudySchedule;
-import backend.schedule.service.ApplicationMemberService;
-import backend.schedule.service.StudyMemberService;
-import backend.schedule.service.StudyPostService;
-import backend.schedule.service.StudyScheduleService;
+import backend.schedule.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import javax.validation.Valid;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -28,8 +23,13 @@ public class StudyPostManageController {
     private final StudyPostService studyPostService;
     private final StudyMemberService studyMemberService;
     private final ApplicationMemberService applicationMemberService;
+    private final StudyAnnouncementService studyAnnouncementService;
+    private final StudyCommentService studyCommentService;
     private final StudyScheduleService studyScheduleService;
 
+    /**
+     * 스터디 게시글 관련
+     */
     @GetMapping("/studyboard/post")
     public StudyPostDto studyBoardForm(@RequestBody StudyPostDto postDto) {
         return postDto;
@@ -51,39 +51,46 @@ public class StudyPostManageController {
         StudyPost findStudyPost = studyPostService.findById(id).get(); //예외 처리가 필요한가 고민
 
         //중간에 이 게시글을 작성한 사람이 맞는지 확인하는 로직 필요
-
-        StudyPostDto studyPostDto = StudyPostDto.builder()
-                .studyName(findStudyPost.getStudyName())
-                .tag(findStudyPost.getTag())
-                .period(findStudyPost.getPeriod())
-                .recruitMember(findStudyPost.getRecruitMember())
-                .onOff(findStudyPost.isOnOff())
-                .area(findStudyPost.getArea())
-                .post(findStudyPost.getPost())
-                .build();
+        StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
 
         return studyPostDto;
     }
 
     @Transactional
     @PostMapping("/studyboard/{id}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
-    public StudyPostDto studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult, @PathVariable Long id) {
+    public StudyPostDto studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
+                                         @PathVariable Long id) {
         StudyPost findStudyPost = studyPostService.findById(id).get();
-
-        findStudyPost.updatePost(studyPostDto.getStudyName(), studyPostDto.getTag(), studyPostDto.getPeriod(),
-                studyPostDto.getRecruitMember(), studyPostDto.isOnOff(), studyPostDto.getArea(), studyPostDto.getPost());
+        findStudyPost.updatePost(studyPostDto);
 
         return studyPostDto;
     }
 
+//    @GetMapping("/studyboard") //스터디 게시글 전체 조회
+//    public Result studyBoardList(Pageable pageable) {
+//        return new Result(studyPostService.findAll(pageable).map(StudyPostDto::new));
+//    }
+
+    /**
+     * @param lastPostId 마지막 조회 id (처음 조회 시는 null)
+     * @param condition  게시글 검색 조건 (게시글 제목)
+     */
+    @GetMapping("/studyboard") //스터디 게시글 전체 조회
+    public Result studyBoardLists(@RequestParam(required = false) Long lastPostId,
+                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
+        return new Result(studyPostService.search(lastPostId, condition, pageable));
+    }
+
     @DeleteMapping("/studyboard/{id}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
     public String studyBoardDelete(@PathVariable Long id) {
-        StudyPost findStudyPost = studyPostService.findById(id).get();
-        studyPostService.delete(findStudyPost);
+        studyPostService.delete(id);
 
         return "삭제되었습니다.";
     }
 
+    /**
+     * 스터디 일정 관련
+     */
     @GetMapping("/studyboard/{boardId}/study-schedule/add")
     public StudyScheduleDto studyScheduleForm(@RequestBody StudyScheduleDto scheduleDto) {
         return scheduleDto;
@@ -94,9 +101,10 @@ public class StudyPostManageController {
     public StudyScheduleDto studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long boardId) {
         StudyPost findPost = studyPostService.findById(boardId).get();
 
-        StudySchedule studySchedule = studyScheduleService.save(scheduleDto);
+//        StudySchedule studySchedule = studyScheduleService.save(scheduleDto);
+        StudySchedule studySchedule = new StudySchedule(scheduleDto);
         findPost.addStudySchedule(studySchedule); //편의 메서드
-
+        //쿼리 3번나감 개선방법 생각
         return scheduleDto;
     }
 
@@ -104,15 +112,17 @@ public class StudyPostManageController {
     public StudyScheduleDto studyScheduleUpdateForm(@PathVariable Long id) {
         StudySchedule findSchedule = studyScheduleService.findById(id).get();
 
-        StudyScheduleDto studyScheduleDto =
-                new StudyScheduleDto(findSchedule.getScheduleName(), findSchedule.getPeriod());
+        StudyScheduleDto studyScheduleDto = new StudyScheduleDto(findSchedule);
 
         return studyScheduleDto;
     }
 
     @Transactional
     @PostMapping("/studyboard/{boardId}/study-schedule/{id}/edit")
-    public StudyScheduleDto studyScheduleUpdate(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long id, @PathVariable Long boardId) {
+    public StudyScheduleDto studyScheduleUpdate(
+            @Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult,
+            @PathVariable Long id, @PathVariable Long boardId) {
+
         StudySchedule findSchedule = studyScheduleService.findById(id).get();
 
         findSchedule.updateSchedule(scheduleDto.getScheduleName(), scheduleDto.getPeriod());
@@ -125,22 +135,186 @@ public class StudyPostManageController {
     public String studyScheduleDelete(@PathVariable Long boardId, @PathVariable Long id) {
         StudyPost findPost = studyPostService.findById(boardId).get();
         StudySchedule findSchedule = studyScheduleService.findById(id).get();
+
 //        studyScheduleService.delete(findSchedule);
-
         findPost.removeStudySchedule(findSchedule);
-//        List<StudySchedule> studySchedules = findPost.getStudySchedules();
-//        for (StudySchedule studySchedule : studySchedules) {
-//            log.info("ddd={}", studySchedule.getScheduleName());
-//        }
-//        findPost.getStudySchedules().remove(findSchedule);
-        //cascade, orphanremoval 고려
-        //studypost에 있는 list studySchedules 삭제
-
+        //쿼리 4번 개선방법 생각
         return "삭제되었습니다.";
     }
 
-    @GetMapping("/study-schedules")
-    public void studyScheduleFind() {
-        studyScheduleService.findAll(); //리스트 반환방법 찾기
+    @GetMapping("/studyboard/{boardId}/study-schedules")
+    public Result studyScheduleList(@PathVariable Long boardId) {
+        StudyPost studyPost = studyPostService.studyScheduleList(boardId);
+
+        return new Result(new StudyPostScheduleSetDto(studyPost));
     }
+
+    /**
+     * 스터디 공지사항 관련
+     */
+
+    @GetMapping("/studyboard/{boardId}/study-announcements/add")
+    public StudyAnnouncementDto studyAnnouncementForm(@RequestBody StudyAnnouncementDto announcementDto) {
+        return announcementDto;
+    }
+
+    @Transactional
+    @PostMapping("/studyboard/{boardId}/study-announcements/add")//스터디 공지 추가
+    public StudyAnnouncementDto studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
+                                                      BindingResult bindingResult, @PathVariable Long boardId) {
+        StudyPost findPost = studyPostService.findById(boardId).get();
+        StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
+//        StudyAnnouncement studyAnnouncement = studyAnnouncementService.save(announcementDto);
+        findPost.addStudyAnnouncements(announcement); //이 편의 메서드 때문에 update쿼리 한번 더 나감
+        //쿼리 총 3번 cascade로 더티체킹하면 자동안될라나?
+        //된다
+        return announcementDto;
+    }
+
+    @GetMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
+    public StudyAnnouncementDto studyAnnouncementUpdateForm(@PathVariable Long id, @PathVariable Long boardId) {
+        StudyAnnouncement announcement = studyAnnouncementService.findById(id).get();
+
+        return new StudyAnnouncementDto(announcement);
+    }
+
+    @Transactional
+    @PatchMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
+    public StudyAnnouncementDto studyAnnouncementUpdate(
+            @Validated @RequestBody StudyAnnouncementDto announcementDto,
+            BindingResult bindingResult, @PathVariable Long id, @PathVariable Long boardId) {
+
+        StudyAnnouncement announcement = studyAnnouncementService.findById(id).get();
+        announcement.announcementUpdate(announcementDto);
+
+        return announcementDto;
+    }
+
+    @Transactional
+    @DeleteMapping("/studyboard/{boardId}/study-announcements/{id}/delete")
+    public String studyAnnouncementDelete(@PathVariable Long boardId, @PathVariable Long id) {
+        StudyPost findPost = studyPostService.findById(boardId).get();
+        StudyAnnouncement announcement = studyAnnouncementService.findById(id).get();
+
+        findPost.removeStudyAnnouncement(announcement);
+        //쿼리 4번 개선방법 생각
+        return "삭제되었습니다.";
+    }
+
+    @GetMapping("/studyboard/{boardId}/study-announcements/{id}") //공지 단건 조회
+    public Result studyAnnouncement(@PathVariable Long boardId, @PathVariable Long id) {
+        StudyPost studyPost = studyPostService.studyAnnouncement(boardId, id);
+
+        return new Result(new StudyAnnouncementSetDto(studyPost));
+    }
+
+    @GetMapping("/studyboard/{boardId}/study-announcements") //전체 공지 조회
+    public Result studyAnnouncementList(@PathVariable Long boardId) {
+        StudyPost studyPost = studyPostService.studyAnnouncements(boardId);
+
+        return new Result(new StudyAnnouncementSetDto(studyPost));
+    }
+
+    /**
+     * 스터디 댓글 관련
+     */
+
+    @GetMapping("/study-announcements/{id}/comment/add")
+    public StudyCommentDto studyCommentForm(@RequestBody StudyCommentDto commentDto) {
+        return commentDto;
+    }
+
+    @Transactional
+    @PostMapping("/study-announcements/{id}/comment/add")//스터디 공지 댓글 추가
+    public StudyCommentDto studyCommentPost(@Validated @RequestBody StudyCommentDto commentDto,
+                                            BindingResult bindingResult, @PathVariable Long id) {
+        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(id).get();
+        StudyComment studyComment = new StudyComment(commentDto);
+        findAnnouncement.addStudyComment(studyComment);
+        return commentDto;
+    }
+
+    @GetMapping("/study-announcements/{id}/comment/{commentId}/edit")
+    public StudyCommentDto studyCommentUpdateForm(@PathVariable Long id, @PathVariable Long commentId) {
+        StudyComment comment = studyCommentService.findById(id).get();
+
+        return new StudyCommentDto(comment);
+    }
+
+    @Transactional
+    @PatchMapping("/study-announcements/{id}/comment/{commentId}/edit")
+    public StudyCommentDto studyCommentUpdate(
+            @Validated @RequestBody StudyCommentDto commentDto,
+            BindingResult bindingResult, @PathVariable Long id, @PathVariable Long commentId) {
+
+        StudyComment comment = studyCommentService.findById(id).get();
+
+        comment.commentUpdate(commentDto);
+
+        return commentDto;
+    }
+
+    @Transactional
+    @DeleteMapping("/study-announcements/{id}/comment/{commentId}/delete")
+    public String studyCommentDelete(@PathVariable Long id, @PathVariable Long commentId) {
+        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(id).get();
+        StudyComment studyComment = studyCommentService.findById(commentId).get();
+
+        findAnnouncement.removeStudyComment(studyComment);
+        //쿼리 4번 개선방법 생각
+        return "삭제되었습니다.";
+    }
+
+    @GetMapping("/study-announcements/{id}/comments") //전체 공지 조회
+    public Result announcementCommentList(@PathVariable Long id) {
+        StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(id);
+
+        return new Result(new StudyCommentSetDto(announcement));
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -1,8 +1,9 @@
 package backend.schedule.entity;
 
 
+import backend.schedule.dto.StudyPostDto;
 import backend.schedule.enumlist.FieldTag;
-import lombok.*;
+import lombok.Getter;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -10,13 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
-@Builder
 @Getter
-@SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR",
-        sequenceName = "STUDYPOST_SEQ")
-public class StudyPost {
+@SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR", sequenceName = "STUDYPOST_SEQ")
+public class StudyPost extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYPOST_SEQ_GENERATOR")
@@ -39,21 +36,17 @@ public class StudyPost {
     @Lob
     private String post;
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<StudyMember> studyMembers = new ArrayList<StudyMember>();
+    private List<StudyMember> studyMembers = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost")
-    private List<ApplicationMember> applicationMembers = new ArrayList<ApplicationMember>();
+    private List<ApplicationMember> applicationMembers = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<StudySchedule> studySchedules = new ArrayList<StudySchedule>();
+    private List<StudySchedule> studySchedules = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "studyPost")
-    private List<StudyAnnouncement> studyAnnouncements = new ArrayList<StudyAnnouncement>();
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudyAnnouncement> studyAnnouncements = new ArrayList<>();
 
 
     public void addStudyMember(StudyMember studyMember) {
@@ -71,22 +64,44 @@ public class StudyPost {
         studySchedule.setStudyPost(this);
     }
 
-    public void removeStudySchedule(StudySchedule studySchedule) {
-        studySchedules.remove(studySchedule);
-    }
-
     public void addStudyAnnouncements(StudyAnnouncement studyAnnouncement) {
         studyAnnouncements.add(studyAnnouncement);
         studyAnnouncement.setStudyPost(this);
     }
 
-    public void updatePost(String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
+    public void removeStudySchedule(StudySchedule studySchedule) {
+        studySchedules.remove(studySchedule);
+    }
+
+    public void removeStudyAnnouncement(StudyAnnouncement studyAnnouncement) {
+        studyAnnouncements.remove(studyAnnouncement);
+    }
+
+    protected StudyPost() {
+    }
+
+    public StudyPost(StudyPostDto studyPostDto) {
+        this.studyName = studyPostDto.getStudyName();
+        this.tag = studyPostDto.getTag();
+        this.period = studyPostDto.getPeriod();
+        this.recruitMember = studyPostDto.getRecruitMember();
+        this.onOff = studyPostDto.isOnOff();
+        this.area = studyPostDto.getArea();
+        this.post = studyPostDto.getPost();
+    }
+
+    public void updatePost(StudyPostDto studyPostDto) {
+        this.studyName = studyPostDto.getStudyName();
+        this.tag = studyPostDto.getTag();
+        this.period = studyPostDto.getPeriod();
+        this.recruitMember = studyPostDto.getRecruitMember();
+        this.onOff = studyPostDto.isOnOff();
+        this.area = studyPostDto.getArea();
+        this.post = studyPostDto.getPost();
+    }
+
+    public StudyPost(String studyName, LocalDate period) {
         this.studyName = studyName;
-        this.tag = tag;
         this.period = period;
-        this.recruitMember = recruitMember;
-        this.onOff = onOff;
-        this.area = area;
-        this.post = post;
     }
 }
