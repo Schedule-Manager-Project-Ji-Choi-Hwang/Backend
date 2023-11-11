@@ -61,8 +61,8 @@ public class Member extends BaseTimeEntity{
         studyComment.setMember(this);
     }
 
-    public Member(String loginId, String password) {
-        this.loginId = loginId;
-        this.password = password;
-    }
+//    public Member(String loginId, String password) {
+//        this.loginId = loginId;
+//        this.password = password;
+//    }
 }

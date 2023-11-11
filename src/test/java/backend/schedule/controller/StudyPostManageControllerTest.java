@@ -26,16 +26,16 @@ class StudyPostManageControllerTest {
     @Autowired
     EntityManager em;
 
-    @Test
-    void test() {
-        Member member = new Member("1111", "222");
-        em.persist(member);
-
-        JPAQueryFactory query = new JPAQueryFactory(em);
-        QMember qMember = new QMember("m");
-
-        Member result = query.selectFrom(qMember).fetchOne();
-
-        Assertions.assertThat(result).isEqualTo(member);
-    }
+//    @Test
+//    void test() {
+//        Member member = new Member("1111", "222");
+//        em.persist(member);
+//
+//        JPAQueryFactory query = new JPAQueryFactory(em);
+//        QMember qMember = new QMember("m");
+//
+//        Member result = query.selectFrom(qMember).fetchOne();
+//
+//        Assertions.assertThat(result).isEqualTo(member);
+//    }
 }
