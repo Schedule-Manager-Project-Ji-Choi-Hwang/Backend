@@ -35,8 +35,8 @@ public class Member extends BaseTimeEntity{
     @OneToMany(mappedBy = "member")
     private List<StudyMember> studyMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member")
-    private List<ApplicationMember> applicationMembers = new ArrayList();
+//    @OneToMany(mappedBy = "member")
+//    private List<ApplicationMember> applicationMembers = new ArrayList();
 
     @OneToMany(mappedBy = "member")
     private List<StudyComment> studyComments = new ArrayList<>();
@@ -51,10 +51,10 @@ public class Member extends BaseTimeEntity{
         studyMember.setMember(this);
     }
 
-    public void addApplicationMember(ApplicationMember applicationMember) {
-        applicationMembers.add(applicationMember);
-        applicationMember.setMember(this);
-    }
+//    public void addApplicationMember(ApplicationMember applicationMember) {
+//        applicationMembers.add(applicationMember);
+//        applicationMember.setMember(this);
+//    }
 
     public void addStudyComments(StudyComment studyComment) {
         studyComments.add(studyComment);

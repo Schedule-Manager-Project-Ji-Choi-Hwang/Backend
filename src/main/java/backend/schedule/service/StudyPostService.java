@@ -4,6 +4,8 @@ package backend.schedule.service;
 import backend.schedule.dto.SearchPostCondition;
 import backend.schedule.dto.StudyPostDto;
 import backend.schedule.dto.StudyPostResponseDto;
+import backend.schedule.entity.ApplicationMember;
+import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;

@@ -2,6 +2,8 @@ package backend.schedule.service;
 
 
 import backend.schedule.entity.ApplicationMember;
+import backend.schedule.entity.Member;
+import backend.schedule.entity.StudyPost;
 import backend.schedule.repository.ApplicationMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +16,9 @@ public class ApplicationMemberService {
 
     private final ApplicationMemberRepository applicationMemberRepository;
 
-    public void save(ApplicationMember applicationMember) {
+    public void save(Member member, StudyPost studyPost) {
+        ApplicationMember applicationMember = new ApplicationMember(member, studyPost);
+        studyPost.addApplicationMember(applicationMember);
         applicationMemberRepository.save(applicationMember);
     }
 

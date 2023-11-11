@@ -42,4 +42,10 @@ public class StudyMember {
     public void setStudyPost(StudyPost studyPost) {
         this.studyPost = studyPost;
     }
+
+    public StudyMember(Member member, StudyPost studyPost, ConfirmAuthor confirmAuthor) {
+        this.member = member;
+        this.studyPost = studyPost;
+        this.confirmAuthor = confirmAuthor;
+    }
 }

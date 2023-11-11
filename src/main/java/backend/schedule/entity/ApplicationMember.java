@@ -1,7 +1,9 @@
 package backend.schedule.entity;
 
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,6 +11,7 @@ import javax.persistence.*;
 @Getter
 @SequenceGenerator(name = "APPLICATIONMEMBER_SEQ_GENERATOR",
         sequenceName = "APPLICATIONMEMBER_SEQ")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApplicationMember {
 
     @Id
@@ -29,6 +32,11 @@ public class ApplicationMember {
     }
 
     public void setStudyPost(StudyPost studyPost) {
+        this.studyPost = studyPost;
+    }
+
+    public ApplicationMember(Member member, StudyPost studyPost) {
+        this.member = member;
         this.studyPost = studyPost;
     }
 }
