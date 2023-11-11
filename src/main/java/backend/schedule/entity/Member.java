@@ -60,4 +60,8 @@ public class Member {
         studyComments.add(studyComment);
         studyComment.setMember(this);
     }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }

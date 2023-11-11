@@ -1,5 +1,6 @@
 package backend.schedule.entity;
 
+import backend.schedule.dto.ScheduleReqDto;
 import backend.schedule.enumlist.RepeatedDate;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,20 +25,24 @@ public class Schedule {
 
     private LocalDate period;
 
-    @Enumerated(EnumType.STRING)
-    private RepeatedDate repeatedDate;
+//    @Enumerated(EnumType.STRING)
+//    private RepeatedDate repeatedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ps_id")
     private PersonalSubject personalSubject;
 
-    public Schedule(String scheduleName, LocalDate period, RepeatedDate repeatedDate) {
+    public Schedule(String scheduleName, LocalDate period) {
         this.scheduleName = scheduleName;
         this.period = period;
-        this.repeatedDate = repeatedDate;
     }
 
     public void setPersonalSubject(PersonalSubject personalSubject) {
         this.personalSubject = personalSubject;
+    }
+
+    public void changeScheduleNameAndPeriod(ScheduleReqDto scheduleReqDto) {
+        this.scheduleName = scheduleReqDto.getScheduleName();
+        this.period = scheduleReqDto.getPeriod();
     }
 }

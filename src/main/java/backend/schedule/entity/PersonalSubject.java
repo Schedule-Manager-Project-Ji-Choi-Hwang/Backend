@@ -35,11 +35,16 @@ public class PersonalSubject {
         schedule.setPersonalSubject(this);
     }
 
-    public PersonalSubject(String subjectName) {
+    public PersonalSubject(Member member, String subjectName) {
+        this.member = member;
         this.subjectName = subjectName;
     }
 
     public void setMember(Member member) {
         this.member = member;
+    }
+
+    public void subjectNameUpdate(String subjectName) {
+        this.subjectName = subjectName;
     }
 }
