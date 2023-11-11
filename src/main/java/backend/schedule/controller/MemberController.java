@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +37,7 @@ public class MemberController {
     private String myRefreshTokenExpireMs;
 
     @PostMapping("/member/sign-up")
-    public ResponseEntity<?> join(@Valid @RequestBody MemberJoinDto memberJoinDto, BindingResult bindingResult) {
+    public ResponseEntity<?> join(@Validated @RequestBody MemberJoinDto memberJoinDto, BindingResult bindingResult) {
 
         // 빈 검증
         if (bindingResult.hasErrors()) {
@@ -61,7 +62,7 @@ public class MemberController {
     }
 
     @PostMapping("/member/log-in")
-    public ResponseEntity<?> login(@Valid @RequestBody MemberLoginDto memberLoginDto, BindingResult bindingResult) {
+    public ResponseEntity<?> login(@Validated @RequestBody MemberLoginDto memberLoginDto, BindingResult bindingResult) {
 
         // 빈 검증
         if (bindingResult.hasErrors()) {
@@ -122,7 +123,7 @@ public class MemberController {
     }
 
     @GetMapping("/member/findLoginId")
-    public ResponseEntity<?> findLoginId(@Valid @RequestBody FindLoginIdReqDto findLoginIdReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> findLoginId(@Validated @RequestBody FindLoginIdReqDto findLoginIdReqDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getAllErrors()
                     .stream()
@@ -137,7 +138,7 @@ public class MemberController {
     }
 
     @PostMapping("/member/findPassword")
-    public ResponseEntity<?> findPassword(@Valid @RequestBody FindPasswordReqDto findPasswordReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> findPassword(@Validated @RequestBody FindPasswordReqDto findPasswordReqDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getAllErrors()
                     .stream()

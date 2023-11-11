@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +35,7 @@ public class PersonalSubjectController {
     private String mySecretkey;
 
     @PostMapping("/subjects/add")
-    public ResponseEntity<?> subjectAdd(@Valid @RequestBody PersonalSubjectDto personalSubjectDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> subjectAdd(@Validated @RequestBody PersonalSubjectDto personalSubjectDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getAllErrors()
                     .stream()
