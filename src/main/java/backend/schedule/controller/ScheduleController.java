@@ -32,8 +32,8 @@ public class ScheduleController {
 
     @PostMapping("/schedules/add")
     public ResponseEntity<?> add(@RequestBody ScheduleReqDto scheduleReqDto) {
-        Schedule addedSchedule = scheduleService.add(scheduleReqDto);
-        if (addedSchedule == null) {
+        String result = scheduleService.add(scheduleReqDto);
+        if (result == null) {
             return ResponseEntity.badRequest().body("일정 등록 실패");
         }
 

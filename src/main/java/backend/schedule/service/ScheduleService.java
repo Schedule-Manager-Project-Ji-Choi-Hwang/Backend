@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,14 +31,58 @@ public class ScheduleService {
 
     private final MemberRepository memberRepository;
 
-    public Schedule add(ScheduleReqDto scheduleReqDto) {
+//    public Schedule add(ScheduleReqDto scheduleReqDto) {
+//        Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
+//        if (optionalPersonalSubject.isPresent()) {
+//            PersonalSubject personalSubject = optionalPersonalSubject.get();
+//            Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), scheduleReqDto.getPeriod());
+//            schedule.setPersonalSubject(personalSubject);
+//            scheduleRepository.save(schedule);
+//            return schedule;
+//        } else {
+//            return null;
+//        }
+//    }
+    public String add(ScheduleReqDto scheduleReqDto) {
         Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
         if (optionalPersonalSubject.isPresent()) {
             PersonalSubject personalSubject = optionalPersonalSubject.get();
-            Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), scheduleReqDto.getPeriod());
-            schedule.setPersonalSubject(personalSubject);
-            scheduleRepository.save(schedule);
-            return schedule;
+            if (scheduleReqDto.getPeriod() != null) { // 단일 등록
+                Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), scheduleReqDto.getPeriod());
+                schedule.setPersonalSubject(personalSubject);
+                scheduleRepository.save(schedule);
+                return "성공";
+            } else { // 반복 등록
+//                List<LocalDate> dates = new ArrayList<>();
+                LocalDate nextDate = scheduleReqDto.getStartDate();
+
+                Schedule schedule1 = new Schedule(scheduleReqDto.getScheduleName(), nextDate);
+                schedule1.setPersonalSubject(personalSubject);
+                scheduleRepository.save(schedule1);
+
+                while (!nextDate.isAfter(scheduleReqDto.getEndDate())) {
+//                    dates.add(nextDate);
+
+                    switch (scheduleReqDto.getRepeat()) {
+                        case "DAILY":
+                            nextDate = nextDate.plusDays(1);
+                            break;
+                        case "WEEKLY":
+                            nextDate = nextDate.plusWeeks(1);
+                            break;
+                        case "MONTHLY":
+                            nextDate = nextDate.plusMonths(1);
+                            break;
+                    }
+                    Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), nextDate);
+                    schedule.setPersonalSubject(personalSubject);
+                    scheduleRepository.save(schedule);
+                    if (nextDate.isEqual(scheduleReqDto.getEndDate())) {
+                        break;
+                    }
+                }
+                return "성공";
+            }
         } else {
             return null;
         }
