@@ -58,7 +58,7 @@ public class MemberController {
 
         memberService.join(memberJoinDto);
 
-        return ResponseEntity.ok("회원가입 성공");
+        return ResponseEntity.ok().body("회원가입 성공");
     }
 
     @PostMapping("/member/log-in")
@@ -91,7 +91,7 @@ public class MemberController {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
                 .header("Refresh-Token", "Bearer " + refreshToken)
-                .build();
+                .build(); // 프론트에서 헤더 안받아짐.
     }
 
     @GetMapping("/member/refresh")
@@ -132,7 +132,9 @@ public class MemberController {
             return ResponseEntity.badRequest().body(errorMessages);
         }
 
-        FindLoginIdResDto findLoginIdResDto = memberService.findLoginId(findLoginIdReqDto.getEmail());
+        FindLoginIdResDto findLoginIdResDto = memberService.findLoginId(findLoginIdReqDto.getEmail()); // isEmpty랑 null 반환 방식으로, null 검증
+
+        //badRequest 검증 추가 (null 일 때)
 
         return ResponseEntity.ok().body(findLoginIdResDto);
     }
@@ -165,10 +167,31 @@ public class MemberController {
         return ResponseEntity.ok().body("임시 비밀번호 발급이 성공 하였습니다. 이메일을 확인해 주세요");
     }
 
-    @GetMapping("/haha")
-    public String test() {
-        return "성공!!!";
+    @PatchMapping("/member/edit")
+    public ResponseEntity<?> changePW(HttpServletRequest request, @Validated @RequestBody MemberPWDto memberPWDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(errorMessages);
+        }
+
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+
+        String secretKey = mySecretkey;
+        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body("해당 회원을 찾을 수 없습니다.");
+        }
+
+        memberService.changePW(findMember, memberPWDto);
+
+        return ResponseEntity.ok().body("비밀번호가 변경 되었습니다."); // 변경 완료 시 재로그인 시켜야함.
     }
+
 
     public boolean validateHeader(HttpServletRequest request) {
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);

@@ -2,7 +2,7 @@ package backend.schedule.controller;
 
 import backend.schedule.dto.PersonalSubjectDto;
 import backend.schedule.dto.PersonalSubjectResDto;
-import backend.schedule.dto.PersonalSubjectsResDto;
+import backend.schedule.dto.Result;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.PersonalSubject;
 import backend.schedule.jwt.JwtTokenUtil;
@@ -18,9 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -50,11 +48,9 @@ public class PersonalSubjectController {
 
         Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        personalSubjectDto.setMember(findMember);
+        personalSubjectService.save(personalSubjectDto, findMember);
 
-        personalSubjectService.save(personalSubjectDto);
-
-        return ResponseEntity.ok("과목이 추가 되었습니다.");
+        return ResponseEntity.ok().body("과목이 추가 되었습니다.");
     }
 
     @GetMapping("/subjects/{subjectId}")
@@ -62,12 +58,10 @@ public class PersonalSubjectController {
         PersonalSubject personalSubject = personalSubjectService.findOne(subjectId);
 
         if (personalSubject == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body("과목을 찾을 수 없습니다.");
         }
-        PersonalSubjectResDto personalSubjectResDto = new PersonalSubjectResDto();
-        personalSubjectResDto.setSubjectName(personalSubject.getSubjectName());
 
-        return ResponseEntity.ok(personalSubjectResDto); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
+        return ResponseEntity.ok().body(new PersonalSubjectResDto(personalSubject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
     }
 
     @GetMapping("/subjects")
@@ -78,9 +72,9 @@ public class PersonalSubjectController {
 
         Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        PersonalSubjectsResDto findPersonalSubjects = personalSubjectService.findAll(findMember);
+        List<PersonalSubjectResDto> findPersonalSubjects = personalSubjectService.findAll(findMember);
 
-        return ResponseEntity.ok(findPersonalSubjects);
+        return ResponseEntity.ok().body(new Result(findPersonalSubjects));
     }
 
     @PatchMapping("/subjects/{subjectId}/edit")

@@ -41,7 +41,6 @@ public class RefreshTokenService {
         if (!savedRefreshToken.getToken().equals(refreshToken)) {
             return false;
         }
-
         return true;
     }
 }

@@ -1,9 +1,6 @@
 package backend.schedule.service;
 
-import backend.schedule.dto.EmailMessageDto;
-import backend.schedule.dto.FindLoginIdResDto;
-import backend.schedule.dto.MemberJoinDto;
-import backend.schedule.dto.MemberLoginDto;
+import backend.schedule.dto.*;
 import backend.schedule.entity.Member;
 import backend.schedule.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -61,11 +58,11 @@ public class MemberService {
     public Member login(MemberLoginDto memberLoginDto) {
         Optional<Member> optionalMember = memberRepository.findByLoginId(memberLoginDto.getLoginId());
 
-        if (optionalMember.isEmpty()) {
+        Member member = optionalMember.orElse(null);
+
+        if (member == null) {
             return null;
         }
-
-        Member member = optionalMember.get();
 
         if (!encoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
             return null;
@@ -147,5 +144,9 @@ public class MemberService {
             }
         }
         return tempPassword.toString();
+    }
+
+    public void changePW(Member member, MemberPWDto memberPWDto) {
+        member.changePassword(encoder.encode(memberPWDto.getPassword()));
     }
 }
