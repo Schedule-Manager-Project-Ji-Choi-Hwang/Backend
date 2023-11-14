@@ -30,13 +30,12 @@ public class ScheduleController {
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
-    @PostMapping("/schedules/add")
+    @PostMapping("/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
     public ResponseEntity<?> add(@RequestBody ScheduleReqDto scheduleReqDto) {
         String result = scheduleService.add(scheduleReqDto);
         if (result == null) {
             return ResponseEntity.badRequest().body("일정 등록 실패");
         }
-
         return ResponseEntity.ok().body("일정 등록 성공");
     }
 
