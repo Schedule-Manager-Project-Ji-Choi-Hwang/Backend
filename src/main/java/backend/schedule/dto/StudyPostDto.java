@@ -8,10 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.Lob;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Getter
@@ -20,28 +17,27 @@ import java.time.LocalDate;
 public class StudyPostDto {
 
     //String만 NotEmpty지원
-    @NotEmpty
+    @NotEmpty(message = "제목을 입력해 주세요.")
     private String studyName;
 
-    @NotNull
     private FieldTag tag;
 
-    @NotNull
+    @NotNull(message = "일정을 입력해 주세요.")
     private LocalDate period;
 
-    @NotNull
-    @Min(value = 1)
-    @Max(value = 20)
+    @NotNull(message = "모집 인원을 설정해 주세요.")
+    @Min(value = 1, message = "1명 이상 설정 가능합니다.")
+    @Max(value = 20, message = "20명 이하 설정 가능합니다.")
     private int recruitMember;
 
-    @NotNull
+    @NotNull(message = "온라인/오프라인 설정")
     private boolean onOff;
 
-    @NotEmpty
+    @NotEmpty(message = "지역을 선택해 주세요.")
     private String area;
 
 //    @Lob
-    @NotEmpty
+    @NotEmpty(message = "글을 작성해 주세요.")
     private String post;
 
     public StudyPostDto(StudyPost studyPost) {

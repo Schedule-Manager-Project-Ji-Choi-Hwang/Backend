@@ -21,13 +21,20 @@ public class StudyPostService {
 
     private final StudyPostRepository studyPostRepository;
 
-    public void save(StudyPostDto studyPostDto) {
+    public Long save(StudyPostDto studyPostDto) {
         StudyPost studyPost = new StudyPost(studyPostDto);
-        studyPostRepository.save(studyPost);
+
+        return studyPostRepository.save(studyPost).getId();
     }
 
-    public Optional<StudyPost> findById(Long id) {
-        return studyPostRepository.findById(id);
+    public StudyPost findById(Long id) {
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.findById(id);
+
+        if (optionalStudyPost.isPresent()) {
+            return optionalStudyPost.get();
+        }
+
+        return optionalStudyPost.orElse(null);
     }
 
     public Slice<StudyPost> findAll(Pageable pageable) {

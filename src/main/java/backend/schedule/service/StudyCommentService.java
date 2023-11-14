@@ -14,7 +14,13 @@ public class StudyCommentService {
 
     private final StudyCommentRepository studyCommentRepository;
 
-    public Optional<StudyComment> findById(Long id) {
-        return studyCommentRepository.findById(id);
+    public StudyComment findById(Long id) {
+        Optional<StudyComment> optionalStudyComment = studyCommentRepository.findById(id);
+
+        if (optionalStudyComment.isPresent()) {
+            return optionalStudyComment.get();
+        }
+
+        return optionalStudyComment.orElse(null);
     }
 }

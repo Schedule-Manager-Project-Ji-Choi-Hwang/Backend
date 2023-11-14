@@ -46,7 +46,11 @@ public class ApplicationMemberController {
         String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
         Member member = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        StudyPost studyPost = studyPostService.findById(id).get();
+        StudyPost studyPost = studyPostService.findById(id);
+
+        if (studyPost == null) {
+            return ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+        }
 
         applicationMemberService.save(member, studyPost);
 
@@ -65,7 +69,11 @@ public class ApplicationMemberController {
             return ResponseEntity.badRequest().body("권한이 없습니다.");
         }
 
-        StudyPost studyPost = studyPostService.findById(studyboardId).get();
+        StudyPost studyPost = studyPostService.findById(studyboardId);
+
+        if (studyPost == null) {
+            ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+        }
         List<ApplicationMemberDto> ApplicationMemberDtos = studyPost.getApplicationMembers().stream()
                 .map(ApplicationMemberDto::new)
                 .collect(Collectors.toList());

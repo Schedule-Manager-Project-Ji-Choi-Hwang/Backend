@@ -17,14 +17,19 @@ public class StudyScheduleService {
     private final StudyScheduleRepository studyScheduleRepository;
 
     public StudySchedule save(StudyScheduleDto studyScheduleDto) {
-        StudySchedule studySchedule =
-                new StudySchedule(studyScheduleDto);
+        StudySchedule studySchedule = new StudySchedule(studyScheduleDto);
 
         return studyScheduleRepository.save(studySchedule);
     }
 
-    public Optional<StudySchedule> findById(Long id) {
-        return studyScheduleRepository.findById(id);
+    public StudySchedule findById(Long id) {
+        Optional<StudySchedule> optionalStudySchedule = studyScheduleRepository.findById(id);
+
+        if (optionalStudySchedule.isPresent()) {
+            return optionalStudySchedule.get();
+        }
+
+        return optionalStudySchedule.orElse(null);
     }
 
     public void delete(StudySchedule schedule) {

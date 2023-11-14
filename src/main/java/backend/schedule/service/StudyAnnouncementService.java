@@ -15,13 +15,18 @@ public class StudyAnnouncementService {
 
     private final StudyAnnouncementRepository studyAnnouncementRepository;
 
-    public StudyAnnouncement save(StudyAnnouncementDto announcementDto) {
-        StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
-        return studyAnnouncementRepository.save(announcement);
+    public Long save(StudyAnnouncement studyAnnouncement) {
+        return studyAnnouncementRepository.save(studyAnnouncement).getId();
     }
 
-    public Optional<StudyAnnouncement> findById(Long id) {
-        return studyAnnouncementRepository.findById(id);
+    public StudyAnnouncement findById(Long id) {
+        Optional<StudyAnnouncement> optionalStudyAnnouncement = studyAnnouncementRepository.findById(id);
+
+        if (optionalStudyAnnouncement.isPresent()) {
+            return optionalStudyAnnouncement.get();
+        }
+
+        return optionalStudyAnnouncement.orElse(null);
     }
 
     public void delete(Long id) {

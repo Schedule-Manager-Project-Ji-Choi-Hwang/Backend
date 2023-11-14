@@ -30,7 +30,11 @@ public class StudyMemberController {
         ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId).get();
         Member member = applicationMember.getMember();
 
-        StudyPost studyPost = studyPostService.findById(studyboardId).get();
+        StudyPost studyPost = studyPostService.findById(studyboardId);
+
+        if (studyPost == null) {
+            ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+        }
 
         studyMemberService.save(member, studyPost);
 
