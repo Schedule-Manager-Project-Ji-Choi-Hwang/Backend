@@ -45,7 +45,7 @@ public class ScheduleService {
 //    }
     public String add(ScheduleReqDto scheduleReqDto) {
         Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
-        if (optionalPersonalSubject.isPresent()) {
+        if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
             PersonalSubject personalSubject = optionalPersonalSubject.get();
             if (scheduleReqDto.getPeriod() != null) { // 단일 등록
                 Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), scheduleReqDto.getPeriod());
@@ -54,30 +54,30 @@ public class ScheduleService {
                 return "성공";
             } else { // 반복 등록
 //                List<LocalDate> dates = new ArrayList<>();
-                LocalDate nextDate = scheduleReqDto.getStartDate();
+                LocalDate nextDate = scheduleReqDto.getStartDate(); // 저장될 날짜를 가지고 있는 놈. for문의 i 변수같은 존재.
 
                 Schedule schedule1 = new Schedule(scheduleReqDto.getScheduleName(), nextDate);
                 schedule1.setPersonalSubject(personalSubject);
                 scheduleRepository.save(schedule1);
 
-                while (!nextDate.isAfter(scheduleReqDto.getEndDate())) {
+                while (!nextDate.isAfter(scheduleReqDto.getEndDate())) { // nextDate가 endDate를 지났는가? (서로 날짜가 같으면 통과해버림. 지나야 반복 종료됨)
 //                    dates.add(nextDate);
 
                     switch (scheduleReqDto.getRepeat()) {
                         case "DAILY":
-                            nextDate = nextDate.plusDays(1);
+                            nextDate = nextDate.plusDays(1); // 하루 +
                             break;
                         case "WEEKLY":
-                            nextDate = nextDate.plusWeeks(1);
+                            nextDate = nextDate.plusWeeks(1); // 일주일 +
                             break;
                         case "MONTHLY":
-                            nextDate = nextDate.plusMonths(1);
+                            nextDate = nextDate.plusMonths(1); // 한달 +
                             break;
                     }
                     Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), nextDate);
                     schedule.setPersonalSubject(personalSubject);
                     scheduleRepository.save(schedule);
-                    if (nextDate.isEqual(scheduleReqDto.getEndDate())) {
+                    if (nextDate.isEqual(scheduleReqDto.getEndDate())) { // nextDate가 endDate와 같으면 반복 종료시킴.
                         break;
                     }
                 }
