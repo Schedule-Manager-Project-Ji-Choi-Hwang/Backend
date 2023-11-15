@@ -5,16 +5,16 @@ import backend.schedule.entity.StudyAnnouncement;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 
 @Data
 @NoArgsConstructor
 public class StudyAnnouncementDto {
 
-    @NotEmpty
+    @NotBlank(message = "제목을 입력해 주세요.")
     private String announcementTitle;
 
-    @NotEmpty
+    @NotBlank(message = "글을 작성해 주세요.")
     private String announcementPost;
 
     public StudyAnnouncementDto(StudyAnnouncement announcement) {

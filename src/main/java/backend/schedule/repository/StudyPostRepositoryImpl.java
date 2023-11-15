@@ -36,14 +36,14 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
     public Slice<StudyPostResponseDto> searchPost(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
         List<StudyPostResponseDto> results =
                 query.select(new QStudyPostResponseDto(studyPost.id, studyPost.studyName,
-                        studyPost.tag, studyPost.period, studyPost.recruitMember,
-                        studyPost.onOff, studyPost.area, studyPost.post))
-                .from(studyPost)
-                .where(ltPostId(lastPostId),
-                        searchCondition(condition.getStudyName()))
-                .orderBy(studyPost.id.desc())
-                .limit(pageable.getPageSize() + 1)
-                .fetch();
+                                studyPost.tag, studyPost.period, studyPost.recruitMember,
+                                studyPost.onOff, studyPost.area, studyPost.post))
+                        .from(studyPost)
+                        .where(ltPostId(lastPostId),
+                                searchCondition(condition.getStudyName()))
+                        .orderBy(studyPost.id.desc())
+                        .limit(pageable.getPageSize() + 1)
+                        .fetch();
 
         return checkLastPage(pageable, results);
     }
@@ -58,9 +58,6 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
 
     private Slice<StudyPostResponseDto> checkLastPage(Pageable pageable, List<StudyPostResponseDto> results) {
         boolean hasNext = false;
-
-        System.out.println("re " + results.size());
-        System.out.println("pp " + pageable.getPageSize());
 
         if (results.size() > pageable.getPageSize()) {
             hasNext = true;
