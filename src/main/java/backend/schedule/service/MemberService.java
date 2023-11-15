@@ -10,7 +10,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Optional;
@@ -24,36 +23,35 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder encoder;
-
     private final JavaMailSender javaMailSender;
 
     /**
-     * 회원가입 시 loginId 중복 체크
+     * (회원가입)
+     * loginId 중복 체크
      */
     public boolean checkLoginIdDuplicate(String loginId) {
         return memberRepository.existsByLoginId(loginId);
     }
 
     /**
-     * 회원가입 시 nickname 중복 체크
+     * (회원가입)
+     * nickname 중복 체크
      */
     public boolean checkNicknameDuplicate(String nickname) {
         return memberRepository.existsByNickname(nickname);
     }
 
-    public boolean checkLoginIdAndEmail(String loginId, String email) {
-        return memberRepository.existsByLoginIdAndEmail(loginId, email);
-    }
-
     /**
-     * 회원가입 기능
+     * (회원가입)
+     * 회원 저장 (비밀번호 암호화)
      */
     public void join(MemberJoinDto memberJoinDto) {
         memberRepository.save(memberJoinDto.toEntity(encoder.encode(memberJoinDto.getPassword())));
     }
 
     /**
-     * 로그인 기능
+     * (로그인)
+     * 로그인 아이디 이용 멤버 식별 및 비밀번호 일치 여부 확인
      */
     public Member login(MemberLoginDto memberLoginDto) {
         Optional<Member> optionalMember = memberRepository.findByLoginId(memberLoginDto.getLoginId());
@@ -67,10 +65,13 @@ public class MemberService {
         if (!encoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
             return null;
         }
-
         return member;
     }
 
+    /**
+     * (토큰 정보 이용 멤버 식별)
+     * 로그인 아이디 이용 멤버 식별
+     */
     public Member getLoginMemberByLoginId(String loginId) {
         if (loginId == null) {
             return null;
@@ -81,6 +82,10 @@ public class MemberService {
         return optionalMember.orElse(null);
     }
 
+    /**
+     * (아이디 찾기)
+     * 이메일 이용 멤버 식별
+     */
     public FindLoginIdResDto findLoginId(String email) {
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
 
@@ -99,6 +104,10 @@ public class MemberService {
                 .build();
     }
 
+    /**
+     * (비밀번호 찾기)
+     * 임시 비밀번호 발급 및 이메일 발송
+     */
     public String sendMail(EmailMessageDto emailMessageDto, String type) {
         String tempPassword = createTempPassword();
 
@@ -130,6 +139,23 @@ public class MemberService {
         }
     }
 
+    /**
+     * (회원 정보 변경)
+     * 비밀번호 변경 (비밀번호 암호화)
+     */
+    public void changePW(Member member, MemberPWDto memberPWDto) {
+        member.changePassword(encoder.encode(memberPWDto.getPassword()));
+    }
+
+    /**
+     * (회원 정보 변경)
+     * 로그인 아이디 및 이메일 정보로 멤버 식별
+     */
+    public boolean checkLoginIdAndEmail(String loginId, String email) {
+        return memberRepository.existsByLoginIdAndEmail(loginId, email);
+    }
+
+    // 임시 비밀번호 생성 메서드
     public String createTempPassword() {
         Random random = new Random();
         StringBuffer tempPassword = new StringBuffer();
@@ -149,9 +175,5 @@ public class MemberService {
             }
         }
         return tempPassword.toString();
-    }
-
-    public void changePW(Member member, MemberPWDto memberPWDto) {
-        member.changePassword(encoder.encode(memberPWDto.getPassword()));
     }
 }

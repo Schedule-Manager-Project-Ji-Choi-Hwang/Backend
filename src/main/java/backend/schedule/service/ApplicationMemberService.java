@@ -16,16 +16,28 @@ public class ApplicationMemberService {
 
     private final ApplicationMemberRepository applicationMemberRepository;
 
+    /**
+     * (신청 멤버 저장)
+     * 신청 멤버 저장
+     */
     public void save(Member member, StudyPost studyPost) {
         ApplicationMember applicationMember = new ApplicationMember(member, studyPost);
         studyPost.addApplicationMember(applicationMember);
         applicationMemberRepository.save(applicationMember);
     }
 
+    /**
+     * (스터디 멤버 저장)
+     * 신청 멤버 조회
+     */
     public Optional<ApplicationMember> findById(Long id) {
         return applicationMemberRepository.findById(id);
     }
 
+    /**
+     * (스터디 멤버 저장)
+     * 신청 멤버 삭제
+     */
     public void delete(ApplicationMember applicationMember) {
         applicationMemberRepository.delete(applicationMember);
     }

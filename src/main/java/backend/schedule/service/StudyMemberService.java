@@ -17,6 +17,7 @@ public class StudyMemberService {
 
     private final StudyMemberRepository studyMemberRepository;
 
+
     public void save(Member member, StudyPost studyPost) {
         StudyMember studyMember = new StudyMember(member, studyPost, ConfirmAuthor.MEMBER);
         studyPost.addStudyMember(studyMember);

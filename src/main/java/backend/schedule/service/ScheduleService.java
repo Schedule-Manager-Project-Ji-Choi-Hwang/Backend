@@ -31,18 +31,10 @@ public class ScheduleService {
 
     private final MemberRepository memberRepository;
 
-    //    public Schedule add(ScheduleReqDto scheduleReqDto) {
-//        Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
-//        if (optionalPersonalSubject.isPresent()) {
-//            PersonalSubject personalSubject = optionalPersonalSubject.get();
-//            Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), scheduleReqDto.getPeriod());
-//            schedule.setPersonalSubject(personalSubject);
-//            scheduleRepository.save(schedule);
-//            return schedule;
-//        } else {
-//            return null;
-//        }
-//    }
+    /**
+     * (스케쥴 저장)
+     * 단일 저장 및 반복 저장
+     */
     public String add(ScheduleReqDto scheduleReqDto) {
         Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
         if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
@@ -88,6 +80,10 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * (스케쥴 단일 조회)
+     * 스케쥴 단일 조회
+     */
     public Schedule findOne(Long scheduleId) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
         if (optionalSchedule.isPresent()) {
@@ -97,10 +93,18 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * (스케쥴 전체 조회)
+     * 스케쥴 전체 조회 (개인 과목 별)
+     */
     public List<Schedule> findSchedulesBySubject(Long subjectId) {
         return scheduleRepository.findAllByPersonalSubject(subjectId);
     }
 
+    /**
+     * (스케쥴 전체 조회)
+     * 스케쥴 전체 조회 (멤버별)
+     */
     public List<ScheduleResDto> findSchedulesByMemberId(Long memberId) {
         Member member = memberRepository.findByIdWithPersonalSubjects(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("Member not found"));
@@ -119,6 +123,10 @@ public class ScheduleService {
         return scheduleResDtos;
     }
 
+    /**
+     * (스케쥴 변경)
+     * 스케쥴 변경 (제목, 기간(period))
+     */
     public Schedule updateSchedule(Long scheduleId, ScheduleReqDto scheduleReqDto) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
         if (optionalSchedule.isPresent()) {
@@ -130,6 +138,10 @@ public class ScheduleService {
         }
     }
 
+    /**
+     * (스케쥴 삭제)
+     * 스케쥴 삭제
+     */
     public void deleteSchedule(Long scheduleId) {
         scheduleRepository.deleteById(scheduleId);
     }

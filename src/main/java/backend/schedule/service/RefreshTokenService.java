@@ -16,6 +16,10 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
 
+    /**
+     * (로그인)
+     * Refresh 토큰 저장
+     */
     public void save(String refreshToken, Long memberId) {
         RefreshToken createRefreshToken = RefreshToken.builder()
                 .token(refreshToken)
@@ -24,6 +28,10 @@ public class RefreshTokenService {
         refreshTokenRepository.save(createRefreshToken);
     }
 
+    /**
+     * (Access 토큰 재발급)
+     * 요청 헤더의 Refresh토큰과 DB Refresh토큰 일치 여부 확인
+     */
     public boolean matches(String refreshToken, Long memberId, String secretKey) {
         Optional<RefreshToken> findRefreshToken = refreshTokenRepository.findByMemberId(memberId);
 
