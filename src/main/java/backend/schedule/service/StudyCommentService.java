@@ -17,10 +17,6 @@ public class StudyCommentService {
     public StudyComment findById(Long id) {
         Optional<StudyComment> optionalStudyComment = studyCommentRepository.findById(id);
 
-        if (optionalStudyComment.isPresent()) {
-            return optionalStudyComment.get();
-        }
-
         return optionalStudyComment.orElse(null);
     }
 }

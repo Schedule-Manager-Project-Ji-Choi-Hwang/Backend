@@ -134,13 +134,18 @@ public class MemberService {
         Random random = new Random();
         StringBuffer tempPassword = new StringBuffer();
 
-        for (int i=0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             int index = random.nextInt(4);
 
             switch (index) {
-                case 0: tempPassword.append((char) ((int) random.nextInt(26) + 97)); break;
-                case 1: tempPassword.append((char) ((int) random.nextInt(26) + 65)); break;
-                default: tempPassword.append(random.nextInt(9));
+                case 0:
+                    tempPassword.append((char) ((int) random.nextInt(26) + 97));
+                    break;
+                case 1:
+                    tempPassword.append((char) ((int) random.nextInt(26) + 65));
+                    break;
+                default:
+                    tempPassword.append(random.nextInt(9));
             }
         }
         return tempPassword.toString();

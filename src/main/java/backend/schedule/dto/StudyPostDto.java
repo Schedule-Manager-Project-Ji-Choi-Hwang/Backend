@@ -6,6 +6,7 @@ import backend.schedule.enumlist.FieldTag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.Lob;
 import javax.validation.constraints.*;
@@ -16,8 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class StudyPostDto {
 
-    //String만 NotEmpty지원
-    @NotEmpty(message = "제목을 입력해 주세요.")
+    @NotBlank(message = "제목을 입력해 주세요.")
     private String studyName;
 
     private FieldTag tag;
@@ -26,18 +26,16 @@ public class StudyPostDto {
     private LocalDate period;
 
     @NotNull(message = "모집 인원을 설정해 주세요.")
-    @Min(value = 1, message = "1명 이상 설정 가능합니다.")
-    @Max(value = 20, message = "20명 이하 설정 가능합니다.")
+    @Range(min = 1, max = 20, message = "1명 이상 20명 이하만 모집 가능합니다.")
     private int recruitMember;
 
     @NotNull(message = "온라인/오프라인 설정")
     private boolean onOff;
 
-    @NotEmpty(message = "지역을 선택해 주세요.")
+    @NotBlank(message = "지역을 선택해 주세요.")
     private String area;
 
-//    @Lob
-    @NotEmpty(message = "글을 작성해 주세요.")
+    @NotBlank(message = "글을 작성해 주세요.")
     private String post;
 
     public StudyPostDto(StudyPost studyPost) {

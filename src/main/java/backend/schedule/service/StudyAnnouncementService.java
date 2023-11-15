@@ -1,7 +1,6 @@
 package backend.schedule.service;
 
 
-import backend.schedule.dto.StudyAnnouncementDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.repository.StudyAnnouncementRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +20,6 @@ public class StudyAnnouncementService {
 
     public StudyAnnouncement findById(Long id) {
         Optional<StudyAnnouncement> optionalStudyAnnouncement = studyAnnouncementRepository.findById(id);
-
-        if (optionalStudyAnnouncement.isPresent()) {
-            return optionalStudyAnnouncement.get();
-        }
 
         return optionalStudyAnnouncement.orElse(null);
     }

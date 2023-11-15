@@ -10,7 +10,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder
+@Builder//삭제
 @AllArgsConstructor
 @SequenceGenerator(name = "MEMBER_SEQ_GENERATOR",
         sequenceName = "MEMBER_SEQ")

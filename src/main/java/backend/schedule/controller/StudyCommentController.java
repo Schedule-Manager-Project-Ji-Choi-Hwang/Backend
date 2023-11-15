@@ -1,5 +1,6 @@
 package backend.schedule.controller;
 
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.dto.StudyCommentDto;
 import backend.schedule.dto.StudyCommentSetDto;
@@ -11,8 +12,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,15 +36,22 @@ public class StudyCommentController {
 //    public StudyCommentDto studyCommentForm(@RequestBody StudyCommentDto commentDto) {
 //        return commentDto;
 //    }
-
     @Transactional
     @PostMapping("/study-announcements/{id}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto commentDto,
-                                            BindingResult bindingResult, @PathVariable Long id) {
+                                              BindingResult bindingResult, @PathVariable Long id) {
         StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(id);
 
         if (findAnnouncement == null) {
-            return ResponseEntity.badRequest().body("공지를 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+        }
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
         StudyComment studyComment = new StudyComment(commentDto);
@@ -51,7 +65,7 @@ public class StudyCommentController {
         StudyComment comment = studyCommentService.findById(id);
 
         if (comment == null) {
-            return ResponseEntity.badRequest().body("댓글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
         }
 
         return ResponseEntity.ok().body(new StudyCommentDto(comment));
@@ -66,7 +80,15 @@ public class StudyCommentController {
         StudyComment comment = studyCommentService.findById(id);
 
         if (comment == null) {
-            return ResponseEntity.badRequest().body("댓글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
+        }
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
         comment.commentUpdate(commentDto);
@@ -81,14 +103,14 @@ public class StudyCommentController {
         StudyComment comment = studyCommentService.findById(commentId);
 
         if (findAnnouncement == null) {
-            return ResponseEntity.badRequest().body("공지를 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         } else if (comment == null) {
-            return ResponseEntity.badRequest().body("댓글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
         }
 
         findAnnouncement.removeStudyComment(comment);
         //쿼리 4번 개선방법 생각
-        return ResponseEntity.ok().body("삭제되었습니다.");
+        return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }
 
     @GetMapping("/study-announcements/{id}/comments") //전체 공지 조회

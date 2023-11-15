@@ -1,9 +1,7 @@
 package backend.schedule.controller;
 
 
-import backend.schedule.dto.Result;
-import backend.schedule.dto.SearchPostCondition;
-import backend.schedule.dto.StudyPostDto;
+import backend.schedule.dto.*;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
@@ -11,11 +9,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static backend.schedule.enumlist.ErrorMessage.DELETE;
+import static backend.schedule.enumlist.ErrorMessage.POST;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,21 +32,20 @@ public class StudyPostController {
 //    public StudyPostDto studyBoardForm(@RequestBody StudyPostDto postDto) {
 //        return postDto;
 //    }
-
     @PostMapping("/studyboard/post") // 등록 버튼 누르면 post 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardPost(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(objectError -> objectError.getDefaultMessage())
+                    .map(ObjectError::getDefaultMessage)
                     .collect(Collectors.toList());
 
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
         Long savedPostId = studyPostService.save(studyPostDto);
 
-        return ResponseEntity.ok().body(savedPostId); //dto 반환하기
+        return ResponseEntity.ok().body(new ReturnIdDto(savedPostId));
     }
 
     @GetMapping({"/studyboard/{id}", "/studyboard/{id}/edit"})
@@ -52,7 +53,7 @@ public class StudyPostController {
         StudyPost findStudyPost = studyPostService.findById(id);
 
         if (findStudyPost == null) {
-            return ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         }
 
         StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
@@ -63,16 +64,24 @@ public class StudyPostController {
     @Transactional
     @PatchMapping("/studyboard/{id}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
-                                         @PathVariable Long id) {
+                                              @PathVariable Long id) {
         StudyPost findStudyPost = studyPostService.findById(id);
 
         if (findStudyPost == null) {
-            return ResponseEntity.badRequest().body("게시글을 수정할 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+        }
+
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
         findStudyPost.updatePost(studyPostDto);
 
-        return ResponseEntity.ok().body(id);
+        return ResponseEntity.ok().body(new ReturnIdDto(id));
     }
 
     /**
@@ -81,7 +90,7 @@ public class StudyPostController {
      */
     @GetMapping("/studyboard") //스터디 게시글 전체 조회
     public ResponseEntity<Result> studyBoardLists(@RequestParam(required = false) Long lastPostId,
-                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
+                                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
         return ResponseEntity.ok().body(new Result(studyPostService.search(lastPostId, condition, pageable)));
     }
 
@@ -89,6 +98,6 @@ public class StudyPostController {
     public ResponseEntity<?> studyBoardDelete(@PathVariable Long id) {
         studyPostService.delete(id);
 
-        return ResponseEntity.ok().body("삭제되었습니다.");
+        return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }
 }

@@ -7,7 +7,6 @@ import backend.schedule.repository.StudyScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -25,19 +24,10 @@ public class StudyScheduleService {
     public StudySchedule findById(Long id) {
         Optional<StudySchedule> optionalStudySchedule = studyScheduleRepository.findById(id);
 
-        if (optionalStudySchedule.isPresent()) {
-            return optionalStudySchedule.get();
-        }
-
         return optionalStudySchedule.orElse(null);
     }
 
     public void delete(StudySchedule schedule) {
         studyScheduleRepository.delete(schedule);
     }
-
-    public List<StudySchedule> findAll() {
-        return studyScheduleRepository.findAll();
-    }
-
 }

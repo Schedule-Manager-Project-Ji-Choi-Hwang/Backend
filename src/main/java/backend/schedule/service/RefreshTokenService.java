@@ -18,9 +18,9 @@ public class RefreshTokenService {
 
     public void save(String refreshToken, Long memberId) {
         RefreshToken createRefreshToken = RefreshToken.builder()
-                                            .token(refreshToken)
-                                            .memberId(memberId)
-                                            .build();
+                .token(refreshToken)
+                .memberId(memberId)
+                .build();
         refreshTokenRepository.save(createRefreshToken);
     }
 

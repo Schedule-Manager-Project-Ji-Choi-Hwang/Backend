@@ -33,7 +33,7 @@ public class InitData {
         @Transactional
         public void init() {
             for (int i = 0; i < 10000; i++) {
-                em.persist(new StudyPost(""+i, LocalDate.now()));
+                em.persist(new StudyPost("" + i, LocalDate.now()));
             }
         }
     }

@@ -4,8 +4,6 @@ package backend.schedule.service;
 import backend.schedule.dto.SearchPostCondition;
 import backend.schedule.dto.StudyPostDto;
 import backend.schedule.dto.StudyPostResponseDto;
-import backend.schedule.entity.ApplicationMember;
-import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,15 +28,7 @@ public class StudyPostService {
     public StudyPost findById(Long id) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findById(id);
 
-        if (optionalStudyPost.isPresent()) {
-            return optionalStudyPost.get();
-        }
-
         return optionalStudyPost.orElse(null);
-    }
-
-    public Slice<StudyPost> findAll(Pageable pageable) {
-        return studyPostRepository.findAll(pageable);
     }
 
     public Slice<StudyPostResponseDto> search(Long lastPostId, SearchPostCondition condition, Pageable pageable) {

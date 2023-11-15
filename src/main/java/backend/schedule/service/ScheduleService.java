@@ -31,7 +31,7 @@ public class ScheduleService {
 
     private final MemberRepository memberRepository;
 
-//    public Schedule add(ScheduleReqDto scheduleReqDto) {
+    //    public Schedule add(ScheduleReqDto scheduleReqDto) {
 //        Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
 //        if (optionalPersonalSubject.isPresent()) {
 //            PersonalSubject personalSubject = optionalPersonalSubject.get();
@@ -108,9 +108,9 @@ public class ScheduleService {
         List<ScheduleResDto> scheduleResDtos = new ArrayList<>();
 
         List<PersonalSubject> personalSubjects = memberRepository.findPersonalSubjectsWithSchedulesByMemberId(memberId);
-        for (PersonalSubject personalSubject: personalSubjects) {
+        for (PersonalSubject personalSubject : personalSubjects) {
             String subjectName = personalSubject.getSubjectName();
-            for (Schedule schedule: personalSubject.getSchedules()) {
+            for (Schedule schedule : personalSubject.getSchedules()) {
                 ScheduleResDto schedulesResDto = new ScheduleResDto(subjectName, schedule.getScheduleName(), schedule.getPeriod());
                 scheduleResDtos.add(schedulesResDto);
             }
