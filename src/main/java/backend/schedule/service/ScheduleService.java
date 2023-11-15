@@ -106,8 +106,8 @@ public class ScheduleService {
      * 스케쥴 전체 조회 (멤버별)
      */
     public List<ScheduleResDto> findSchedulesByMemberId(Long memberId) {
-        Member member = memberRepository.findByIdWithPersonalSubjects(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("Member not found"));
+//        Member member = memberRepository.findByIdWithPersonalSubjects(memberId)
+//                .orElseThrow(() -> new EntityNotFoundException("Member not found"));
 
         List<ScheduleResDto> scheduleResDtos = new ArrayList<>();
 

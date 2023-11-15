@@ -6,10 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class FindLoginIdResDto {
 
     private String loginId;
-
-    private String message;
 }

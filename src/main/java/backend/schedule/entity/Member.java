@@ -1,6 +1,7 @@
 package backend.schedule.entity;
 
 
+import backend.schedule.dto.MemberJoinReqDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,7 +11,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Builder//삭제
 @AllArgsConstructor
 @SequenceGenerator(name = "MEMBER_SEQ_GENERATOR",
         sequenceName = "MEMBER_SEQ")
@@ -63,5 +63,12 @@ public class Member extends BaseTimeEntity{
 
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    public Member(MemberJoinReqDto memberJoinReqDto, String encodedPassword) {
+        this.loginId = memberJoinReqDto.getLoginId();
+        this.password = encodedPassword;
+        this.nickname = memberJoinReqDto.getNickname();
+        this.email = memberJoinReqDto.getEmail();
     }
 }

@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Setter
-public class MemberPWDto {
+public class MemberPasswordReqDto {
 
     private String password;
 }

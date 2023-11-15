@@ -46,10 +46,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         String loginId = JwtTokenUtil.getLoginId(token, secretKey);
 
-        Member loginMember = memberService.getLoginMemberByLoginId(loginId);
+//        Member loginMember = memberService.getLoginMemberByLoginId(loginId);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                loginMember.getLoginId(), null, List.of(new SimpleGrantedAuthority("USER")));
+                loginId, null, List.of(new SimpleGrantedAuthority("USER")));
 
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

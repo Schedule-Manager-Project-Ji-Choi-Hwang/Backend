@@ -8,7 +8,6 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Builder
 @SequenceGenerator(name = "REFRESHTOKEN_SEQ_GENERATOR",
         sequenceName = "REFRESHTOKEN_SEQ")
 public class RefreshToken {
@@ -23,4 +22,9 @@ public class RefreshToken {
 
     @Column(name = "token")
     private String token;
+
+    public RefreshToken(Long memberId, String token) {
+        this.memberId = memberId;
+        this.token = token;
+    }
 }

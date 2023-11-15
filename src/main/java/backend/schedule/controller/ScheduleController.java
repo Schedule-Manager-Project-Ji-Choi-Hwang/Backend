@@ -27,7 +27,15 @@ public class ScheduleController {
 
     /**
      * 스케쥴 저장 기능
-     * 요청 횟수 : 회
+     * 요청 데이터 : 일정 제목, 날짜, 과목 이름(과목 id로 대체 예정)
+     * (단일)요청 횟수 : 2회
+     *          1. 개인 과목 조회
+     *          2. 일정 추가
+     *
+     * 요청 데이터 : 일정 제목, 시작 날짜, 종료 날짜, 반복(repeat), 과목 이름(과목 id로 대체 예정)
+     * (반복)요청 횟수 : 1 + N회
+     *          1. 개인 과목 조회
+     *          2. 일정 갯수 만큼 추가
      */
     @PostMapping("/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
     public ResponseEntity<?> add(@RequestBody ScheduleReqDto scheduleReqDto) {
@@ -43,7 +51,11 @@ public class ScheduleController {
 
     /**
      * 스케쥴 전체 조회 기능 (멤버별)
-     * 요청 횟수 : 회
+     * 요청 데이터 : ''
+     * 요청 횟수 : 3회
+     *          1. 로그인 아이디 이용해 멤버 조회
+     *          2. 멤버-개인과목 fetch join
+     *          3. 개인과목-일정 fetch join
      */
     @GetMapping("/schedules")
     public ResponseEntity<?> memberBySchedules(HttpServletRequest request) {
@@ -62,9 +74,12 @@ public class ScheduleController {
 
     /**
      * 스케쥴 변경 기능 (제목, 기간(period))
-     * 요청 횟수 : 회
+     * 요청 데이터 : 일정 제목, 날짜(period)
+     * 요청 횟수 : 2회
+     *          1. 일정 id 이용해 일정 조회
+     *          2. 일정 제목 변경
      */
-    @PostMapping("/schedules/{id}/edit")
+    @PatchMapping("/schedules/{id}/edit")
     public ResponseEntity<?> updateSchedule(@PathVariable Long id, @RequestBody ScheduleReqDto scheduleReqDto) {
         // 스케쥴 변경
         scheduleService.updateSchedule(id, scheduleReqDto);
@@ -75,9 +90,12 @@ public class ScheduleController {
 
     /**
      * 스케쥴 삭제 기능
-     * 요청 횟수 : 회
+     * 요청 데이터 : 일정 id(경로)
+     * 요청 횟수 : 2회
+     *          1. 일정 id 이용해 일정 조회
+     *          2. 일정 삭제
      */
-    @PostMapping("/schedules/{id}/delete")
+    @DeleteMapping("/schedules/{id}/delete")
     public ResponseEntity<?> deleteSchedule(@PathVariable Long id) {
         // 스케쥴 삭제
         scheduleService.deleteSchedule(id);

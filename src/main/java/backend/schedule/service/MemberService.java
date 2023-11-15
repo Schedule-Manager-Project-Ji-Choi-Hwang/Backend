@@ -30,6 +30,7 @@ public class MemberService {
      * loginId 중복 체크
      */
     public boolean checkLoginIdDuplicate(String loginId) {
+        // 로그인 아이디 중복 체크
         return memberRepository.existsByLoginId(loginId);
     }
 
@@ -38,6 +39,7 @@ public class MemberService {
      * nickname 중복 체크
      */
     public boolean checkNicknameDuplicate(String nickname) {
+        // 닉네임 중복 체크
         return memberRepository.existsByNickname(nickname);
     }
 
@@ -45,27 +47,31 @@ public class MemberService {
      * (회원가입)
      * 회원 저장 (비밀번호 암호화)
      */
-    public void join(MemberJoinDto memberJoinDto) {
-        memberRepository.save(memberJoinDto.toEntity(encoder.encode(memberJoinDto.getPassword())));
+    public Long join(MemberJoinReqDto memberJoinReqDto) {
+        // 비밀번호 암호화
+        String encodedPassword = encoder.encode(memberJoinReqDto.getPassword());
+
+        // 비밀번호 저장 및 id값 반환
+        return memberRepository.save(new Member(memberJoinReqDto, encodedPassword)).getId();
     }
 
     /**
      * (로그인)
      * 로그인 아이디 이용 멤버 식별 및 비밀번호 일치 여부 확인
      */
-    public Member login(MemberLoginDto memberLoginDto) {
-        Optional<Member> optionalMember = memberRepository.findByLoginId(memberLoginDto.getLoginId());
+    public Member login(MemberLoginReqDto memberLoginReqDto) {
+        // 로그인 아이디 이용 멤버 조회
+        Member findMember = getLoginMemberByLoginId(memberLoginReqDto.getLoginId());
 
-        Member member = optionalMember.orElse(null);
-
-        if (member == null) {
+        if (findMember == null) {
             return null;
         }
 
-        if (!encoder.matches(memberLoginDto.getPassword(), member.getPassword())) {
+        // 비밀번호 비교
+        if (!encoder.matches(memberLoginReqDto.getPassword(), findMember.getPassword())) {
             return null;
         }
-        return member;
+        return findMember;
     }
 
     /**
@@ -77,6 +83,7 @@ public class MemberService {
             return null;
         }
 
+        // 로그인 아이디 이용해 멤버 조회
         Optional<Member> optionalMember = memberRepository.findByLoginId(loginId);
 
         return optionalMember.orElse(null);
@@ -86,48 +93,34 @@ public class MemberService {
      * (아이디 찾기)
      * 이메일 이용 멤버 식별
      */
-    public FindLoginIdResDto findLoginId(String email) {
+    public Member findMemberByEmail(String email) {
+        // 이메일 이용해 멤버 조회
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
 
-        if (optionalMember.isEmpty()) {
-            return FindLoginIdResDto.builder()
-                    .loginId(null)
-                    .message("해당 이메일로 가입된 아이디가 없습니다.")
-                    .build();
-        }
-
-        Member savedMember = optionalMember.get();
-
-        return FindLoginIdResDto.builder()
-                .loginId(savedMember.getLoginId())
-                .message(null)
-                .build();
+        return  optionalMember.orElse(null);
     }
 
     /**
      * (비밀번호 찾기)
      * 임시 비밀번호 발급 및 이메일 발송
      */
-    public String sendMail(EmailMessageDto emailMessageDto, String type) {
+    public String sendMail(FindPasswordReqDto findPasswordReqDto, Member findMember) {
+        // 임시 비밀번호 생성
         String tempPassword = createTempPassword();
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
-        if (type.equals("password")) {
-            Optional<Member> optionalMember = memberRepository.findByEmail(emailMessageDto.getTo());
-            if (optionalMember.isEmpty()) {
-                return "fail";
-            } else {
-                Member findMember = optionalMember.get();
-                findMember.changePassword(encoder.encode(tempPassword));
-            }
-        }
+        // 비밀번호 변경 (임시 비밀번호)(비밀번호 암호화)
+        findMember.changePassword(encoder.encode(tempPassword));
 
         try {
+            // 이메일 설정
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
-            mimeMessageHelper.setTo(emailMessageDto.getTo());
-            mimeMessageHelper.setSubject(emailMessageDto.getSubject());
+            mimeMessageHelper.setTo(findPasswordReqDto.getEmail());
+            mimeMessageHelper.setSubject("[일정관리 앱] 임시 비밀번호 발급");
             mimeMessageHelper.setText(tempPassword);
+
+            // 이메일 발송
             javaMailSender.send(mimeMessage);
 
             log.info("이메일 발송 성공");
@@ -143,16 +136,20 @@ public class MemberService {
      * (회원 정보 변경)
      * 비밀번호 변경 (비밀번호 암호화)
      */
-    public void changePW(Member member, MemberPWDto memberPWDto) {
-        member.changePassword(encoder.encode(memberPWDto.getPassword()));
+    public void changePW(Member member, MemberPasswordReqDto memberPasswordReqDto) {
+        // 멤버 비밀번호 변경(비밀번호 암호화)
+        member.changePassword(encoder.encode(memberPasswordReqDto.getPassword()));
     }
 
     /**
      * (회원 정보 변경)
      * 로그인 아이디 및 이메일 정보로 멤버 식별
      */
-    public boolean checkLoginIdAndEmail(String loginId, String email) {
-        return memberRepository.existsByLoginIdAndEmail(loginId, email);
+    public Member findMemberByLoginIdAndEmail(String loginId, String email) {
+        // 로그인 아이디 및 이메일 이용해 멤버 조회
+        Optional<Member> findMember = memberRepository.findByLoginIdAndEmail(loginId, email);
+
+        return findMember.orElse(null);
     }
 
     // 임시 비밀번호 생성 메서드

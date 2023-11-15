@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
-public class MemberLoginDto {
+public class MemberLoginReqDto {
 
     @NotBlank(message = "로그인 아이디가 비어있습니다.")
     private String loginId;
