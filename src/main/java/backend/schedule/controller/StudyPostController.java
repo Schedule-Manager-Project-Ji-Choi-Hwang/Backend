@@ -32,6 +32,11 @@ public class StudyPostController {
 //    public StudyPostDto studyBoardForm(@RequestBody StudyPostDto postDto) {
 //        return postDto;
 //    }
+
+    /**
+     * 스터디 게시글 작성
+     * Query: 1번
+     */
     @PostMapping("/studyboard/post") // 등록 버튼 누르면 post 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardPost(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult) {
 
@@ -48,6 +53,10 @@ public class StudyPostController {
         return ResponseEntity.ok().body(new ReturnIdDto(savedPostId));
     }
 
+    /**
+     * 스터디 게시글 조회
+     * Query: 1번
+     */
     @GetMapping({"/studyboard/{id}", "/studyboard/{id}/edit"})
     public ResponseEntity<?> studyBoardUpdateForm(@PathVariable Long id) {
         StudyPost findStudyPost = studyPostService.findById(id);
@@ -61,6 +70,21 @@ public class StudyPostController {
         return ResponseEntity.ok().body(studyPostDto);
     }
 
+    /**
+     * @param lastPostId 마지막 조회 id (처음 조회 시는 null)
+     * @param condition  게시글 검색 조건 (게시글 제목)
+     * Query: Query Dsl이용 1번
+     */
+    @GetMapping("/studyboard") //스터디 게시글 전체 조회
+    public ResponseEntity<Result> studyBoardLists(@RequestParam(required = false) Long lastPostId,
+                                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
+        return ResponseEntity.ok().body(new Result(studyPostService.search(lastPostId, condition, pageable)));
+    }
+
+    /**
+     * 스터디 게시글 수정
+     * Query: 2번
+     */
     @Transactional
     @PatchMapping("/studyboard/{id}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
@@ -85,15 +109,9 @@ public class StudyPostController {
     }
 
     /**
-     * @param lastPostId 마지막 조회 id (처음 조회 시는 null)
-     * @param condition  게시글 검색 조건 (게시글 제목)
+     * 스터디 게시글 삭제
+     * Query: 3번
      */
-    @GetMapping("/studyboard") //스터디 게시글 전체 조회
-    public ResponseEntity<Result> studyBoardLists(@RequestParam(required = false) Long lastPostId,
-                                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
-        return ResponseEntity.ok().body(new Result(studyPostService.search(lastPostId, condition, pageable)));
-    }
-
     @DeleteMapping("/studyboard/{id}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
     public ResponseEntity<?> studyBoardDelete(@PathVariable Long id) {
         studyPostService.delete(id);

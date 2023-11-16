@@ -36,6 +36,11 @@ public class StudyScheduleController {
 //    public StudyScheduleDto studyScheduleForm(@RequestBody StudyScheduleDto scheduleDto) {
 //        return scheduleDto;
 //    }
+
+    /**
+     * 스터디 일정 추가
+     * Query: 2번
+     */
     @Transactional
     @PostMapping("/studyboard/{boardId}/study-schedule/add")
     public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long boardId) {
@@ -59,6 +64,10 @@ public class StudyScheduleController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 스터디 일정 조회
+     * Query: 1번
+     */
     @GetMapping({"/studyboard/{boardId}/study-schedule/{id}/edit", "/studyboard/{boardId}/study-schedule/{id}"})
     //아무나 일정을 볼 수 있는 문제있음
     public ResponseEntity<?> studyScheduleUpdateForm(@PathVariable Long id) {
@@ -73,6 +82,21 @@ public class StudyScheduleController {
         return ResponseEntity.ok().body(studyScheduleDto);
     }
 
+    /**
+     * 스터디 일정 전체조회
+     * Query: Fetch join이용 1번
+     */
+    @GetMapping("/studyboard/{boardId}/study-schedules")
+    public ResponseEntity<Result> studyScheduleList(@PathVariable Long boardId) {
+        StudyPost studyPost = studyPostService.studyScheduleList(boardId);//optional 쓸 수 있는지 해보기
+
+        return ResponseEntity.ok().body(new Result(new StudyPostScheduleSetDto(studyPost)));
+    }
+
+    /**
+     * 스터디 일정 수정
+     * Query: 2번
+     */
     @Transactional
     @PatchMapping("/studyboard/{boardId}/study-schedule/{id}/edit")
     public ResponseEntity<?> studyScheduleUpdate(
@@ -98,6 +122,10 @@ public class StudyScheduleController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 스터디 일정 삭제
+     * Query: 3번
+     */
     @Transactional
     @DeleteMapping("/studyboard/{boardId}/study-schedule/{id}/delete")
     public ResponseEntity<?> studyScheduleDelete(@PathVariable Long boardId, @PathVariable Long id) {
@@ -113,12 +141,5 @@ public class StudyScheduleController {
         findPost.removeStudySchedule(findSchedule);
         //쿼리 4번 개선방법 생각
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
-    }
-
-    @GetMapping("/studyboard/{boardId}/study-schedules")
-    public ResponseEntity<Result> studyScheduleList(@PathVariable Long boardId) {
-        StudyPost studyPost = studyPostService.studyScheduleList(boardId);//optional 쓸 수 있는지 해보기
-
-        return ResponseEntity.ok().body(new Result(new StudyPostScheduleSetDto(studyPost)));
     }
 }
