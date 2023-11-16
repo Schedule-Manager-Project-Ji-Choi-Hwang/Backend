@@ -33,6 +33,11 @@ public class StudyAnnouncementController {
 //    public StudyAnnouncementDto studyAnnouncementForm(@RequestBody StudyAnnouncementDto announcementDto) {
 //        return announcementDto;
 //    }
+
+    /**
+     * 스터디 공지 추가
+     * Query: 2번
+     */
     @Transactional
     @PostMapping("/studyboard/{boardId}/study-announcements/add")//스터디 공지 추가
     public ResponseEntity<?> studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
@@ -58,6 +63,10 @@ public class StudyAnnouncementController {
         return ResponseEntity.ok().body(new ReturnIdDto(announcementId));
     }
 
+    /**
+     * 스터디 공지 수정 조회?
+     * Query: 1번
+     */
     @GetMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
     public ResponseEntity<?> studyAnnouncementUpdateForm(@PathVariable Long id, @PathVariable Long boardId) {
         StudyAnnouncement announcement = studyAnnouncementService.findById(id);
@@ -69,6 +78,32 @@ public class StudyAnnouncementController {
         return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
     }
 
+    /**
+     * 스터디 공지 조회
+     * Query: Fetch join이용 1번
+     */
+    @GetMapping("/studyboard/{boardId}/study-announcements/{id}") //공지 단건 조회
+    public Result studyAnnouncement(@PathVariable Long boardId, @PathVariable Long id) {
+        StudyPost studyPost = studyPostService.studyAnnouncement(boardId, id);
+
+        return new Result(new StudyAnnouncementSetDto(studyPost));
+    }
+
+    /**
+     * 스터디 공지 전체 조회
+     * Query: Fetch join이용 1번
+     */
+    @GetMapping("/studyboard/{boardId}/study-announcements") //전체 공지 조회
+    public Result studyAnnouncementList(@PathVariable Long boardId) {
+        StudyPost studyPost = studyPostService.studyAnnouncements(boardId);
+
+        return new Result(new StudyAnnouncementSetDto(studyPost));
+    }
+
+    /**
+     * 스터디 공지 수정
+     * Query: 2번
+     */
     @Transactional
     @PatchMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
     public ResponseEntity<?> studyAnnouncementUpdate(
@@ -94,6 +129,10 @@ public class StudyAnnouncementController {
         return ResponseEntity.ok().body(new ReturnIdDto(boardId, id));
     }
 
+    /**
+     * 스터디 공지 삭제
+     * Query: 5번
+     */
     @Transactional
     @DeleteMapping("/studyboard/{boardId}/study-announcements/{id}/delete")
     public ResponseEntity<?> studyAnnouncementDelete(@PathVariable Long boardId, @PathVariable Long id) {
@@ -108,21 +147,7 @@ public class StudyAnnouncementController {
 
         findPost.removeStudyAnnouncement(announcement);
         studyAnnouncementService.delete(id);
-        //쿼리 6번 개선방법 생각
+        
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
-    }
-
-    @GetMapping("/studyboard/{boardId}/study-announcements/{id}") //공지 단건 조회
-    public Result studyAnnouncement(@PathVariable Long boardId, @PathVariable Long id) {
-        StudyPost studyPost = studyPostService.studyAnnouncement(boardId, id);
-
-        return new Result(new StudyAnnouncementSetDto(studyPost));
-    }
-
-    @GetMapping("/studyboard/{boardId}/study-announcements") //전체 공지 조회
-    public Result studyAnnouncementList(@PathVariable Long boardId) {
-        StudyPost studyPost = studyPostService.studyAnnouncements(boardId);
-
-        return new Result(new StudyAnnouncementSetDto(studyPost));
     }
 }
