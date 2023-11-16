@@ -147,7 +147,7 @@ public class StudyAnnouncementController {
 
         findPost.removeStudyAnnouncement(announcement);
         studyAnnouncementService.delete(id);
-        
+
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }
 }
