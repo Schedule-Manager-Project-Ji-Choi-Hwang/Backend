@@ -12,4 +12,6 @@ public class ErrorMessage {
 
     public static final String DELETE = "삭제되었습니다.";
 
+    public static final String APPLICATION = "신청 회원을 찾을 수 없습니다.";
+
 }

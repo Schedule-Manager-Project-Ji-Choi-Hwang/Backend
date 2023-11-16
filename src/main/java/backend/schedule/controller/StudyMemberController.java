@@ -1,16 +1,21 @@
 package backend.schedule.controller;
 
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +32,10 @@ public class StudyMemberController {
     @PostMapping("/studyboard/{studyboardId}/applicationmember/{applicationMemberId}/add")
     public ResponseEntity<?> save(@PathVariable Long studyboardId, @PathVariable Long applicationMemberId) {
         // 신청 멤버 조회
-        ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId).get();
+        ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId);
+        if (applicationMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(APPLICATION));
+        }
 
         // 멤버 획득
         Member member = applicationMember.getMember();
@@ -42,9 +50,13 @@ public class StudyMemberController {
         studyMemberService.save(member, studyPost);
 
         // 신청 멤버 삭제
-        applicationMemberService.delete(applicationMember);
+        applicationMemberService.rejectMember(applicationMemberId, studyPost, applicationMember);
 
         // 응답
         return ResponseEntity.ok().body("스터디 멤버에 등록 성공!");
     }
+
+    // 조회
+
+    // 삭제
 }

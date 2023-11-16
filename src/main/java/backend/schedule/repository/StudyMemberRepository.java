@@ -2,6 +2,7 @@ package backend.schedule.repository;
 
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
+import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,6 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     Optional<StudyMember> findByMemberAndStudyPost(@Param("memberId") Long memberId,
                                                    @Param("studyPostId") Long studyPostId,
                                                    @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
+
+    boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
 }

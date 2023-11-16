@@ -77,6 +77,10 @@ public class StudyPost extends BaseTimeEntity {
         studyAnnouncements.remove(studyAnnouncement);
     }
 
+    public void removeApplicationMember(ApplicationMember applicationMember) {
+        applicationMembers.remove(applicationMember);
+    }
+
     protected StudyPost() {
     }
 
