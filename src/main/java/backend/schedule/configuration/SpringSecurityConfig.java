@@ -5,6 +5,7 @@ import backend.schedule.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -36,6 +37,10 @@ public class SpringSecurityConfig {
         config.setAllowedOrigins(Arrays.asList("http://localhost:19006"));
         config.setAllowedMethods(Arrays.asList("HEAD", "POST", "GET", "DELETE", "PUT"));
         config.setAllowedHeaders(Arrays.asList("*"));
+
+        config.setExposedHeaders(Arrays.asList("Your-Custom-Header-1", "Your-Custom-Header-2"));
+        //응답 헤더 노출
+        config.setExposedHeaders(Arrays.asList(HttpHeaders.AUTHORIZATION, "Refresh-Token"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
