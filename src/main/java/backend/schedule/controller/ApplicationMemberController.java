@@ -105,7 +105,7 @@ public class ApplicationMemberController {
     }
 
     /**
-     * 신청 멤버 전체 조회 기능
+     * 신청 멤버 삭제 기능
      * 요청 횟수 : 회
      */
     @DeleteMapping("/studyboard/{studyboardId}/application-members/{apMemberId}/delete")

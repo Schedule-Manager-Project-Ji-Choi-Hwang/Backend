@@ -1,7 +1,9 @@
 package backend.schedule.controller;
 
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.ScheduleReqDto;
 import backend.schedule.dto.ScheduleResDto;
+import backend.schedule.entity.Schedule;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.ScheduleService;
@@ -52,10 +54,9 @@ public class ScheduleController {
     /**
      * 스케쥴 전체 조회 기능 (멤버별)
      * 요청 데이터 : ''
-     * 요청 횟수 : 3회
+     * 요청 횟수 : 2회
      *          1. 로그인 아이디 이용해 멤버 조회
-     *          2. 멤버-개인과목 fetch join
-     *          3. 개인과목-일정 fetch join
+     *          2. 개인과목-일정 fetch join
      */
     @GetMapping("/schedules")
     public ResponseEntity<?> memberBySchedules(HttpServletRequest request) {
@@ -82,8 +83,11 @@ public class ScheduleController {
     @PatchMapping("/schedules/{id}/edit")
     public ResponseEntity<?> updateSchedule(@PathVariable Long id, @RequestBody ScheduleReqDto scheduleReqDto) {
         // 스케쥴 변경
-        scheduleService.updateSchedule(id, scheduleReqDto);
-        
+        Schedule schedule = scheduleService.updateSchedule(id, scheduleReqDto);
+        if (schedule == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail("일정을 찾을 수 없습니다."));
+        }
+
         // 응답
         return ResponseEntity.ok("변경 되었습니다.");
     }

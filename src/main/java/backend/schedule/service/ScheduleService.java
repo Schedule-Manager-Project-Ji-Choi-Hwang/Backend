@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -39,13 +40,14 @@ public class ScheduleService {
         Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findBySubjectName(scheduleReqDto.getSubjectName());
         if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
             PersonalSubject personalSubject = optionalPersonalSubject.get();
+
             if (scheduleReqDto.getPeriod() != null) { // 단일 등록
                 Schedule schedule = new Schedule(scheduleReqDto.getScheduleName(), scheduleReqDto.getPeriod());
                 schedule.setPersonalSubject(personalSubject);
                 scheduleRepository.save(schedule);
                 return "성공";
+
             } else { // 반복 등록
-//                List<LocalDate> dates = new ArrayList<>();
                 LocalDate nextDate = scheduleReqDto.getStartDate(); // 저장될 날짜를 가지고 있는 놈. for문의 i 변수같은 존재.
 
                 Schedule schedule1 = new Schedule(scheduleReqDto.getScheduleName(), nextDate);
@@ -53,7 +55,6 @@ public class ScheduleService {
                 scheduleRepository.save(schedule1);
 
                 while (!nextDate.isAfter(scheduleReqDto.getEndDate())) { // nextDate가 endDate를 지났는가? (서로 날짜가 같으면 통과해버림. 지나야 반복 종료됨)
-//                    dates.add(nextDate);
 
                     switch (scheduleReqDto.getRepeat()) {
                         case "DAILY":
@@ -106,19 +107,9 @@ public class ScheduleService {
      * 스케쥴 전체 조회 (멤버별)
      */
     public List<ScheduleResDto> findSchedulesByMemberId(Long memberId) {
-//        Member member = memberRepository.findByIdWithPersonalSubjects(memberId)
-//                .orElseThrow(() -> new EntityNotFoundException("Member not found"));
-
-        List<ScheduleResDto> scheduleResDtos = new ArrayList<>();
-
-        List<PersonalSubject> personalSubjects = memberRepository.findPersonalSubjectsWithSchedulesByMemberId(memberId);
-        for (PersonalSubject personalSubject : personalSubjects) {
-            String subjectName = personalSubject.getSubjectName();
-            for (Schedule schedule : personalSubject.getSchedules()) {
-                ScheduleResDto schedulesResDto = new ScheduleResDto(subjectName, schedule.getScheduleName(), schedule.getPeriod());
-                scheduleResDtos.add(schedulesResDto);
-            }
-        }
+        List<ScheduleResDto> scheduleResDtos = memberRepository.findPersonalSubjectsWithSchedulesByMemberId(memberId).stream()
+                .map(ScheduleResDto::new)
+                .collect(Collectors.toList());
 
         return scheduleResDtos;
     }

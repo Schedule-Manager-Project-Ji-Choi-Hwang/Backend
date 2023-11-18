@@ -152,6 +152,14 @@ public class MemberService {
         return findMember.orElse(null);
     }
 
+    /**
+     * (회원 탈퇴)
+     * 회원 삭제
+     */
+    public void deleteMember(Member member) {
+        memberRepository.delete(member);
+    }
+
     // 임시 비밀번호 생성 메서드
     public String createTempPassword() {
         Random random = new Random();

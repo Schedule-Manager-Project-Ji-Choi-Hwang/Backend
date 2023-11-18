@@ -1,6 +1,7 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.StudyMemberResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
@@ -9,7 +10,9 @@ import backend.schedule.repository.StudyMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,11 +27,14 @@ public class StudyMemberService {
         studyMemberRepository.save(studyMember);
     }
 
-    public Optional<StudyMember> findById(Long id) {
-        return studyMemberRepository.findById(id);
+    public StudyMember findById(Long StudyMemberId) {
+        Optional<StudyMember> optionalStudyMember = studyMemberRepository.findById(StudyMemberId);
+
+        return optionalStudyMember.orElse(null);
     }
 
-    public void delete(StudyMember studyMember) {
+    public void delete(StudyPost studyPost, StudyMember studyMember) {
+        studyPost.removeStudyMember(studyMember);
         studyMemberRepository.delete(studyMember);
     }
 
@@ -41,6 +47,19 @@ public class StudyMemberService {
         } else {
             return null;
         }
+    }
+
+    public List<StudyMemberResDto> findStudyMembers(Long studyboardId) {
+        Optional<StudyPost> optionalStudyPost = studyMemberRepository.studyMembersByStudyboardId(studyboardId);
+        if (optionalStudyPost.isPresent()) {
+            StudyPost studyPost = optionalStudyPost.get();
+            List<StudyMemberResDto> studyMemberResDtos = studyPost.getStudyMembers().stream()
+                    .map(StudyMemberResDto::new)
+                    .collect(Collectors.toList());
+            return studyMemberResDtos;
+        }
+
+        return null;
     }
 
 }

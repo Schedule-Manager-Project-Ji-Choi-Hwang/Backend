@@ -256,4 +256,26 @@ public class MemberController {
             return true;
         }
     }
+
+    /**
+     * 회원 탈퇴 기능
+     * 요청 데이터 : AccessToken(헤더)
+     * 요청 횟수 : 회
+     */
+
+    @DeleteMapping("/member/delete")
+    public ResponseEntity<?> deleteMember(HttpServletRequest request) {
+        // 토큰 추출 및 멤버 식별
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String secretKey = mySecretkey;
+        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail("회원을 찾을 수 없습니다."));
+        }
+
+        memberService.deleteMember(findMember);
+
+        return ResponseEntity.ok().build();
+    }
 }
