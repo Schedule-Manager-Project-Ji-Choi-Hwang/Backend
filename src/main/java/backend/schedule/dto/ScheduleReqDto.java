@@ -12,8 +12,6 @@ public class ScheduleReqDto {
 
     private LocalDate period;
 
-    private String subjectName;
-
     private String repeat;
 
     private LocalDate startDate;

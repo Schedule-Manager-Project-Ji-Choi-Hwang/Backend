@@ -39,11 +39,20 @@ public class PersonalSubject {
         this.subjectName = subjectName;
     }
 
+    public void removeSchedule(Schedule schedule) {
+        schedules.remove(schedule);
+    }
+
     public void setMember(Member member) {
         this.member = member;
     }
 
     public void subjectNameUpdate(String subjectName) {
         this.subjectName = subjectName;
+    }
+
+    public void addSchedules(Schedule schedule) {
+        this.schedules.add(schedule);
+        schedule.setPersonalSubject(this);
     }
 }

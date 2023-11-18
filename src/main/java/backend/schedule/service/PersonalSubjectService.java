@@ -69,7 +69,8 @@ public class PersonalSubjectService {
      * (개인 과목 삭제)
      * 개인 과목 삭제
      */
-    public void subjectDelete(Long subjectId) {
-        personalSubjectRepository.deleteById(subjectId);
+    public void subjectDelete(Member member, PersonalSubject personalSubject) {
+        member.removeSubject(personalSubject);
+        personalSubjectRepository.delete(personalSubject);
     }
 }

@@ -1,10 +1,12 @@
 package backend.schedule.controller;
 
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.PersonalSubjectReqDto;
 import backend.schedule.dto.PersonalSubjectResDto;
 import backend.schedule.dto.Result;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.PersonalSubject;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.PersonalSubjectService;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,7 +50,7 @@ public class PersonalSubjectController {
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
         // 토큰 추출 및 멤버 식별
@@ -54,7 +58,7 @@ public class PersonalSubjectController {
         String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
         Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
         if (findMember == null) {
-            return ResponseEntity.badRequest().body("해당 회원을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
         // 개인 과목 저장
@@ -75,7 +79,7 @@ public class PersonalSubjectController {
         // 개인 과목 조회
         PersonalSubject personalSubject = personalSubjectService.findOne(subjectId);
         if (personalSubject == null) {
-            return ResponseEntity.badRequest().body("과목을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SUBJECT));
         }
 
         // 응답
@@ -90,11 +94,14 @@ public class PersonalSubjectController {
      *          2. 멤버 객체 이용해 개인 과목들 조회
      */
     @GetMapping("/subjects")
-    public ResponseEntity<?> findSubjects(HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> findSubjects(HttpServletRequest request) {
         // 토큰 추출 및 멤버 식별
-        String accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
         String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
         Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        }
 
         // 개인 과목 전체 조회 (멤버별)
         List<PersonalSubjectResDto> findPersonalSubjects = personalSubjectService.findAll(findMember);
@@ -122,14 +129,29 @@ public class PersonalSubjectController {
     /**
      * 개인 과목 삭제 기능
      * 요청 데이터 : 개인 과목 id(경로)
-     * 요청 횟수 : 2회
-     *          1. 개인 과목 아이디 이용해 개인 과목 조회
-     *          2. 개인 과목 삭제
+     * 요청 횟수 : 4회
+     *          1. 멤버 조회
+     *          2. 개인 과목 조회
+     *          3. 멤버 id로 개인 과목 조회
+     *          4. 개인 과목 삭제
      */
     @DeleteMapping("/subjects/{subjectId}/delete")
-    public ResponseEntity<?> subjectDelete(@PathVariable Long subjectId) {
+    public ResponseEntity<?> subjectDelete(HttpServletRequest request, @PathVariable Long subjectId) {
+        // 토큰 추출 및 멤버 식별
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        }
+
+        PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
+        if (findSubject == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SUBJECT));
+        }
+
         // 개인 과목 삭제
-        personalSubjectService.subjectDelete(subjectId);
+        personalSubjectService.subjectDelete(findMember, findSubject);
         
         // 응답
         return ResponseEntity.ok().build();

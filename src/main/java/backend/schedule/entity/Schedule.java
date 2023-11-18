@@ -32,9 +32,14 @@ public class Schedule {
     @JoinColumn(name = "ps_id")
     private PersonalSubject personalSubject;
 
-    public Schedule(String scheduleName, LocalDate period) {
-        this.scheduleName = scheduleName;
-        this.period = period;
+    public Schedule(ScheduleReqDto scheduleReqDto) {
+        this.scheduleName = scheduleReqDto.getScheduleName();
+        this.period = scheduleReqDto.getPeriod();
+    }
+
+    public Schedule(ScheduleReqDto scheduleReqDto, LocalDate date) {
+        this.scheduleName = scheduleReqDto.getScheduleName();
+        this.period = date;
     }
 
     public void setPersonalSubject(PersonalSubject personalSubject) {

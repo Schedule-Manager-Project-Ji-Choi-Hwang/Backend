@@ -14,4 +14,27 @@ public class ErrorMessage {
 
     public static final String APPLICATION = "신청 회원을 찾을 수 없습니다.";
 
+    public static final String DUPLICATELOGINID = "로그인 아이디가 중복됩니다.";
+
+    public static final String DUPLICATENICKNAME = "닉네임이 중복됩니다.";
+
+    public static final String DUPLICATE = "중복입니다.";
+
+    public static final String LOGINFAIL = "로그인 아이디 또는 비밀번호가 잘못되었습니다.";
+
+    public static final String TOKEN = "토큰이 올바르지 않습니다.";
+
+    public static final String MEMBER = "회원을 찾을 수 없습니다.";
+
+    public static final String SENDEMAILFAIL = "이메일 발송이 실패하였습니다.";
+
+    public static final String SUBJECT = "과목을 찾을 수 없습니다.";
+
+    public static final String SCHEDULEFAIL = "일정 등록이 실패하였습니다.";
+
+    public static final String ALREADY = "이미 가입된 회원입니다.";
+
+    public static final String AUTHORITY = "권한이 없습니다.";
+
+    public static final String STUDY = "스터디 회원을 찾을 수 없습니다.";
 }

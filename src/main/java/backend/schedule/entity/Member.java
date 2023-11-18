@@ -61,6 +61,10 @@ public class Member extends BaseTimeEntity{
         studyComment.setMember(this);
     }
 
+    public void removeSubject(PersonalSubject personalSubject) {
+        personalSubjects.remove(personalSubject);
+    }
+
     public void changePassword(String password) {
         this.password = password;
     }

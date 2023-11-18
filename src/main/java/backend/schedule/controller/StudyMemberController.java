@@ -51,7 +51,7 @@ public class StudyMemberController {
         // 스터디 게시글 조회
         StudyPost studyPost = studyPostService.findById(studyboardId);
         if (studyPost == null) {
-            ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         }
 
         // 스터디 멤버 저장
@@ -81,7 +81,7 @@ public class StudyMemberController {
     }
 
     /**
-     * 스터디 멤버 전체 조회 기능
+     * 스터디 멤버 삭제 기능
      * 요청 횟수 : 4회
      *          1. 스터디 게시글 조회
      *          2. 스터디 멤버 조회
@@ -96,7 +96,7 @@ public class StudyMemberController {
         if (studyPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         } else if (studyMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail("스터디 멤버를 찾을 수 없습니다."));
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
         }
 
         studyMemberService.delete(studyPost, studyMember);

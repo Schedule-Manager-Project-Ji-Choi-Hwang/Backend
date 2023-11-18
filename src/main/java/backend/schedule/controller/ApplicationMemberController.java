@@ -39,10 +39,15 @@ public class ApplicationMemberController {
 
     /**
      * 신청 멤버 저장 기능
-     * 요청 횟수 : 회
+     * 요청 횟수 : 5회
+     *          1. 멤버 조회
+     *          2. 스터디 게시글 조회
+     *          3. 스터디 멤버인지 체크
+     *          4. 중복 신청인지 체크
+     *          5. 신청 멤버 저장
      */
-    @PostMapping("/studyboard/{id}/application-member/add")
-    public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long id) {
+    @PostMapping("/studyboard/{studyboardId}/application-member/add")
+    public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long studyboardId) {
         // 토큰 추출 및 멤버 식별
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
         String secretKey = mySecretkey;
@@ -50,21 +55,21 @@ public class ApplicationMemberController {
         Member member = memberService.getLoginMemberByLoginId(memberLoginId);
 
         // 스터디 게시글 조회
-        StudyPost studyPost = studyPostService.findById(id);
+        StudyPost studyPost = studyPostService.findById(studyboardId);
         if (studyPost == null) {
-            return ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         }
 
         // 해당 스터디에 이미 가입되어 있으면 신청이 불가해야한다.
         boolean studyMemberDuplicateCheck = applicationMemberService.StudyMemberDuplicateCheck(member, studyPost);
         boolean applicationMemberDuplicate = applicationMemberService.ApplicationMemberDuplicate(member, studyPost);
         if (applicationMemberDuplicate) {
-            return ResponseEntity.badRequest().body("중복 신청은 불가합니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATE));
         } else if (studyMemberDuplicateCheck) {
-            return ResponseEntity.badRequest().body("이미 가입된 회원입니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ALREADY));
         }
 
-            // 신청 멤버 저장
+        // 신청 멤버 저장
         applicationMemberService.save(member, studyPost);
 
         // 응답
@@ -73,7 +78,12 @@ public class ApplicationMemberController {
 
     /**
      * 신청 멤버 전체 조회 기능
-     * 요청 횟수 : 회
+     * 요청 횟수 : 5회
+     *          1. 멤버 조회
+     *          2. 스터디 멤버 권한 조회
+     *          3. 스터디 게시글 조회
+     *          4. 신청 멤버들 조회
+     *          5. 신청 멤버 닉네임 조회 (Dto 생성 부분인듯)
      */
     @GetMapping("/studyboard/{studyboardId}/application-members")
     public ResponseEntity<?> applicationMembers(HttpServletRequest request, @PathVariable Long studyboardId) {
@@ -86,13 +96,13 @@ public class ApplicationMemberController {
         // 스터디 멤버 식별 (권한 식별)
         StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(memberId, studyboardId);
         if (studyMember == null) {
-            return ResponseEntity.badRequest().body("권한이 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(AUTHORITY));
         }
 
         // 스터디 게시글 조회
         StudyPost studyPost = studyPostService.findById(studyboardId);
         if (studyPost == null) {
-            ResponseEntity.badRequest().body("게시글을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         }
 
         // 반환할 신청 멤버들 Dto 준비
@@ -106,7 +116,12 @@ public class ApplicationMemberController {
 
     /**
      * 신청 멤버 삭제 기능
-     * 요청 횟수 : 회
+     * 요청 횟수 : 5회
+     *          1. 게시글 조회
+     *          2. 신청 멤버 조회
+     *          3. 스터디 게시글 id로 신청 멤버 조회
+     *          4. 스터디 게시글 id로 신청 멤버 조회 (deleteBy로 인해 한번 더 조회하는 듯)
+     *          5. 신청 멤버 삭제
      */
     @DeleteMapping("/studyboard/{studyboardId}/application-members/{apMemberId}/delete")
     public ResponseEntity<?> rejectMember(@PathVariable Long studyboardId, @PathVariable Long apMemberId) {
@@ -123,7 +138,4 @@ public class ApplicationMemberController {
 
         return ResponseEntity.ok().build();
     }
-
-
-
 }

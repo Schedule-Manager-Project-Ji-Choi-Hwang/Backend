@@ -2,6 +2,7 @@ package backend.schedule.controller;
 
 import backend.schedule.dto.*;
 import backend.schedule.entity.Member;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.RefreshTokenService;
@@ -18,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,14 +51,14 @@ public class MemberController {
                     .stream()
                     .map(ObjectError::getDefaultMessage)
                     .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
         // 로그인 아이디 및 닉네임 중복 검증
         if (memberService.checkLoginIdDuplicate(memberJoinReqDto.getLoginId())) {
-            return ResponseEntity.badRequest().body("로그인 아이디가 중복됩니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
         } else if (memberService.checkNicknameDuplicate(memberJoinReqDto.getNickname())) {
-            return ResponseEntity.badRequest().body("닉네임이 중복됩니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATENICKNAME));
         }
 
         // 회원 가입
@@ -80,13 +83,13 @@ public class MemberController {
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
         }
 
         // 로그인 아이디 및 비밀번호 통해 멤버 식별 (로그인)
         Member member = memberService.login(memberLoginReqDto);
         if (member == null) {
-            return ResponseEntity.badRequest().body("로그인 아이디 또는 비밀번호가 잘못되었습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(LOGINFAIL));
         }
 
         // 시크릿 키 및 토큰 만료 기한 가져오기
@@ -119,7 +122,7 @@ public class MemberController {
     public ResponseEntity<?> refresh(HttpServletRequest request) {
         // 요청 헤더의 토큰 포함 여부 확인
         if (!validateHeader(request)) {
-            return ResponseEntity.badRequest().body("토큰을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(TOKEN));
         }
 
         // 요청 헤더의 토큰 추출
@@ -137,7 +140,7 @@ public class MemberController {
         // 요청 Refresh토큰과 DB Refresh 토큰 일치 여부 확인 및 만료기한 검사
         boolean matches = refreshTokenService.matches(refreshToken, memberId, secretKey);
         if (!matches) {
-            return ResponseEntity.badRequest().body("토큰이 올바르지 않습니다."); // 사용자를 재 로그인 시켜야 함.
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(TOKEN)); // 사용자를 재 로그인 시켜야 함.
         }
 
         // 재발급 할 Access토큰 생성
@@ -163,13 +166,13 @@ public class MemberController {
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
         }
 
         // 멤버 조회 및 아이디값 조회
         Member member = memberService.findMemberByEmail(findLoginIdReqDto.getEmail());
         if (member == null) {
-            return ResponseEntity.badRequest().body("해당 이메일로 가입된 회원이 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
         // 반환할 Dto 생성
@@ -193,19 +196,19 @@ public class MemberController {
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
         }
 
         // 멤버 식별
         Member findMember = memberService.findMemberByLoginIdAndEmail(findPasswordReqDto.getLoginId(), findPasswordReqDto.getEmail());
         if (findMember == null) {
-            return ResponseEntity.badRequest().body("아이디 및 이메일을 다시 확인해 주세요");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
         // 이메일 발송
         String result = memberService.sendMail(findPasswordReqDto, findMember);
         if (result.equals("fail")) {
-            return ResponseEntity.badRequest().body("임시 비밀번호 발급이 실패하였습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SENDEMAILFAIL));
         }
 
         // 응답
@@ -227,7 +230,7 @@ public class MemberController {
                     .stream()
                     .map(objectError -> objectError.getDefaultMessage())
                     .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(errorMessages);
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
         }
 
         // 토큰 추출 및 멤버 식별
@@ -236,7 +239,7 @@ public class MemberController {
         String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
         Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
         if (findMember == null) {
-            return ResponseEntity.badRequest().body("해당 회원을 찾을 수 없습니다.");
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
         // 비밀번호 변경
@@ -271,7 +274,7 @@ public class MemberController {
         String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
         Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
         if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail("회원을 찾을 수 없습니다."));
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
         memberService.deleteMember(findMember);
