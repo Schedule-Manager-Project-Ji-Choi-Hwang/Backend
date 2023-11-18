@@ -36,6 +36,11 @@ public class StudyCommentController {
 //    public StudyCommentDto studyCommentForm(@RequestBody StudyCommentDto commentDto) {
 //        return commentDto;
 //    }
+
+    /**
+     * 스터디 댓글 추가
+     * Query: 2번
+     */
     @Transactional
     @PostMapping("/study-announcements/{id}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto commentDto,
@@ -60,9 +65,13 @@ public class StudyCommentController {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * 스터디 댓글 조회
+     * Query: 1번
+     */
     @GetMapping("/study-announcements/{id}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long id, @PathVariable Long commentId) {
-        StudyComment comment = studyCommentService.findById(id);
+        StudyComment comment = studyCommentService.findById(commentId);
 
         if (comment == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
@@ -71,13 +80,28 @@ public class StudyCommentController {
         return ResponseEntity.ok().body(new StudyCommentDto(comment));
     }
 
+    /**
+     * 스터디 댓글 전체 조회
+     * Query: Fetch join이용 1번
+     */
+    @GetMapping("/study-announcements/{id}/comments") //전체 공지 조회
+    public Result announcementCommentList(@PathVariable Long id) {
+        StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(id);
+
+        return new Result(new StudyCommentSetDto(announcement));
+    }
+
+    /**
+     * 스터디 댓글 수정
+     * Query: 2번
+     */
     @Transactional
     @PatchMapping("/study-announcements/{id}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdate(
             @Validated @RequestBody StudyCommentDto commentDto,
             BindingResult bindingResult, @PathVariable Long id, @PathVariable Long commentId) {
 
-        StudyComment comment = studyCommentService.findById(id);
+        StudyComment comment = studyCommentService.findById(commentId);
 
         if (comment == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
@@ -96,6 +120,10 @@ public class StudyCommentController {
         return ResponseEntity.ok().build(); //수정 후 다시 스터디 공지로 리다리렉트 되게하기(/studyboard/{boardId})boardId 필요
     }
 
+    /**
+     * 스터디 댓글 삭제
+     * Query: 4번
+     */
     @Transactional
     @DeleteMapping("/study-announcements/{id}/comment/{commentId}/delete")
     public ResponseEntity<?> studyCommentDelete(@PathVariable Long id, @PathVariable Long commentId) {
@@ -111,12 +139,5 @@ public class StudyCommentController {
         findAnnouncement.removeStudyComment(comment);
         //쿼리 4번 개선방법 생각
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
-    }
-
-    @GetMapping("/study-announcements/{id}/comments") //전체 공지 조회
-    public Result announcementCommentList(@PathVariable Long id) {
-        StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(id);
-
-        return new Result(new StudyCommentSetDto(announcement));
     }
 }
