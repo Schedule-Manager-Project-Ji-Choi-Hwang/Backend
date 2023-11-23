@@ -2,10 +2,17 @@ package backend.schedule.controller;
 
 
 import backend.schedule.dto.*;
+import backend.schedule.entity.Member;
+import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.jwt.JwtTokenUtil;
+import backend.schedule.service.MemberService;
+import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -13,17 +20,21 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ErrorMessage.DELETE;
-import static backend.schedule.enumlist.ErrorMessage.POST;
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
 @RequiredArgsConstructor
 public class StudyPostController {
 
     private final StudyPostService studyPostService;
+    private final StudyMemberService studyMemberService;
+    private final MemberService memberService;
+    @Value("${spring.jwt.secretkey}")
+    private String mySecretkey;
 
     /**
      * 스터디 게시글 CRUD, 무한 스크롤
@@ -35,10 +46,10 @@ public class StudyPostController {
 
     /**
      * 스터디 게시글 작성
-     * Query: 1번
+     * Query: 3번
      */
     @PostMapping("/studyboard/post") // 등록 버튼 누르면 post 처리 후 /studyboard/{id} 스터디 게시글로 이동
-    public ResponseEntity<?> studyBoardPost(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult) {
+    public ResponseEntity<?> studyBoardPost(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult, HttpServletRequest request) {
 
         if (bindingResult.hasErrors()) {
             List<String> errorMessages = bindingResult.getAllErrors().stream()
@@ -48,7 +59,16 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
-        Long savedPostId = studyPostService.save(studyPostDto);
+        // 토큰 추출 및 멤버 식별
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        }
+
+        Long savedPostId = studyPostService.save(studyPostDto, findMember);
 
         return ResponseEntity.ok().body(new ReturnIdDto(savedPostId));
     }
@@ -57,9 +77,40 @@ public class StudyPostController {
      * 스터디 게시글 조회
      * Query: 1번
      */
-    @GetMapping({"/studyboard/{id}", "/studyboard/{id}/edit"})
-    public ResponseEntity<?> studyBoardUpdateForm(@PathVariable Long id) {
+    @GetMapping("/studyboard/{id}")
+    public ResponseEntity<?> findStudyBoard(@PathVariable Long id) {
         StudyPost findStudyPost = studyPostService.findById(id);
+
+        if (findStudyPost == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+        }
+
+        StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
+
+        return ResponseEntity.ok().body(studyPostDto);
+    }
+
+    /**
+     * 스터디 게시글 수정 조회
+     * Query: 1번
+     */
+    @GetMapping("/studyboard/{studyBoardId}/edit")
+    public ResponseEntity<?> studyBoardUpdateForm(@PathVariable Long studyBoardId, HttpServletRequest request) {
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        }
+
+        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+
+        if (studyMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
+        } //edit, deleted 에도 적용
+
+        StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
         if (findStudyPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));

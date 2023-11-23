@@ -20,13 +20,6 @@ public class StudyMemberService {
 
     private final StudyMemberRepository studyMemberRepository;
 
-    public List<Long> findStudyPostIds(Long memberId) {
-        List<Long> studyPostIds = studyMemberRepository.test12(memberId).stream().map(s -> s.getStudyPost().getId())
-                .collect(Collectors.toList());
-
-        return studyPostIds;
-    }
-
 
     public void save(Member member, StudyPost studyPost) {
         StudyMember studyMember = new StudyMember(member, studyPost, ConfirmAuthor.MEMBER);
@@ -40,24 +33,27 @@ public class StudyMemberService {
         return optionalStudyMember.orElse(null);
     }
 
+    public StudyMember findByMemberAndStudyPost(Long memberId, Long studyBoardId) {
+        Optional<StudyMember> optionalStudyMember = studyMemberRepository.findByMemberAndStudyPost(memberId, studyBoardId, ConfirmAuthor.LEADER);
+
+        return optionalStudyMember.orElse(null);
+    }
+
+    public List<Long> findStudyPostIds(Long memberId) {
+        List<Long> studyPostIds = studyMemberRepository.MainPageStudyMembers(memberId).stream().map(s -> s.getStudyPost().getId())
+                .collect(Collectors.toList());
+
+        return studyPostIds;
+    }
+
     public void delete(StudyPost studyPost, StudyMember studyMember) {
         studyPost.removeStudyMember(studyMember);
         studyMemberRepository.delete(studyMember);
     }
 
-    public StudyMember findByMemberAndStudyPost(Long memberId, Long studyBoardId) {
-        Optional<StudyMember> optionalStudyMember = studyMemberRepository.findByMemberAndStudyPost(memberId, studyBoardId,
-                ConfirmAuthor.LEADER);
-        if (optionalStudyMember.isPresent()) {
-            StudyMember studyMember = optionalStudyMember.get();
-            return studyMember;
-        } else {
-            return null;
-        }
-    }
-
     public List<StudyMemberResDto> findStudyMembers(Long studyboardId) {
         Optional<StudyPost> optionalStudyPost = studyMemberRepository.studyMembersByStudyboardId(studyboardId);
+
         if (optionalStudyPost.isPresent()) {
             StudyPost studyPost = optionalStudyPost.get();
             List<StudyMemberResDto> studyMemberResDtos = studyPost.getStudyMembers().stream()

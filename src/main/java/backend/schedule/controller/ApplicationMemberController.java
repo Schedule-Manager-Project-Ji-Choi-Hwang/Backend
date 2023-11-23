@@ -7,7 +7,6 @@ import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
-import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.MemberService;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static backend.schedule.enumlist.ErrorMessage.*;
@@ -40,11 +38,11 @@ public class ApplicationMemberController {
     /**
      * 신청 멤버 저장 기능
      * 요청 횟수 : 5회
-     *          1. 멤버 조회
-     *          2. 스터디 게시글 조회
-     *          3. 스터디 멤버인지 체크
-     *          4. 중복 신청인지 체크
-     *          5. 신청 멤버 저장
+     * 1. 멤버 조회
+     * 2. 스터디 게시글 조회
+     * 3. 스터디 멤버인지 체크
+     * 4. 중복 신청인지 체크
+     * 5. 신청 멤버 저장
      */
     @PostMapping("/studyboard/{studyboardId}/application-member/add")
     public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long studyboardId) {
@@ -79,11 +77,11 @@ public class ApplicationMemberController {
     /**
      * 신청 멤버 전체 조회 기능
      * 요청 횟수 : 5회
-     *          1. 멤버 조회
-     *          2. 스터디 멤버 권한 조회
-     *          3. 스터디 게시글 조회
-     *          4. 신청 멤버들 조회
-     *          5. 신청 멤버 닉네임 조회 (Dto 생성 부분인듯)
+     * 1. 멤버 조회
+     * 2. 스터디 멤버 권한 조회
+     * 3. 스터디 게시글 조회
+     * 4. 신청 멤버들 조회
+     * 5. 신청 멤버 닉네임 조회 (Dto 생성 부분인듯)
      */
     @GetMapping("/studyboard/{studyboardId}/application-members")
     public ResponseEntity<?> applicationMembers(HttpServletRequest request, @PathVariable Long studyboardId) {
@@ -117,11 +115,11 @@ public class ApplicationMemberController {
     /**
      * 신청 멤버 삭제 기능
      * 요청 횟수 : 5회
-     *          1. 게시글 조회
-     *          2. 신청 멤버 조회
-     *          3. 스터디 게시글 id로 신청 멤버 조회
-     *          4. 스터디 게시글 id로 신청 멤버 조회 (deleteBy로 인해 한번 더 조회하는 듯)
-     *          5. 신청 멤버 삭제
+     * 1. 게시글 조회
+     * 2. 신청 멤버 조회
+     * 3. 스터디 게시글 id로 신청 멤버 조회
+     * 4. 스터디 게시글 id로 신청 멤버 조회 (deleteBy로 인해 한번 더 조회하는 듯)
+     * 5. 신청 멤버 삭제
      */
     @DeleteMapping("/studyboard/{studyboardId}/application-members/{apMemberId}/delete")
     public ResponseEntity<?> rejectMember(@PathVariable Long studyboardId, @PathVariable Long apMemberId) {
@@ -130,7 +128,7 @@ public class ApplicationMemberController {
 
         if (findStudyPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        } else if (findApMember == null){
+        } else if (findApMember == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(APPLICATION));
         }
 

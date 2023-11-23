@@ -5,7 +5,11 @@ import backend.schedule.dto.SearchPostCondition;
 import backend.schedule.dto.StudyPostDto;
 import backend.schedule.dto.StudyPostResponseDto;
 import backend.schedule.dto.StudyPostScheduleSetDto;
+import backend.schedule.entity.Member;
+import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.repository.StudyMemberRepository;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +25,22 @@ import java.util.stream.Collectors;
 public class StudyPostService {
 
     private final StudyPostRepository studyPostRepository;
+    private final StudyMemberRepository studyMemberRepository;
 
     public StudyPostScheduleSetDto detailStudySchedules(Long studyboardId, LocalDate date) {
         StudyPost studyPost = studyPostRepository.DetailPageStudySchedules(studyboardId, date);
         return new StudyPostScheduleSetDto(studyPost);
     }
 
-    public Long save(StudyPostDto studyPostDto) {
+    public Long save(StudyPostDto studyPostDto, Member findMember) {
         StudyPost studyPost = new StudyPost(studyPostDto);
+        StudyMember studyMember = new StudyMember(findMember, studyPost, ConfirmAuthor.LEADER);
 
-        return studyPostRepository.save(studyPost).getId();
+        studyPost.addStudyMember(studyMember);
+        Long studyPostId = studyPostRepository.save(studyPost).getId(); //스터디 멤버 리더 지정
+        studyMemberRepository.save(studyMember);
+
+        return studyPostId;
     }
 
     public StudyPost findById(Long id) {
