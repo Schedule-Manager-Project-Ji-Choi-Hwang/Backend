@@ -20,6 +20,13 @@ public class StudyMemberService {
 
     private final StudyMemberRepository studyMemberRepository;
 
+    public List<Long> findStudyPostIds(Long memberId) {
+        List<Long> studyPostIds = studyMemberRepository.test12(memberId).stream().map(s -> s.getStudyPost().getId())
+                .collect(Collectors.toList());
+
+        return studyPostIds;
+    }
+
 
     public void save(Member member, StudyPost studyPost) {
         StudyMember studyMember = new StudyMember(member, studyPost, ConfirmAuthor.MEMBER);

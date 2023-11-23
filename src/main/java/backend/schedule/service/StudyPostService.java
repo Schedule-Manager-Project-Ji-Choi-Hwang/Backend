@@ -4,6 +4,7 @@ package backend.schedule.service;
 import backend.schedule.dto.SearchPostCondition;
 import backend.schedule.dto.StudyPostDto;
 import backend.schedule.dto.StudyPostResponseDto;
+import backend.schedule.dto.StudyPostScheduleSetDto;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,13 +12,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class StudyPostService {
 
     private final StudyPostRepository studyPostRepository;
+
+    public StudyPostScheduleSetDto detailStudySchedules(Long studyboardId, LocalDate date) {
+        StudyPost studyPost = studyPostRepository.DetailPageStudySchedules(studyboardId, date);
+        return new StudyPostScheduleSetDto(studyPost);
+    }
 
     public Long save(StudyPostDto studyPostDto) {
         StudyPost studyPost = new StudyPost(studyPostDto);

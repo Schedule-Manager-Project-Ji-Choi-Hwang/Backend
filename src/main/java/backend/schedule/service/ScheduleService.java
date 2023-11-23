@@ -106,8 +106,8 @@ public class ScheduleService {
      * (스케쥴 전체 조회)
      * 스케쥴 전체 조회 (멤버별)
      */
-    public List<ScheduleResDto> findSchedulesByMemberId(Long memberId) {
-        List<ScheduleResDto> scheduleResDtos = memberRepository.findPersonalSubjectsWithSchedulesByMemberId(memberId).stream()
+    public List<ScheduleResDto> findSchedulesByMemberId(Long memberId, LocalDate date) {
+        List<ScheduleResDto> scheduleResDtos = memberRepository.findPersonalSubjectsWithSchedulesByMemberId(memberId, date).stream()
                 .map(ScheduleResDto::new)
                 .collect(Collectors.toList());
 

@@ -15,6 +15,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class StudyScheduleDto {
 
+    private Long studyScheduleId;
+
     @NotBlank(message = "일정 이름을 입력해 주세요.")
     private String scheduleName;
 
@@ -22,6 +24,7 @@ public class StudyScheduleDto {
     private LocalDate period;
 
     public StudyScheduleDto(StudySchedule studySchedule) {
+        this.studyScheduleId = studySchedule.getId();
         this.scheduleName = studySchedule.getScheduleName();
         this.period = studySchedule.getPeriod();
     }

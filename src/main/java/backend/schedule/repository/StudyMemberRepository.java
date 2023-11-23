@@ -26,4 +26,9 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
             "LEFT JOIN FETCH sp.studyMembers " +
             "WHERE sp.id = :studyboardId")
     Optional<StudyPost> studyMembersByStudyboardId(@Param("studyboardId") Long studyboardId);
+
+    @Query("SELECT DISTINCT sm FROM StudyMember sm " +
+            "LEFT JOIN FETCH  sm.studyPost " +
+            "WHERE sm.member.id = :memberId")
+    List<StudyMember> test12(@Param("memberId") Long memberId);
 }

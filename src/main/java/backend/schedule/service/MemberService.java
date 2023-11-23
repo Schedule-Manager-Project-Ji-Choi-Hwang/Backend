@@ -2,7 +2,9 @@ package backend.schedule.service;
 
 import backend.schedule.dto.*;
 import backend.schedule.entity.Member;
+import backend.schedule.entity.StudyMember;
 import backend.schedule.repository.MemberRepository;
+import backend.schedule.repository.StudyMemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,8 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional

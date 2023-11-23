@@ -79,20 +79,20 @@ public class ScheduleController {
      *          1. 로그인 아이디 이용해 멤버 조회
      *          2. 개인과목-일정 fetch join
      */
-    @GetMapping("/subjects/schedules")
-    public ResponseEntity<?> memberBySchedules(HttpServletRequest request) {
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String secretKey = mySecretkey;
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
-
-        // 스케쥴 전체 조회 (멤버별)
-        List<ScheduleResDto> schedules = scheduleService.findSchedulesByMemberId(memberId);
-
-        // 응답
-        return ResponseEntity.ok().body(schedules);
-    }
+//    @GetMapping("/subjects/schedules")
+//    public ResponseEntity<?> memberBySchedules(HttpServletRequest request) {
+//        // 토큰 추출 및 멤버 식별
+//        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+//        String secretKey = mySecretkey;
+//        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+//        Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
+//
+//        // 스케쥴 전체 조회 (멤버별)
+//        List<ScheduleResDto> schedules = scheduleService.findSchedulesByMemberId(memberId);
+//
+//        // 응답
+//        return ResponseEntity.ok().body(schedules);
+//    }
 
     /**
      * 스케쥴 변경 기능 (제목, 기간(period))

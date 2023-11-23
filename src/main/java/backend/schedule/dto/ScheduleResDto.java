@@ -15,11 +15,14 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ScheduleResDto {
 
+    private Long id;
+
     private String personalSubjectName;
 
     private List<ScheduleDto> schedules;
 
     public ScheduleResDto(PersonalSubject personalSubject) {
+        this.id = personalSubject.getId();
         this.personalSubjectName = personalSubject.getSubjectName();
         this.schedules = personalSubject.getSchedules().stream()
                 .map(ScheduleDto::new)
