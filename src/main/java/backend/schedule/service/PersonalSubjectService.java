@@ -25,13 +25,14 @@ public class PersonalSubjectService {
      * (개인 과목 저장)
      * 개인 과목 저장
      */
-    public void save(PersonalSubjectReqDto personalSubjectReqDto, Member member) {
+    public PersonalSubjectResDto save(PersonalSubjectReqDto personalSubjectReqDto, Member member) {
         // 개인 과목 객체 생성 및 연관 관계 설정
         PersonalSubject personalSubject = new PersonalSubject(personalSubjectReqDto.getSubjectName());
         member.addPersonalSubject(personalSubject);
         
         // 개인 과목 객체 저장
-        personalSubjectRepository.save(personalSubject);
+        PersonalSubject savedSubject = personalSubjectRepository.save(personalSubject);
+        return new PersonalSubjectResDto(savedSubject);
     }
 
     /**

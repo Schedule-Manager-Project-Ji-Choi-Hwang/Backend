@@ -2,23 +2,20 @@ package backend.schedule.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Getter
+@Setter
 @NoArgsConstructor
-public class ScheduleReqDto {
+public class ScheduleEditReqDto {
+
     @NotEmpty(message = "일정 제목을 입력해주세요.")
     private String scheduleName;
 
-    @NotEmpty(message = "반복을 입력해주세요.")
-    private String repeat;
-
-    @NotNull(message = "시작일을 입력해주세요.")
-    private LocalDate startDate;
-
-    @NotNull(message = "종료일을 입력해주세요.")
-    private LocalDate endDate;
+    @NotNull(message = "날짜를 입력해주세요.")
+    private LocalDate period;
 }

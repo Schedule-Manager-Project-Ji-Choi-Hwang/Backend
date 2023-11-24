@@ -1,5 +1,6 @@
 package backend.schedule.service;
 
+import backend.schedule.dto.ScheduleEditReqDto;
 import backend.schedule.dto.ScheduleReqDto;
 import backend.schedule.dto.ScheduleResDto;
 import backend.schedule.entity.Member;
@@ -41,8 +42,8 @@ public class ScheduleService {
         if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
             PersonalSubject personalSubject = optionalPersonalSubject.get();
 
-            if (scheduleReqDto.getPeriod() != null) { // 단일 등록
-                Schedule schedule = new Schedule(scheduleReqDto);
+            if (scheduleReqDto.getStartDate().equals(scheduleReqDto.getEndDate())) { // 단일 등록
+                Schedule schedule = new Schedule(scheduleReqDto, scheduleReqDto.getStartDate());
                 personalSubject.addSchedules(schedule);
                 scheduleRepository.save(schedule);
                 return "성공";
@@ -118,11 +119,11 @@ public class ScheduleService {
      * (스케쥴 변경)
      * 스케쥴 변경 (제목, 기간(period))
      */
-    public Schedule updateSchedule(Long scheduleId, ScheduleReqDto scheduleReqDto) {
+    public Schedule updateSchedule(Long scheduleId, ScheduleEditReqDto scheduleEditReqDto) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
         if (optionalSchedule.isPresent()) {
             Schedule schedule = optionalSchedule.get();
-            schedule.changeScheduleNameAndPeriod(scheduleReqDto);
+            schedule.changeScheduleNameAndPeriod(scheduleEditReqDto);
             return schedule;
         } else {
             return null;

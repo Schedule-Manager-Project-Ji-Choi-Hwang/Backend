@@ -68,9 +68,9 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
-        Long savedPostId = studyPostService.save(studyPostDto, findMember);
+        StudyPostFrontSaveDto savedStudyPostDto = studyPostService.save(studyPostDto, findMember);
 
-        return ResponseEntity.ok().body(new ReturnIdDto(savedPostId));
+        return ResponseEntity.ok().body(savedStudyPostDto);
     }
 
     /**

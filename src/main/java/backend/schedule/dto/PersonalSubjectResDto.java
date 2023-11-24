@@ -12,10 +12,13 @@ import java.util.List;
 @NoArgsConstructor
 public class PersonalSubjectResDto {
 
+    private Long subjectId;
+
     private String subjectName;
 
 
     public PersonalSubjectResDto(PersonalSubject personalSubject) {
+        this.subjectId = personalSubject.getId();
         this.subjectName = personalSubject.getSubjectName();
     }
 }

@@ -1,10 +1,7 @@
 package backend.schedule.service;
 
 
-import backend.schedule.dto.SearchPostCondition;
-import backend.schedule.dto.StudyPostDto;
-import backend.schedule.dto.StudyPostResponseDto;
-import backend.schedule.dto.StudyPostScheduleSetDto;
+import backend.schedule.dto.*;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
@@ -32,15 +29,15 @@ public class StudyPostService {
         return new StudyPostScheduleSetDto(studyPost);
     }
 
-    public Long save(StudyPostDto studyPostDto, Member findMember) {
+    public StudyPostFrontSaveDto save(StudyPostDto studyPostDto, Member findMember) {
         StudyPost studyPost = new StudyPost(studyPostDto);
         StudyMember studyMember = new StudyMember(findMember, studyPost, ConfirmAuthor.LEADER);
 
         studyPost.addStudyMember(studyMember);
-        Long studyPostId = studyPostRepository.save(studyPost).getId(); //스터디 멤버 리더 지정
+        StudyPost savedStudyPost = studyPostRepository.save(studyPost);//스터디 멤버 리더 지정
         studyMemberRepository.save(studyMember);
 
-        return studyPostId;
+        return new StudyPostFrontSaveDto(savedStudyPost);
     }
 
     public StudyPost findById(Long id) {

@@ -1,9 +1,6 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.MessageReturnDto;
-import backend.schedule.dto.Result;
-import backend.schedule.dto.ScheduleDto;
-import backend.schedule.dto.ScheduleReqDto;
+import backend.schedule.dto.*;
 import backend.schedule.entity.PersonalSubject;
 import backend.schedule.entity.Schedule;
 import backend.schedule.service.MemberService;
@@ -13,7 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static backend.schedule.enumlist.ErrorMessage.*;
 
@@ -41,7 +44,16 @@ public class ScheduleController {
      * 2. 일정 갯수 만큼 추가
      */
     @PostMapping("/subjects/{subjectId}/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
-    public ResponseEntity<?> add(@PathVariable Long subjectId, @RequestBody ScheduleReqDto scheduleReqDto) {
+    public ResponseEntity<?> add(@PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
+        // 빈 검증
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+        }
+
         // 스케쥴 저장
         String result = scheduleService.add(scheduleReqDto, subjectId);
         if (result == null) {
@@ -100,9 +112,18 @@ public class ScheduleController {
      * 2. 일정 제목 변경
      */
     @PatchMapping("/subjects/schedules/{scheduleId}/edit")
-    public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId, @RequestBody ScheduleReqDto scheduleReqDto) {
+    public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId, @Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult) {
+        // 빈 검증
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+        }
+
         // 스케쥴 변경
-        Schedule schedule = scheduleService.updateSchedule(scheduleId, scheduleReqDto);
+        Schedule schedule = scheduleService.updateSchedule(scheduleId, scheduleEditReqDto);
         if (schedule == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
         }

@@ -10,14 +10,14 @@ import java.time.LocalDate;
 @Getter
 @NoArgsConstructor
 public class ScheduleDto {
-    private Long id;
+    private Long scheduleId;
 
     private String scheduleName;
 
     private LocalDate period;
 
     public ScheduleDto(Schedule schedule) {
-        this.id = schedule.getId();
+        this.scheduleId = schedule.getId();
         this.scheduleName = schedule.getScheduleName();
         this.period = schedule.getPeriod();
     }

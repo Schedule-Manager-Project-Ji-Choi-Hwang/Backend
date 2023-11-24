@@ -62,10 +62,10 @@ public class PersonalSubjectController {
         }
 
         // 개인 과목 저장
-        personalSubjectService.save(personalSubjectReqDto, findMember);
+        PersonalSubjectResDto savedSubjectDto = personalSubjectService.save(personalSubjectReqDto, findMember);
 
         // 응답
-        return ResponseEntity.ok().body("과목이 추가 되었습니다.");
+        return ResponseEntity.ok().body(savedSubjectDto);
     }
 
     /**
@@ -118,7 +118,16 @@ public class PersonalSubjectController {
      *          2. 개인 과목 제목 변경
      */
     @PatchMapping("/subjects/{subjectId}/edit")
-    public ResponseEntity<?> subjectUpdate(@PathVariable Long subjectId, @RequestBody PersonalSubjectReqDto personalSubjectReqDto) {
+    public ResponseEntity<?> subjectUpdate(@PathVariable Long subjectId, @Validated @RequestBody PersonalSubjectReqDto personalSubjectReqDto, BindingResult bindingResult) {
+        // 빈 검증
+        if (bindingResult.hasErrors()) {
+            List<String> errorMessages = bindingResult.getAllErrors()
+                    .stream()
+                    .map(objectError -> objectError.getDefaultMessage())
+                    .collect(Collectors.toList());
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+        }
+
         // 개인 과목 변경 (제목)
         personalSubjectService.subjectNameUpdate(subjectId, personalSubjectReqDto);
         

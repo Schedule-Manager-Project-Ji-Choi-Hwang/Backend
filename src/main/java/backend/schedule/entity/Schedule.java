@@ -1,5 +1,6 @@
 package backend.schedule.entity;
 
+import backend.schedule.dto.ScheduleEditReqDto;
 import backend.schedule.dto.ScheduleReqDto;
 import backend.schedule.enumlist.RepeatedDate;
 import lombok.AccessLevel;
@@ -32,11 +33,6 @@ public class Schedule {
     @JoinColumn(name = "ps_id")
     private PersonalSubject personalSubject;
 
-    public Schedule(ScheduleReqDto scheduleReqDto) {
-        this.scheduleName = scheduleReqDto.getScheduleName();
-        this.period = scheduleReqDto.getPeriod();
-    }
-
     public Schedule(ScheduleReqDto scheduleReqDto, LocalDate date) {
         this.scheduleName = scheduleReqDto.getScheduleName();
         this.period = date;
@@ -46,8 +42,8 @@ public class Schedule {
         this.personalSubject = personalSubject;
     }
 
-    public void changeScheduleNameAndPeriod(ScheduleReqDto scheduleReqDto) {
-        this.scheduleName = scheduleReqDto.getScheduleName();
-        this.period = scheduleReqDto.getPeriod();
+    public void changeScheduleNameAndPeriod(ScheduleEditReqDto scheduleEditReqDto) {
+        this.scheduleName = scheduleEditReqDto.getScheduleName();
+        this.period = scheduleEditReqDto.getPeriod();
     }
 }
