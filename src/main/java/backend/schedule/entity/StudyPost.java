@@ -1,7 +1,7 @@
 package backend.schedule.entity;
 
 
-import backend.schedule.dto.StudyPostDto;
+import backend.schedule.dto.studypost.StudyPostDto;
 import backend.schedule.enumlist.FieldTag;
 import lombok.Getter;
 

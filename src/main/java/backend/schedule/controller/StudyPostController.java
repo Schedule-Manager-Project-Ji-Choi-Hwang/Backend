@@ -2,6 +2,9 @@ package backend.schedule.controller;
 
 
 import backend.schedule.dto.*;
+import backend.schedule.dto.studypost.SearchPostCondition;
+import backend.schedule.dto.studypost.StudyPostDto;
+import backend.schedule.dto.studypost.StudyPostFrontSaveDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;

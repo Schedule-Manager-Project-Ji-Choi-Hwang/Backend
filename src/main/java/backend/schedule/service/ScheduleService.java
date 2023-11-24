@@ -1,9 +1,8 @@
 package backend.schedule.service;
 
-import backend.schedule.dto.ScheduleEditReqDto;
-import backend.schedule.dto.ScheduleReqDto;
-import backend.schedule.dto.ScheduleResDto;
-import backend.schedule.entity.Member;
+import backend.schedule.dto.schedule.ScheduleEditReqDto;
+import backend.schedule.dto.schedule.ScheduleReqDto;
+import backend.schedule.dto.schedule.ScheduleResDto;
 import backend.schedule.entity.PersonalSubject;
 import backend.schedule.entity.Schedule;
 import backend.schedule.repository.MemberRepository;
@@ -14,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;

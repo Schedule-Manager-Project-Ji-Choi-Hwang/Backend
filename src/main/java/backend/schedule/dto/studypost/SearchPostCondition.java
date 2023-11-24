@@ -1,4 +1,4 @@
-package backend.schedule.dto;
+package backend.schedule.dto.studypost;
 
 import lombok.Data;
 

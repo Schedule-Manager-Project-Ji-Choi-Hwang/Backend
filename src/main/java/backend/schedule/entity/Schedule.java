@@ -1,8 +1,7 @@
 package backend.schedule.entity;
 
-import backend.schedule.dto.ScheduleEditReqDto;
-import backend.schedule.dto.ScheduleReqDto;
-import backend.schedule.enumlist.RepeatedDate;
+import backend.schedule.dto.schedule.ScheduleEditReqDto;
+import backend.schedule.dto.schedule.ScheduleReqDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

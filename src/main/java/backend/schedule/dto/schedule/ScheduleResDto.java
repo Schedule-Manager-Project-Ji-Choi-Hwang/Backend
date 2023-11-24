@@ -1,12 +1,10 @@
-package backend.schedule.dto;
+package backend.schedule.dto.schedule;
 
 import backend.schedule.entity.PersonalSubject;
-import backend.schedule.entity.Schedule;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 

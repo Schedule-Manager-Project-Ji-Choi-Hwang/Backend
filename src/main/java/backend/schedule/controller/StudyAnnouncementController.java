@@ -1,6 +1,8 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.*;
+import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
+import backend.schedule.dto.studyannouncement.StudyAnnouncementSetDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.service.StudyAnnouncementService;

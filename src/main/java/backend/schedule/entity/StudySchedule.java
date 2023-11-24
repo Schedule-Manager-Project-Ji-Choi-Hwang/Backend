@@ -1,6 +1,6 @@
 package backend.schedule.entity;
 
-import backend.schedule.dto.StudyScheduleDto;
+import backend.schedule.dto.studyschedule.StudyScheduleDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

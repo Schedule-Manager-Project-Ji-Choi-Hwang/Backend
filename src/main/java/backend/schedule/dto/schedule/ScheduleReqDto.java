@@ -1,4 +1,4 @@
-package backend.schedule.dto;
+package backend.schedule.dto.schedule;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

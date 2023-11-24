@@ -1,7 +1,7 @@
 package backend.schedule.service;
 
 
-import backend.schedule.dto.StudyMemberResDto;
+import backend.schedule.dto.studymember.StudyMemberResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;

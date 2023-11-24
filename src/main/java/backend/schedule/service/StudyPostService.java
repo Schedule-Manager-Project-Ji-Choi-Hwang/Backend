@@ -1,7 +1,11 @@
 package backend.schedule.service;
 
 
-import backend.schedule.dto.*;
+import backend.schedule.dto.studypost.SearchPostCondition;
+import backend.schedule.dto.studypost.StudyPostDto;
+import backend.schedule.dto.studypost.StudyPostFrontSaveDto;
+import backend.schedule.dto.studyschedule.StudyPostScheduleSetDto;
+import backend.schedule.dto.studypost.StudyPostResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
@@ -15,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +49,7 @@ public class StudyPostService {
         return optionalStudyPost.orElse(null);
     }
 
-    public Slice<StudyPostResponseDto> search(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
+    public Slice<StudyPostResDto> search(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
         return studyPostRepository.searchPost(lastPostId, condition, pageable);
     }
 

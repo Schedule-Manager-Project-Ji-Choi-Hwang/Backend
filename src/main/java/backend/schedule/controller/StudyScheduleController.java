@@ -3,8 +3,8 @@ package backend.schedule.controller;
 
 import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
-import backend.schedule.dto.StudyPostScheduleSetDto;
-import backend.schedule.dto.StudyScheduleDto;
+import backend.schedule.dto.studyschedule.StudyPostScheduleSetDto;
+import backend.schedule.dto.studyschedule.StudyScheduleDto;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.entity.StudySchedule;
 import backend.schedule.service.StudyPostService;

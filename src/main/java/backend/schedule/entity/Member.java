@@ -1,7 +1,7 @@
 package backend.schedule.entity;
 
 
-import backend.schedule.dto.MemberJoinReqDto;
+import backend.schedule.dto.member.MemberJoinReqDto;
 import lombok.*;
 
 import javax.persistence.*;

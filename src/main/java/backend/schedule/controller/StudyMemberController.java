@@ -2,7 +2,7 @@ package backend.schedule.controller;
 
 import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
-import backend.schedule.dto.StudyMemberResDto;
+import backend.schedule.dto.studymember.StudyMemberResDto;
 import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;

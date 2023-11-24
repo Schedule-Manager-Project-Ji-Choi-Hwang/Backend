@@ -1,12 +1,11 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.MessageReturnDto;
-import backend.schedule.dto.PersonalSubjectReqDto;
-import backend.schedule.dto.PersonalSubjectResDto;
+import backend.schedule.dto.subject.PersonalSubjectReqDto;
+import backend.schedule.dto.subject.PersonalSubjectResDto;
 import backend.schedule.dto.Result;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.PersonalSubject;
-import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.PersonalSubjectService;

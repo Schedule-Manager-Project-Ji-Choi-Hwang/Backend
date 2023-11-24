@@ -1,4 +1,4 @@
-package backend.schedule.dto;
+package backend.schedule.dto.studycomment;
 
 import backend.schedule.entity.StudyComment;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package backend.schedule.service;
 
-import backend.schedule.dto.PersonalSubjectReqDto;
-import backend.schedule.dto.PersonalSubjectResDto;
+import backend.schedule.dto.subject.PersonalSubjectReqDto;
+import backend.schedule.dto.subject.PersonalSubjectResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.PersonalSubject;
 import backend.schedule.repository.PersonalSubjectRepository;

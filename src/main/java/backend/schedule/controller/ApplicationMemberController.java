@@ -1,6 +1,6 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.ApplicationMemberDto;
+import backend.schedule.dto.applicationmember.ApplicationMemberDto;
 import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.entity.ApplicationMember;

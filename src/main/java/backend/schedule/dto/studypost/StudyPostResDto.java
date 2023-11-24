@@ -1,4 +1,4 @@
-package backend.schedule.dto;
+package backend.schedule.dto.studypost;
 
 import backend.schedule.enumlist.FieldTag;
 import com.querydsl.core.annotations.QueryProjection;
@@ -12,7 +12,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class StudyPostResponseDto {
+public class StudyPostResDto {
 
     private Long id;
 
@@ -31,7 +31,7 @@ public class StudyPostResponseDto {
     private String post;
 
     @QueryProjection
-    public StudyPostResponseDto(Long id, String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
+    public StudyPostResDto(Long id, String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
         this.id = id;
         this.studyName = studyName;
         this.tag = tag;

@@ -1,7 +1,6 @@
-package backend.schedule.dto;
+package backend.schedule.dto.studycomment;
 
 import backend.schedule.entity.StudyAnnouncement;
-import backend.schedule.enumlist.FieldTag;
 import lombok.Data;
 
 import java.util.List;

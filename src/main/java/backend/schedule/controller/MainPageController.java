@@ -1,8 +1,8 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.Result;
-import backend.schedule.dto.ReturnLocalDateDto;
-import backend.schedule.dto.ScheduleResDto;
+import backend.schedule.dto.mainpage.ReturnLocalDateDto;
+import backend.schedule.dto.schedule.ScheduleResDto;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.ScheduleService;
@@ -35,7 +35,7 @@ public class MainPageController {
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
-    @GetMapping("/test")
+    @GetMapping("/main")
     public ResponseEntity<?> test(HttpServletRequest request, @RequestBody ReturnLocalDateDto returnLocalDateDto) {
         // 토큰 추출 및 멤버 식별
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);

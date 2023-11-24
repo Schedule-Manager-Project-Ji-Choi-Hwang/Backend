@@ -1,5 +1,6 @@
-package backend.schedule.dto;
+package backend.schedule.dto.studyschedule;
 
+import backend.schedule.dto.studyschedule.StudyScheduleDto;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.FieldTag;
 import lombok.Data;

@@ -1,6 +1,9 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.*;
+import backend.schedule.dto.schedule.ScheduleDto;
+import backend.schedule.dto.schedule.ScheduleEditReqDto;
+import backend.schedule.dto.schedule.ScheduleReqDto;
 import backend.schedule.entity.PersonalSubject;
 import backend.schedule.entity.Schedule;
 import backend.schedule.service.MemberService;

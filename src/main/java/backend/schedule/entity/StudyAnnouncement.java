@@ -1,7 +1,7 @@
 package backend.schedule.entity;
 
 
-import backend.schedule.dto.StudyAnnouncementDto;
+import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

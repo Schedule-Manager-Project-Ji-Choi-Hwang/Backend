@@ -1,8 +1,8 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.*;
+import backend.schedule.dto.member.*;
 import backend.schedule.entity.Member;
-import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.RefreshTokenService;

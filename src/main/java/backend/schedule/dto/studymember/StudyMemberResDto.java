@@ -1,4 +1,4 @@
-package backend.schedule.dto;
+package backend.schedule.dto.studymember;
 
 import backend.schedule.entity.StudyMember;
 import lombok.Getter;

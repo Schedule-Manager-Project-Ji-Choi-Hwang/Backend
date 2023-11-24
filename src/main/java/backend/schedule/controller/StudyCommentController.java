@@ -2,8 +2,8 @@ package backend.schedule.controller;
 
 import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
-import backend.schedule.dto.StudyCommentDto;
-import backend.schedule.dto.StudyCommentSetDto;
+import backend.schedule.dto.studycomment.StudyCommentDto;
+import backend.schedule.dto.studycomment.StudyCommentSetDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyComment;
 import backend.schedule.service.StudyAnnouncementService;

@@ -1,7 +1,7 @@
 package backend.schedule.service;
 
 
-import backend.schedule.dto.StudyScheduleDto;
+import backend.schedule.dto.studyschedule.StudyScheduleDto;
 import backend.schedule.entity.StudySchedule;
 import backend.schedule.repository.StudyScheduleRepository;
 import lombok.RequiredArgsConstructor;

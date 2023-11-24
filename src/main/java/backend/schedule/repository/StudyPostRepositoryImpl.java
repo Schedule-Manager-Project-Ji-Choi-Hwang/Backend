@@ -1,8 +1,8 @@
 package backend.schedule.repository;
 
-import backend.schedule.dto.QStudyPostResponseDto;
-import backend.schedule.dto.SearchPostCondition;
-import backend.schedule.dto.StudyPostResponseDto;
+import backend.schedule.dto.studypost.SearchPostCondition;
+import backend.schedule.dto.studypost.QStudyPostResDto;
+import backend.schedule.dto.studypost.StudyPostResDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.data.domain.Pageable;
@@ -33,9 +33,9 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
      * 조건: 스터디 이름 검색 조건
      */
     @Override
-    public Slice<StudyPostResponseDto> searchPost(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
-        List<StudyPostResponseDto> results =
-                query.select(new QStudyPostResponseDto(studyPost.id, studyPost.studyName,
+    public Slice<StudyPostResDto> searchPost(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
+        List<StudyPostResDto> results =
+                query.select(new QStudyPostResDto(studyPost.id, studyPost.studyName,
                                 studyPost.tag, studyPost.period, studyPost.recruitMember,
                                 studyPost.onOff, studyPost.area, studyPost.post))
                         .from(studyPost)
@@ -56,7 +56,7 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
         return hasText(studyName) ? studyPost.studyName.contains(studyName) : null;
     }
 
-    private Slice<StudyPostResponseDto> checkLastPage(Pageable pageable, List<StudyPostResponseDto> results) {
+    private Slice<StudyPostResDto> checkLastPage(Pageable pageable, List<StudyPostResDto> results) {
         boolean hasNext = false;
 
         if (results.size() > pageable.getPageSize()) {
