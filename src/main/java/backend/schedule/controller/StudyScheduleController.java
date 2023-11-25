@@ -30,21 +30,13 @@ public class StudyScheduleController {
     private final StudyScheduleService studyScheduleService;
 
     /**
-     * 스터디 일정 CRUD
-     */
-//    @GetMapping("/studyboard/{boardId}/study-schedule/add")
-//    public StudyScheduleDto studyScheduleForm(@RequestBody StudyScheduleDto scheduleDto) {
-//        return scheduleDto;
-//    }
-
-    /**
      * 스터디 일정 추가
      * Query: 2번
      */
     @Transactional
-    @PostMapping("/studyboard/{boardId}/study-schedule/add")
-    public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long boardId) {
-        StudyPost findPost = studyPostService.findById(boardId);
+    @PostMapping("/studyboard/{studyBoardId}/study-schedule/add")
+    public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyBoardId) {
+        StudyPost findPost = studyPostService.findById(studyBoardId);
 
         if (findPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
@@ -68,10 +60,10 @@ public class StudyScheduleController {
      * 스터디 일정 조회
      * Query: 1번
      */
-    @GetMapping({"/studyboard/{boardId}/study-schedule/{id}/edit", "/studyboard/{boardId}/study-schedule/{id}"})
+    @GetMapping({"/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/edit", "/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}"})
     //아무나 일정을 볼 수 있는 문제있음
-    public ResponseEntity<?> studyScheduleUpdateForm(@PathVariable Long id) {
-        StudySchedule findSchedule = studyScheduleService.findById(id);
+    public ResponseEntity<?> studyScheduleUpdateForm(@PathVariable Long studyScheduleId) {
+        StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
 
         if (findSchedule == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
@@ -86,9 +78,9 @@ public class StudyScheduleController {
      * 스터디 일정 전체조회
      * Query: Fetch join이용 1번
      */
-    @GetMapping("/studyboard/{boardId}/study-schedules")
-    public ResponseEntity<Result> studyScheduleList(@PathVariable Long boardId) {
-        StudyPost studyPost = studyPostService.studyScheduleList(boardId);//optional 쓸 수 있는지 해보기
+    @GetMapping("/studyboard/{studyBoardId}/study-schedules")
+    public ResponseEntity<Result> studyScheduleList(@PathVariable Long studyBoardId) {
+        StudyPost studyPost = studyPostService.studyScheduleList(studyBoardId);//optional 쓸 수 있는지 해보기
 
         return ResponseEntity.ok().body(new Result(new StudyPostScheduleSetDto(studyPost)));
     }
@@ -98,12 +90,11 @@ public class StudyScheduleController {
      * Query: 2번
      */
     @Transactional
-    @PatchMapping("/studyboard/{boardId}/study-schedule/{id}/edit")
+    @PatchMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/edit")
     public ResponseEntity<?> studyScheduleUpdate(
-            @Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult,
-            @PathVariable Long id, @PathVariable Long boardId) {
+            @Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyScheduleId) {
 
-        StudySchedule findSchedule = studyScheduleService.findById(id);
+        StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
 
         if (findSchedule == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
@@ -127,10 +118,10 @@ public class StudyScheduleController {
      * Query: 3번
      */
     @Transactional
-    @DeleteMapping("/studyboard/{boardId}/study-schedule/{id}/delete")
-    public ResponseEntity<?> studyScheduleDelete(@PathVariable Long boardId, @PathVariable Long id) {
-        StudyPost findPost = studyPostService.findById(boardId);
-        StudySchedule findSchedule = studyScheduleService.findById(id);
+    @DeleteMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/delete")
+    public ResponseEntity<?> studyScheduleDelete(@PathVariable Long studyBoardId, @PathVariable Long studyScheduleId) {
+        StudyPost findPost = studyPostService.findById(studyBoardId);
+        StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
 
         if (findPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));

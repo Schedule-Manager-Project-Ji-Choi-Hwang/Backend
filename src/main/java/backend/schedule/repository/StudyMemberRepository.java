@@ -14,17 +14,17 @@ import java.util.Optional;
 
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
 
-    @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyPostId and sm.confirmAuthor = :confirmAuthor")
+    @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId and sm.confirmAuthor = :confirmAuthor")
     Optional<StudyMember> findByMemberAndStudyPost(@Param("memberId") Long memberId,
-                                                   @Param("studyPostId") Long studyPostId,
+                                                   @Param("studyBoardId") Long studyBoardId,
                                                    @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
 
     boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
 
     @Query("SELECT sp FROM StudyPost sp " +
             "LEFT JOIN FETCH sp.studyMembers " +
-            "WHERE sp.id = :studyboardId")
-    Optional<StudyPost> studyMembersByStudyboardId(@Param("studyboardId") Long studyboardId);
+            "WHERE sp.id = :studyBoardId")
+    Optional<StudyPost> studyMembersByStudyboardId(@Param("studyBoardId") Long studyBoardId);
 
     @Query("SELECT DISTINCT sm FROM StudyMember sm " +
             "LEFT JOIN FETCH  sm.studyPost " +

@@ -29,23 +29,14 @@ public class StudyCommentController {
     private final StudyCommentService studyCommentService;
 
     /**
-     * 스터디 댓글 CRUD
-     */
-
-//    @GetMapping("/study-announcements/{id}/comment/add")
-//    public StudyCommentDto studyCommentForm(@RequestBody StudyCommentDto commentDto) {
-//        return commentDto;
-//    }
-
-    /**
      * 스터디 댓글 추가
      * Query: 2번
      */
     @Transactional
-    @PostMapping("/study-announcements/{id}/comment/add")//스터디 공지 댓글 추가
+    @PostMapping("/study-announcements/{announcementId}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto commentDto,
-                                              BindingResult bindingResult, @PathVariable Long id) {
-        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(id);
+                                              BindingResult bindingResult, @PathVariable Long announcementId) {
+        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
 
         if (findAnnouncement == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
@@ -69,8 +60,8 @@ public class StudyCommentController {
      * 스터디 댓글 조회
      * Query: 1번
      */
-    @GetMapping("/study-announcements/{id}/comment/{commentId}/edit")
-    public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long id, @PathVariable Long commentId) {
+    @GetMapping("/study-announcements/{announcementId}/comment/{commentId}/edit")
+    public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long commentId) {
         StudyComment comment = studyCommentService.findById(commentId);
 
         if (comment == null) {
@@ -84,9 +75,9 @@ public class StudyCommentController {
      * 스터디 댓글 전체 조회
      * Query: Fetch join이용 1번
      */
-    @GetMapping("/study-announcements/{id}/comments") //전체 공지 조회
-    public Result announcementCommentList(@PathVariable Long id) {
-        StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(id);
+    @GetMapping("/study-announcements/{announcementId}/comments") //전체 공지 조회
+    public Result announcementCommentList(@PathVariable Long announcementId) {
+        StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId);
 
         return new Result(new StudyCommentSetDto(announcement));
     }
@@ -96,10 +87,10 @@ public class StudyCommentController {
      * Query: 2번
      */
     @Transactional
-    @PatchMapping("/study-announcements/{id}/comment/{commentId}/edit")
+    @PatchMapping("/study-announcements/{announcementId}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdate(
             @Validated @RequestBody StudyCommentDto commentDto,
-            BindingResult bindingResult, @PathVariable Long id, @PathVariable Long commentId) {
+            BindingResult bindingResult, @PathVariable Long commentId) {
 
         StudyComment comment = studyCommentService.findById(commentId);
 
@@ -125,9 +116,9 @@ public class StudyCommentController {
      * Query: 4번
      */
     @Transactional
-    @DeleteMapping("/study-announcements/{id}/comment/{commentId}/delete")
-    public ResponseEntity<?> studyCommentDelete(@PathVariable Long id, @PathVariable Long commentId) {
-        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(id);
+    @DeleteMapping("/study-announcements/{announcementId}/comment/{commentId}/delete")
+    public ResponseEntity<?> studyCommentDelete(@PathVariable Long announcementId, @PathVariable Long commentId) {
+        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
         StudyComment comment = studyCommentService.findById(commentId);
 
         if (findAnnouncement == null) {

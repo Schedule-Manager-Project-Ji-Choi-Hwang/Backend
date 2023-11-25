@@ -1,6 +1,8 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.*;
+import backend.schedule.dto.MessageReturnDto;
+import backend.schedule.dto.Result;
+import backend.schedule.dto.ReturnIdDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementSetDto;
 import backend.schedule.entity.StudyAnnouncement;
@@ -28,23 +30,14 @@ public class StudyAnnouncementController {
     private final StudyAnnouncementService studyAnnouncementService;
 
     /**
-     * 스터디 공지사항 CRUD
-     */
-
-//    @GetMapping("/studyboard/{boardId}/study-announcements/add")
-//    public StudyAnnouncementDto studyAnnouncementForm(@RequestBody StudyAnnouncementDto announcementDto) {
-//        return announcementDto;
-//    }
-
-    /**
      * 스터디 공지 추가
      * Query: 2번
      */
     @Transactional
-    @PostMapping("/studyboard/{boardId}/study-announcements/add")//스터디 공지 추가
+    @PostMapping("/studyboard/{studyBoardId}/study-announcements/add")//스터디 공지 추가
     public ResponseEntity<?> studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
-                                                   BindingResult bindingResult, @PathVariable Long boardId) {
-        StudyPost findPost = studyPostService.findById(boardId);
+                                                   BindingResult bindingResult, @PathVariable Long studyBoardId) {
+        StudyPost findPost = studyPostService.findById(studyBoardId);
 
         if (findPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
@@ -69,9 +62,9 @@ public class StudyAnnouncementController {
      * 스터디 공지 수정 조회?
      * Query: 1번
      */
-    @GetMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
-    public ResponseEntity<?> studyAnnouncementUpdateForm(@PathVariable Long id, @PathVariable Long boardId) {
-        StudyAnnouncement announcement = studyAnnouncementService.findById(id);
+    @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}/edit")
+    public ResponseEntity<?> studyAnnouncementUpdateForm(@PathVariable Long announcementId) {
+        StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
         if (announcement == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ANNOUNCEMENT));
@@ -84,9 +77,9 @@ public class StudyAnnouncementController {
      * 스터디 공지 조회
      * Query: Fetch join이용 1번
      */
-    @GetMapping("/studyboard/{boardId}/study-announcements/{id}") //공지 단건 조회
-    public Result studyAnnouncement(@PathVariable Long boardId, @PathVariable Long id) {
-        StudyPost studyPost = studyPostService.studyAnnouncement(boardId, id);
+    @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}") //공지 단건 조회
+    public Result studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId) {
+        StudyPost studyPost = studyPostService.studyAnnouncement(studyBoardId, announcementId);
 
         return new Result(new StudyAnnouncementSetDto(studyPost));
     }
@@ -95,9 +88,9 @@ public class StudyAnnouncementController {
      * 스터디 공지 전체 조회
      * Query: Fetch join이용 1번
      */
-    @GetMapping("/studyboard/{boardId}/study-announcements") //전체 공지 조회
-    public Result studyAnnouncementList(@PathVariable Long boardId) {
-        StudyPost studyPost = studyPostService.studyAnnouncements(boardId);
+    @GetMapping("/studyboard/{studyBoardId}/study-announcements") //전체 공지 조회
+    public Result studyAnnouncementList(@PathVariable Long studyBoardId) {
+        StudyPost studyPost = studyPostService.studyAnnouncements(studyBoardId);
 
         return new Result(new StudyAnnouncementSetDto(studyPost));
     }
@@ -107,12 +100,12 @@ public class StudyAnnouncementController {
      * Query: 2번
      */
     @Transactional
-    @PatchMapping("/studyboard/{boardId}/study-announcements/{id}/edit")
+    @PatchMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}/edit")
     public ResponseEntity<?> studyAnnouncementUpdate(
             @Validated @RequestBody StudyAnnouncementDto announcementDto,
-            BindingResult bindingResult, @PathVariable Long boardId, @PathVariable Long id) {
+            BindingResult bindingResult, @PathVariable Long studyBoardId, @PathVariable Long announcementId) {
 
-        StudyAnnouncement announcement = studyAnnouncementService.findById(id);
+        StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
         if (announcement == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ANNOUNCEMENT));
@@ -128,7 +121,7 @@ public class StudyAnnouncementController {
 
         announcement.announcementUpdate(announcementDto);
 
-        return ResponseEntity.ok().body(new ReturnIdDto(boardId, id));
+        return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId, announcementId));
     }
 
     /**
@@ -136,10 +129,10 @@ public class StudyAnnouncementController {
      * Query: 5번
      */
     @Transactional
-    @DeleteMapping("/studyboard/{boardId}/study-announcements/{id}/delete")
-    public ResponseEntity<?> studyAnnouncementDelete(@PathVariable Long boardId, @PathVariable Long id) {
-        StudyPost findPost = studyPostService.findById(boardId);
-        StudyAnnouncement announcement = studyAnnouncementService.findById(id);
+    @DeleteMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}/delete")
+    public ResponseEntity<?> studyAnnouncementDelete(@PathVariable Long studyBoardId, @PathVariable Long announcementId) {
+        StudyPost findPost = studyPostService.findById(studyBoardId);
+        StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
         if (findPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
@@ -148,7 +141,7 @@ public class StudyAnnouncementController {
         }
 
         findPost.removeStudyAnnouncement(announcement);
-        studyAnnouncementService.delete(id);
+        studyAnnouncementService.delete(announcementId);
 
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }

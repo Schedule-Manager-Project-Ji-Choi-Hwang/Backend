@@ -36,8 +36,8 @@ public class StudyMemberController {
      * 5. 신청 멤버 id와 스터디 게시글 id로 신청 멤버 조회
      * 6. 신청 멤버 삭제
      */
-    @PostMapping("/studyboard/{studyboardId}/applicationmember/{applicationMemberId}/add")
-    public ResponseEntity<?> save(@PathVariable Long studyboardId, @PathVariable Long applicationMemberId) {
+    @PostMapping("/studyboard/{studyBoardId}/applicationmember/{applicationMemberId}/add")
+    public ResponseEntity<?> save(@PathVariable Long studyBoardId, @PathVariable Long applicationMemberId) {
         // 신청 멤버 조회
         ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId);
         if (applicationMember == null) {
@@ -48,7 +48,7 @@ public class StudyMemberController {
         Member member = applicationMember.getMember();
 
         // 스터디 게시글 조회
-        StudyPost studyPost = studyPostService.findById(studyboardId);
+        StudyPost studyPost = studyPostService.findById(studyBoardId);
         if (studyPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         }
@@ -69,9 +69,9 @@ public class StudyMemberController {
      * 1. 스터디 게시글 조회
      * 2. 멤버 수 만큼 조회 (닉네임 출력때문에 member로 타고 들어가기 때문)
      */
-    @GetMapping("/studyboard/{studyboardId}/studyMembers")
-    public ResponseEntity<?> findStudyMembers(@PathVariable Long studyboardId) {
-        List<StudyMemberResDto> studyMembers = studyMemberService.findStudyMembers(studyboardId);
+    @GetMapping("/studyboard/{studyBoardId}/studyMembers")
+    public ResponseEntity<?> findStudyMembers(@PathVariable Long studyBoardId) {
+        List<StudyMemberResDto> studyMembers = studyMemberService.findStudyMembers(studyBoardId);
         if (studyMembers == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
         }
@@ -87,9 +87,9 @@ public class StudyMemberController {
      * 3. 스터디 게시글 id로 스터디 멤버 조회 (? 이게 왜 발생?)
      * 4. 스터디 멤버 삭제
      */
-    @DeleteMapping("/studyboard/{studyboardId}/studyMembers/{studyMemberId}")
-    public ResponseEntity<?> deleteStudyMember(@PathVariable Long studyboardId, @PathVariable Long studyMemberId) {
-        StudyPost studyPost = studyPostService.findById(studyboardId);
+    @DeleteMapping("/studyboard/{studyBoardId}/studyMembers/{studyMemberId}")
+    public ResponseEntity<?> deleteStudyMember(@PathVariable Long studyBoardId, @PathVariable Long studyMemberId) {
+        StudyPost studyPost = studyPostService.findById(studyBoardId);
         StudyMember studyMember = studyMemberService.findById(studyMemberId);
 
         if (studyPost == null) {

@@ -40,14 +40,6 @@ public class StudyPostController {
     private String mySecretkey;
 
     /**
-     * 스터디 게시글 CRUD, 무한 스크롤
-     */
-//    @GetMapping("/studyboard/post")
-//    public StudyPostDto studyBoardForm(@RequestBody StudyPostDto postDto) {
-//        return postDto;
-//    }
-
-    /**
      * 스터디 게시글 작성
      * Query: 3번
      */
@@ -62,10 +54,7 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
         }
 
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+        Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
 
         if (findMember == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
@@ -80,9 +69,9 @@ public class StudyPostController {
      * 스터디 게시글 조회
      * Query: 1번
      */
-    @GetMapping("/studyboard/{id}")
-    public ResponseEntity<?> findStudyBoard(@PathVariable Long id) {
-        StudyPost findStudyPost = studyPostService.findById(id);
+    @GetMapping("/studyboard/{studyBoardId}")
+    public ResponseEntity<?> findStudyBoard(@PathVariable Long studyBoardId) {
+        StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
         if (findStudyPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
@@ -99,9 +88,7 @@ public class StudyPostController {
      */
     @GetMapping("/studyboard/{studyBoardId}/edit")
     public ResponseEntity<?> studyBoardUpdateForm(@PathVariable Long studyBoardId, HttpServletRequest request) {
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+        Member findMember = findMemberByToken(request);
 
         if (findMember == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
@@ -140,10 +127,22 @@ public class StudyPostController {
      * Query: 2번
      */
     @Transactional
-    @PatchMapping("/studyboard/{id}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
+    @PatchMapping("/studyboard/{studyBoardId}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
-                                              @PathVariable Long id) {
-        StudyPost findStudyPost = studyPostService.findById(id);
+                                              @PathVariable Long studyBoardId, HttpServletRequest request) {
+        Member findMember = findMemberByToken(request);
+
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        }
+
+        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+
+        if (studyMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
+        } //공통 부분 메서드화 해보기
+
+        StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
         if (findStudyPost == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
@@ -159,17 +158,40 @@ public class StudyPostController {
 
         findStudyPost.updatePost(studyPostDto);
 
-        return ResponseEntity.ok().body(new ReturnIdDto(id));
+        return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId));
     }
 
     /**
      * 스터디 게시글 삭제
      * Query: 3번
      */
-    @DeleteMapping("/studyboard/{id}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
-    public ResponseEntity<?> studyBoardDelete(@PathVariable Long id) {
-        studyPostService.delete(id);
+    @DeleteMapping("/studyboard/{studyBoardId}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
+    public ResponseEntity<?> studyBoardDelete(@PathVariable Long studyBoardId, HttpServletRequest request) {
+        Member findMember = findMemberByToken(request);
+
+        if (findMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        }
+
+        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+
+        if (studyMember == null) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
+        }
+
+        studyPostService.delete(studyBoardId);
 
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+    }
+
+    /**
+     * 토큰이용 Member찾기
+     * @param request
+     * @return Member
+     */
+    private Member findMemberByToken(HttpServletRequest request) {
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+        return memberService.getLoginMemberByLoginId(memberLoginId);
     }
 }
