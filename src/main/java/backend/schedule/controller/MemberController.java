@@ -45,27 +45,28 @@ public class MemberController {
      */
     @PostMapping("/member/sign-up")
     public ResponseEntity<?> join(@Validated @RequestBody MemberJoinReqDto memberJoinReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            // 로그인 아이디 및 닉네임 중복 검증
+            memberService.checkLoginIdDuplicate(memberJoinReqDto.getLoginId());
+            memberService.checkNicknameDuplicate(memberJoinReqDto.getNickname());
+
+            // 회원 가입
+            memberService.join(memberJoinReqDto);
+
+            // 응답
+            return ResponseEntity.ok().body("회원가입 성공");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 로그인 아이디 및 닉네임 중복 검증
-        if (memberService.checkLoginIdDuplicate(memberJoinReqDto.getLoginId())) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
-        } else if (memberService.checkNicknameDuplicate(memberJoinReqDto.getNickname())) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATENICKNAME));
-        }
-
-        // 회원 가입
-        memberService.join(memberJoinReqDto);
-
-        // 응답
-        return ResponseEntity.ok().body("회원가입 성공");
     }
 
     /**
@@ -77,38 +78,39 @@ public class MemberController {
      */
     @PostMapping("/member/log-in")
     public ResponseEntity<?> login(@Validated @RequestBody MemberLoginReqDto memberLoginReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
+            }
+
+            // 로그인 아이디 및 비밀번호 통해 멤버 식별 (로그인)
+            Member member = memberService.login(memberLoginReqDto);
+
+            // 시크릿 키 및 토큰 만료 기한 가져오기
+            String secretKey = mySecretkey;
+            long accessTokenExpireMs = Long.parseLong(myAccessTokenExpireMs);
+            long refreshTokenExpireMs = Long.parseLong(myRefreshTokenExpireMs);
+
+            // 토큰 생성
+            String accessToken = JwtTokenUtil.createAccessToken(member.getLoginId(), secretKey, accessTokenExpireMs);
+            String refreshToken = JwtTokenUtil.createRefreshToken(secretKey, refreshTokenExpireMs);
+
+            // Refresh 토큰 저장
+            refreshTokenService.save(refreshToken, member.getId());
+
+            // 응답
+            return ResponseEntity.noContent()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                    .header("Refresh-Token", "Bearer " + refreshToken)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 로그인 아이디 및 비밀번호 통해 멤버 식별 (로그인)
-        Member member = memberService.login(memberLoginReqDto);
-        if (member == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(LOGINFAIL));
-        }
-
-        // 시크릿 키 및 토큰 만료 기한 가져오기
-        String secretKey = mySecretkey;
-        long accessTokenExpireMs = Long.parseLong(myAccessTokenExpireMs);
-        long refreshTokenExpireMs = Long.parseLong(myRefreshTokenExpireMs);
-
-        // 토큰 생성
-        String accessToken = JwtTokenUtil.createAccessToken(member.getLoginId(), secretKey, accessTokenExpireMs);
-        String refreshToken = JwtTokenUtil.createRefreshToken(secretKey, refreshTokenExpireMs);
-
-        // Refresh 토큰 저장
-        refreshTokenService.save(refreshToken, member.getId());
-
-        // 응답
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                .header("Refresh-Token", "Bearer " + refreshToken)
-                .build(); // 프론트에서 헤더 안받아짐.
     }
 
     /**
@@ -120,36 +122,37 @@ public class MemberController {
      */
     @GetMapping("/member/refresh")
     public ResponseEntity<?> refresh(HttpServletRequest request) {
-        // 요청 헤더의 토큰 포함 여부 확인
-        if (!validateHeader(request)) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(TOKEN));
+        try {
+            // 요청 헤더의 토큰 포함 여부 확인
+            if (!validateHeader(request)) {
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(TOKEN));
+            }
+
+            // 요청 헤더의 토큰 추출
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String refreshToken = request.getHeader("Refresh-Token").substring(7);
+
+            // 시크릿 키 및 만료 기한 가져오기
+            String secretKey = mySecretkey;
+            long accessTokenExpireMs = Long.parseLong(myAccessTokenExpireMs);
+
+            // 토큰 정보 이용해 멤버 식별
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
+
+            // 요청 Refresh토큰과 DB Refresh 토큰 일치 여부 확인 및 만료기한 검사
+            refreshTokenService.matches(refreshToken, memberId, secretKey);
+
+            // 재발급 할 Access토큰 생성
+            String reissuanceAccessToken = JwtTokenUtil.createAccessToken(memberLoginId, secretKey, accessTokenExpireMs);
+
+            // 응답
+            return ResponseEntity.noContent()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + reissuanceAccessToken)
+                    .build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 요청 헤더의 토큰 추출
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String refreshToken = request.getHeader("Refresh-Token").substring(7);
-
-        // 시크릿 키 및 만료 기한 가져오기
-        String secretKey = mySecretkey;
-        long accessTokenExpireMs = Long.parseLong(myAccessTokenExpireMs);
-
-        // 토큰 정보 이용해 멤버 식별
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
-
-        // 요청 Refresh토큰과 DB Refresh 토큰 일치 여부 확인 및 만료기한 검사
-        boolean matches = refreshTokenService.matches(refreshToken, memberId, secretKey);
-        if (!matches) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(TOKEN)); // 사용자를 재 로그인 시켜야 함.
-        }
-
-        // 재발급 할 Access토큰 생성
-        String reissuanceAccessToken = JwtTokenUtil.createAccessToken(memberLoginId, secretKey, accessTokenExpireMs);
-
-        // 응답
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + reissuanceAccessToken)
-                .build();
     }
 
     /**
@@ -159,27 +162,28 @@ public class MemberController {
      *          1. 이메일 이용해 멤버 조회
      */
     @GetMapping("/member/findLoginId")
-    public ResponseEntity<?> findLoginId(@Validated @RequestBody FindLoginIdReqDto findLoginIdReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
+    public ResponseEntity<?> findLoginId(@Validated @RequestBody MemberFindLoginIdReqDto memberFindLoginIdReqDto, BindingResult bindingResult) {
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
+            }
+
+            // 멤버 조회 및 아이디값 조회
+            Member member = memberService.findMemberByEmail(memberFindLoginIdReqDto.getEmail());
+
+            // 반환할 Dto 생성
+            MemberFindLoginIdResDto memberFindLoginIdResDto = new MemberFindLoginIdResDto(member.getLoginId());
+
+            // 응답
+            return ResponseEntity.ok().body(memberFindLoginIdResDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 멤버 조회 및 아이디값 조회
-        Member member = memberService.findMemberByEmail(findLoginIdReqDto.getEmail());
-        if (member == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
-        }
-
-        // 반환할 Dto 생성
-        FindLoginIdResDto findLoginIdResDto = new FindLoginIdResDto(member.getLoginId());
-
-        // 응답
-        return ResponseEntity.ok().body(findLoginIdResDto);
     }
 
     /**
@@ -189,30 +193,28 @@ public class MemberController {
      *          2. 멤버 비밀번호 변경 (임시 비밀번호)
      */
     @PostMapping("/member/findPassword")
-    public ResponseEntity<?> findPassword(@Validated @RequestBody FindPasswordReqDto findPasswordReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
-        }
+    public ResponseEntity<?> findPassword(@Validated @RequestBody MemberFindPasswordReqDto memberFindPasswordReqDto, BindingResult bindingResult) {
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
+            }
 
-        // 멤버 식별
-        Member findMember = memberService.findMemberByLoginIdAndEmail(findPasswordReqDto.getLoginId(), findPasswordReqDto.getEmail());
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
-        }
+            // 멤버 식별
+            Member findMember = memberService.findMemberByLoginIdAndEmail(memberFindPasswordReqDto.getLoginId(), memberFindPasswordReqDto.getEmail());
 
-        // 이메일 발송
-        String result = memberService.sendMail(findPasswordReqDto, findMember);
-        if (result.equals("fail")) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SENDEMAILFAIL));
-        }
+            // 이메일 발송
+            memberService.sendMail(memberFindPasswordReqDto, findMember);
 
-        // 응답
-        return ResponseEntity.ok().body("임시 비밀번호 발급이 성공 하였습니다. 이메일을 확인해 주세요");
+            // 응답
+            return ResponseEntity.ok().body("임시 비밀번호 발급이 성공 하였습니다. 이메일을 확인해 주세요");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 
     /**
@@ -223,40 +225,30 @@ public class MemberController {
      *          2. 멤버 비밀번호 변경
      */
     @PatchMapping("/member/edit")
-    public ResponseEntity<?> changePW(HttpServletRequest request, @Validated @RequestBody MemberPasswordReqDto memberPasswordReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
-        }
+    public ResponseEntity<?> changePW(HttpServletRequest request, @Validated @RequestBody MemberChangePasswordReqDto memberChangePasswordReqDto, BindingResult bindingResult) {
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
 
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String secretKey = mySecretkey;
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
-        }
+            // 토큰 추출 및 멤버 식별
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String secretKey = mySecretkey;
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        // 비밀번호 변경
-        memberService.changePW(findMember, memberPasswordReqDto);
+            // 비밀번호 변경
+            memberService.changePW(findMember, memberChangePasswordReqDto);
 
-        // 응답
-        return ResponseEntity.ok().body("비밀번호가 변경 되었습니다."); // 변경 완료 시 재로그인 시켜야함.
-    }
-
-    // 요청 헤더의 토큰 포함 여부 확인 메서드
-    public boolean validateHeader(HttpServletRequest request) {
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-        String refreshToken = request.getHeader("Refresh-Token");
-        if (Objects.isNull(accessToken) || Objects.isNull(refreshToken)) {
-            return false;
-        } else {
-            return true;
+            // 응답
+            return ResponseEntity.ok().body("비밀번호가 변경 되었습니다."); // 변경 완료 시 재로그인 시켜야함.
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
     }
 
@@ -268,17 +260,29 @@ public class MemberController {
 
     @DeleteMapping("/member/delete")
     public ResponseEntity<?> deleteMember(HttpServletRequest request) {
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String secretKey = mySecretkey;
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        try {
+            // 토큰 추출 및 멤버 식별
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String secretKey = mySecretkey;
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+            memberService.deleteMember(findMember);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
+    }
 
-        memberService.deleteMember(findMember);
-
-        return ResponseEntity.ok().build();
+    // 요청 헤더의 토큰 포함 여부 확인 메서드
+    public boolean validateHeader(HttpServletRequest request) {
+        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String refreshToken = request.getHeader("Refresh-Token");
+        if (Objects.isNull(accessToken) || Objects.isNull(refreshToken)) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

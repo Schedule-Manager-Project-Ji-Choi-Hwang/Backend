@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindLoginIdResDto {
+public class MemberFindLoginIdResDto {
 
     private String loginId;
 }

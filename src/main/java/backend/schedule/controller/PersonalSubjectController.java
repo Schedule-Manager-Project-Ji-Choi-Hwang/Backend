@@ -43,28 +43,29 @@ public class PersonalSubjectController {
      */
     @PostMapping("/subjects/add")
     public ResponseEntity<?> subjectAdd(@Validated @RequestBody PersonalSubjectReqDto personalSubjectReqDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            // 토큰 추출 및 멤버 식별
+            String accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+            // 개인 과목 저장
+            PersonalSubjectResDto savedSubjectDto = personalSubjectService.save(personalSubjectReqDto, findMember);
+
+            // 응답
+            return ResponseEntity.ok().body(savedSubjectDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 토큰 추출 및 멤버 식별
-        String accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
-        }
-
-        // 개인 과목 저장
-        PersonalSubjectResDto savedSubjectDto = personalSubjectService.save(personalSubjectReqDto, findMember);
-
-        // 응답
-        return ResponseEntity.ok().body(savedSubjectDto);
     }
 
     /**
@@ -75,14 +76,15 @@ public class PersonalSubjectController {
      */
     @GetMapping("/subjects/{subjectId}")
     public ResponseEntity<?> findSubject(@PathVariable Long subjectId) {
-        // 개인 과목 조회
-        PersonalSubject personalSubject = personalSubjectService.findOne(subjectId);
-        if (personalSubject == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SUBJECT));
-        }
+        try {
+            // 개인 과목 조회
+            PersonalSubject personalSubject = personalSubjectService.findOne(subjectId);
 
-        // 응답
-        return ResponseEntity.ok().body(new PersonalSubjectResDto(personalSubject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
+            // 응답
+            return ResponseEntity.ok().body(new PersonalSubjectResDto(personalSubject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 
     /**
@@ -94,19 +96,20 @@ public class PersonalSubjectController {
      */
     @GetMapping("/subjects")
     public ResponseEntity<?> findSubjects(HttpServletRequest request) {
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        try {
+            // 토큰 추출 및 멤버 식별
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+            // 개인 과목 전체 조회 (멤버별)
+            List<PersonalSubjectResDto> findPersonalSubjects = personalSubjectService.findAll(findMember);
+
+            // 응답
+            return ResponseEntity.ok().body(new Result(findPersonalSubjects));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 개인 과목 전체 조회 (멤버별)
-        List<PersonalSubjectResDto> findPersonalSubjects = personalSubjectService.findAll(findMember);
-
-        // 응답
-        return ResponseEntity.ok().body(new Result(findPersonalSubjects));
     }
 
     /**
@@ -118,20 +121,24 @@ public class PersonalSubjectController {
      */
     @PatchMapping("/subjects/{subjectId}/edit")
     public ResponseEntity<?> subjectUpdate(@PathVariable Long subjectId, @Validated @RequestBody PersonalSubjectReqDto personalSubjectReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(objectError -> objectError.getDefaultMessage())
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
 
-        // 개인 과목 변경 (제목)
-        personalSubjectService.subjectNameUpdate(subjectId, personalSubjectReqDto);
-        
-        // 응답
-        return ResponseEntity.ok().build();
+            // 개인 과목 변경 (제목)
+            personalSubjectService.subjectNameUpdate(subjectId, personalSubjectReqDto);
+
+            // 응답
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 
     /**
@@ -145,23 +152,21 @@ public class PersonalSubjectController {
      */
     @DeleteMapping("/subjects/{subjectId}/delete")
     public ResponseEntity<?> subjectDelete(HttpServletRequest request, @PathVariable Long subjectId) {
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-        Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
-        }
+        try {
+            // 토큰 추출 및 멤버 식별
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
-        if (findSubject == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SUBJECT));
-        }
+            PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
 
-        // 개인 과목 삭제
-        personalSubjectService.subjectDelete(findMember, findSubject);
-        
-        // 응답
-        return ResponseEntity.ok().build();
+            // 개인 과목 삭제
+            personalSubjectService.subjectDelete(findMember, findSubject);
+
+            // 응답
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 }

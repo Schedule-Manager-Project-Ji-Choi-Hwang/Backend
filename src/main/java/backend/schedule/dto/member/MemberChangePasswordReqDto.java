@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @Setter
-public class MemberPasswordReqDto {
+public class MemberChangePasswordReqDto {
 
     private String password;
 }

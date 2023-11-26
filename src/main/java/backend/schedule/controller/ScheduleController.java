@@ -48,23 +48,24 @@ public class ScheduleController {
      */
     @PostMapping("/subjects/{subjectId}/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
     public ResponseEntity<?> add(@PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
 
-        // 스케쥴 저장
-        String result = scheduleService.add(scheduleReqDto, subjectId);
-        if (result == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULEFAIL));
-        }
+            // 스케쥴 저장
+            scheduleService.add(scheduleReqDto, subjectId);
 
-        // 응답
-        return ResponseEntity.ok().body("일정 등록 성공");
+            // 응답
+            return ResponseEntity.ok().body("일정 등록 성공");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 
     /**
@@ -75,14 +76,15 @@ public class ScheduleController {
      */
     @GetMapping("/subjects/schedules/{scheduleId}")
     public ResponseEntity<?> findSchedule(@PathVariable Long scheduleId) {
-        Schedule findSchedule = scheduleService.findOne(scheduleId);
-        if (findSchedule == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
+        try {
+            Schedule findSchedule = scheduleService.findOne(scheduleId);
+
+            ScheduleDto scheduleDto = new ScheduleDto(findSchedule);
+
+            return ResponseEntity.ok().body(new Result(scheduleDto));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        ScheduleDto scheduleDto = new ScheduleDto(findSchedule);
-
-        return ResponseEntity.ok().body(new Result(scheduleDto));
     }
 
     /**
@@ -116,23 +118,24 @@ public class ScheduleController {
      */
     @PatchMapping("/subjects/schedules/{scheduleId}/edit")
     public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId, @Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult) {
-        // 빈 검증
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors()
-                    .stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
+        try {
+            // 빈 검증
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
 
-        // 스케쥴 변경
-        Schedule schedule = scheduleService.updateSchedule(scheduleId, scheduleEditReqDto);
-        if (schedule == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
-        }
+            // 스케쥴 변경
+            scheduleService.updateSchedule(scheduleId, scheduleEditReqDto);
 
-        // 응답
-        return ResponseEntity.ok("변경 되었습니다.");
+            // 응답
+            return ResponseEntity.ok("변경 되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 
     /**
@@ -146,19 +149,17 @@ public class ScheduleController {
      */
     @DeleteMapping("/subjects/{subjectId}/schedules/{scheduleId}/delete")
     public ResponseEntity<?> deleteSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId) {
-        PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
-        Schedule findSchedule = scheduleService.findOne(scheduleId);
+        try {
+            PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
+            Schedule findSchedule = scheduleService.findOne(scheduleId);
 
-        if (findSubject == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SUBJECT));
-        } else if (findSchedule == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
+            // 스케쥴 삭제
+            scheduleService.deleteSchedule(findSubject, findSchedule);
+
+            // 응답
+            return ResponseEntity.ok("삭제 되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 스케쥴 삭제
-        scheduleService.deleteSchedule(findSubject, findSchedule);
-
-        // 응답
-        return ResponseEntity.ok("삭제 되었습니다.");
     }
 }

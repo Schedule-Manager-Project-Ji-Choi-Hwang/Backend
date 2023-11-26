@@ -1,6 +1,7 @@
 package backend.schedule.service;
 
 import backend.schedule.entity.RefreshToken;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -43,12 +44,12 @@ public class RefreshTokenService {
             // 요청 Refresh 토큰 만료기한 검사
             if (JwtTokenUtil.isExpired(requestRefreshToken, secretKey)) {
                 refreshTokenRepository.delete(savedRefreshToken);
-                return false;
+                throw new IllegalArgumentException(ErrorMessage.TOKENEXPIRE);
             }
 
             // 요청 Refresh 토큰과 DB Refresh 토큰 비교
             if (!savedRefreshToken.getToken().equals(requestRefreshToken)) {
-                return false;
+                throw new IllegalArgumentException(ErrorMessage.TOKEN);
             }
         }
         return true;

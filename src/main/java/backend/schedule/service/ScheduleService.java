@@ -5,6 +5,7 @@ import backend.schedule.dto.schedule.ScheduleReqDto;
 import backend.schedule.dto.schedule.ScheduleResDto;
 import backend.schedule.entity.PersonalSubject;
 import backend.schedule.entity.Schedule;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.MemberRepository;
 import backend.schedule.repository.PersonalSubjectRepository;
 import backend.schedule.repository.ScheduleRepository;
@@ -34,7 +35,7 @@ public class ScheduleService {
      * (스케쥴 저장)
      * 단일 저장 및 반복 저장
      */
-    public String add(ScheduleReqDto scheduleReqDto, Long subjectId) {
+    public void add(ScheduleReqDto scheduleReqDto, Long subjectId) {
         Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findById(subjectId);
         if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
             PersonalSubject personalSubject = optionalPersonalSubject.get();
@@ -43,7 +44,6 @@ public class ScheduleService {
                 Schedule schedule = new Schedule(scheduleReqDto, scheduleReqDto.getStartDate());
                 personalSubject.addSchedules(schedule);
                 scheduleRepository.save(schedule);
-                return "성공";
 
             } else { // 반복 등록
                 LocalDate nextDate = scheduleReqDto.getStartDate(); // 저장될 날짜를 가지고 있는 놈. for문의 i 변수같은 존재.
@@ -72,10 +72,9 @@ public class ScheduleService {
                         break;
                     }
                 }
-                return "성공";
             }
         } else {
-            return null;
+            throw new IllegalArgumentException(ErrorMessage.SCHEDULEFAIL);
         }
     }
 
@@ -85,11 +84,8 @@ public class ScheduleService {
      */
     public Schedule findOne(Long scheduleId) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
-        if (optionalSchedule.isPresent()) {
-            return optionalSchedule.get();
-        } else {
-            return null;
-        }
+
+        return optionalSchedule.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
     }
 
     /**
@@ -123,7 +119,7 @@ public class ScheduleService {
             schedule.changeScheduleNameAndPeriod(scheduleEditReqDto);
             return schedule;
         } else {
-            return null;
+            throw new IllegalArgumentException(ErrorMessage.SCHEDULE);
         }
     }
 

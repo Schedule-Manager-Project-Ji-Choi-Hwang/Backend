@@ -4,6 +4,7 @@ import backend.schedule.dto.subject.PersonalSubjectReqDto;
 import backend.schedule.dto.subject.PersonalSubjectResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.PersonalSubject;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.PersonalSubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @Service
 @Transactional
@@ -43,7 +46,7 @@ public class PersonalSubjectService {
         // id값 이용해 개인 과목 조회
         Optional<PersonalSubject> optionalPersonalSubject = personalSubjectRepository.findById(subjectId);
 
-        return optionalPersonalSubject.orElse(null);
+        return optionalPersonalSubject.orElseThrow(() -> new IllegalArgumentException(SUBJECT));
     }
 
     /**
