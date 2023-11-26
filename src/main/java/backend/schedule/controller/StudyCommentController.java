@@ -36,24 +36,26 @@ public class StudyCommentController {
     @PostMapping("/study-announcements/{announcementId}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto commentDto,
                                               BindingResult bindingResult, @PathVariable Long announcementId) {
-        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
+        //작성한 사람 정보가 안들어감
+        try {
+            StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
 
-        if (findAnnouncement == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            StudyComment studyComment = new StudyComment(commentDto);
+            findAnnouncement.addStudyComment(studyComment);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        StudyComment studyComment = new StudyComment(commentDto);
-        findAnnouncement.addStudyComment(studyComment);
-
-        return ResponseEntity.ok().build();
     }
 
     /**
@@ -62,24 +64,31 @@ public class StudyCommentController {
      */
     @GetMapping("/study-announcements/{announcementId}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long commentId) {
-        StudyComment comment = studyCommentService.findById(commentId);
+        //announcementId 아무거나 입력해도 commentId만 맞으면 불러와짐, 댓글 작성한 사람만 수정가능한 로직 필요
+        try {
+            StudyComment comment = studyCommentService.findById(commentId);
 
-        if (comment == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
+            return ResponseEntity.ok().body(new StudyCommentDto(comment));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        return ResponseEntity.ok().body(new StudyCommentDto(comment));
     }
 
     /**
      * 스터디 댓글 전체 조회
      * Query: Fetch join이용 1번
      */
-    @GetMapping("/study-announcements/{announcementId}/comments") //전체 공지 조회
-    public Result announcementCommentList(@PathVariable Long announcementId) {
-        StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId);
+    @GetMapping("/study-announcements/{announcementId}/comments")
+    public ResponseEntity<?> announcementCommentList(@PathVariable Long announcementId) {
 
-        return new Result(new StudyCommentSetDto(announcement));
+        try {
+            StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId);
+
+            return ResponseEntity.ok().body(new Result(new StudyCommentSetDto(announcement)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+
     }
 
     /**
@@ -91,24 +100,25 @@ public class StudyCommentController {
     public ResponseEntity<?> studyCommentUpdate(
             @Validated @RequestBody StudyCommentDto commentDto,
             BindingResult bindingResult, @PathVariable Long commentId) {
+        //댓글 작성한 사람만 수정가능한 로직 필요, announcementId 아무거나 입력해도 commentId만 맞으면 수정되는 문제
+        try {
+            StudyComment comment = studyCommentService.findById(commentId);
 
-        StudyComment comment = studyCommentService.findById(commentId);
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
 
-        if (comment == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            comment.commentUpdate(commentDto);
+
+            return ResponseEntity.ok().build(); //수정 후 다시 스터디 공지로 리다리렉트 되게하기(/studyboard/{boardId})boardId 필요
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        comment.commentUpdate(commentDto);
-
-        return ResponseEntity.ok().build(); //수정 후 다시 스터디 공지로 리다리렉트 되게하기(/studyboard/{boardId})boardId 필요
     }
 
     /**
@@ -118,17 +128,17 @@ public class StudyCommentController {
     @Transactional
     @DeleteMapping("/study-announcements/{announcementId}/comment/{commentId}/delete")
     public ResponseEntity<?> studyCommentDelete(@PathVariable Long announcementId, @PathVariable Long commentId) {
-        StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
-        StudyComment comment = studyCommentService.findById(commentId);
+        //댓글 작성한 사람만 삭제가능한 로직 필요
+        try {
+            StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
+            StudyComment comment = studyCommentService.findById(commentId);
 
-        if (findAnnouncement == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        } else if (comment == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(COMMENT));
+            findAnnouncement.removeStudyComment(comment);
+            //쿼리 4번 개선방법 생각
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        findAnnouncement.removeStudyComment(comment);
-        //쿼리 4번 개선방법 생각
-        return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }
 }

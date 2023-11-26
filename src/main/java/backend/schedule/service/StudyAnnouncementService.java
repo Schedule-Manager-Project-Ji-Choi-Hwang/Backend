@@ -2,6 +2,7 @@ package backend.schedule.service;
 
 
 import backend.schedule.entity.StudyAnnouncement;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyAnnouncementRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +22,7 @@ public class StudyAnnouncementService {
     public StudyAnnouncement findById(Long id) {
         Optional<StudyAnnouncement> optionalStudyAnnouncement = studyAnnouncementRepository.findById(id);
 
-        return optionalStudyAnnouncement.orElse(null);
+        return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
     public void delete(Long id) {
@@ -29,6 +30,8 @@ public class StudyAnnouncementService {
     }
 
     public StudyAnnouncement announcementCommentList(Long id) {
-        return studyAnnouncementRepository.announcementCommentList(id);
+        Optional<StudyAnnouncement> optionalStudyAnnouncement = studyAnnouncementRepository.announcementCommentList(id);
+
+        return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 }

@@ -5,6 +5,7 @@ import backend.schedule.dto.member.MemberJoinReqDto;
 import backend.schedule.dto.member.MemberLoginReqDto;
 import backend.schedule.dto.member.MemberPasswordReqDto;
 import backend.schedule.entity.Member;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,14 +83,15 @@ public class MemberService {
      * 로그인 아이디 이용 멤버 식별
      */
     public Member getLoginMemberByLoginId(String loginId) {
+
         if (loginId == null) {
             return null;
-        }
+        } // 어차피 optional이기 때문에 필요없는 구간 아닌지?
 
         // 로그인 아이디 이용해 멤버 조회
         Optional<Member> optionalMember = memberRepository.findByLoginId(loginId);
 
-        return optionalMember.orElse(null);
+        return optionalMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.MEMBER));
     }
 
     /**

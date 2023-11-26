@@ -3,6 +3,7 @@ package backend.schedule.service;
 
 import backend.schedule.dto.studyschedule.StudyScheduleDto;
 import backend.schedule.entity.StudySchedule;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class StudyScheduleService {
     public StudySchedule findById(Long id) {
         Optional<StudySchedule> optionalStudySchedule = studyScheduleRepository.findById(id);
 
-        return optionalStudySchedule.orElse(null);
+        return optionalStudySchedule.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
     }
 
     public void delete(StudySchedule schedule) {

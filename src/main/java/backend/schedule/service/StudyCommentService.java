@@ -2,6 +2,7 @@ package backend.schedule.service;
 
 
 import backend.schedule.entity.StudyComment;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyCommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,6 @@ public class StudyCommentService {
     public StudyComment findById(Long id) {
         Optional<StudyComment> optionalStudyComment = studyCommentRepository.findById(id);
 
-        return optionalStudyComment.orElse(null);
+        return optionalStudyComment.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.COMMENT));
     }
 }

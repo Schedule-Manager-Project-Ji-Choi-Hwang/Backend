@@ -4,6 +4,7 @@ package backend.schedule.service;
 import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.ApplicationMemberRepository;
 import backend.schedule.repository.StudyMemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class ApplicationMemberService {
     public ApplicationMember findById(Long id) {
         Optional<ApplicationMember> optionalApplicationMember = applicationMemberRepository.findById(id);
 
-        return optionalApplicationMember.orElse(null);
+        return optionalApplicationMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.APPLICATION));
     }
 
     public boolean ApplicationMemberDuplicate(Member member, StudyPost studyPost) {

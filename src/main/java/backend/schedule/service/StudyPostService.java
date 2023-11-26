@@ -10,6 +10,7 @@ import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyMemberRepository;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class StudyPostService {
     public StudyPost findById(Long id) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findById(id);
 
-        return optionalStudyPost.orElse(null);
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.POST));
     }
 
     public Slice<StudyPostResDto> search(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
@@ -58,14 +59,20 @@ public class StudyPostService {
     }
 
     public StudyPost studyScheduleList(Long id) {
-        return studyPostRepository.studyScheduleList(id);
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyScheduleList(id);
+
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
     }
 
     public StudyPost studyAnnouncement(Long boardId, Long id) {
-        return studyPostRepository.studyAnnouncement(boardId, id);
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyAnnouncement(boardId, id);
+
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
     public StudyPost studyAnnouncements(Long boardId) {
-        return studyPostRepository.studyAnnouncements(boardId);
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyAnnouncements(boardId);
+
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 }

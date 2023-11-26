@@ -38,29 +38,20 @@ public class StudyMemberController {
      */
     @PostMapping("/studyboard/{studyBoardId}/applicationmember/{applicationMemberId}/add")
     public ResponseEntity<?> save(@PathVariable Long studyBoardId, @PathVariable Long applicationMemberId) {
-        // 신청 멤버 조회
-        ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId);
-        if (applicationMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(APPLICATION));
+
+        try {
+            ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId); // 신청 멤버 조회
+            Member member = applicationMember.getMember(); // 멤버 획득
+            StudyPost studyPost = studyPostService.findById(studyBoardId); // 스터디 게시글 조회
+
+            studyMemberService.save(member, studyPost); // 스터디 멤버 저장
+            applicationMemberService.rejectMember(applicationMemberId, studyPost, applicationMember); // 신청 멤버 삭제
+
+            return ResponseEntity.ok().body("스터디 멤버에 등록 성공!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        // 멤버 획득
-        Member member = applicationMember.getMember();
-
-        // 스터디 게시글 조회
-        StudyPost studyPost = studyPostService.findById(studyBoardId);
-        if (studyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        }
-
-        // 스터디 멤버 저장
-        studyMemberService.save(member, studyPost);
-
-        // 신청 멤버 삭제
-        applicationMemberService.rejectMember(applicationMemberId, studyPost, applicationMember);
-
-        // 응답
-        return ResponseEntity.ok().body("스터디 멤버에 등록 성공!");
     }
 
     /**
@@ -89,17 +80,17 @@ public class StudyMemberController {
      */
     @DeleteMapping("/studyboard/{studyBoardId}/studyMembers/{studyMemberId}")
     public ResponseEntity<?> deleteStudyMember(@PathVariable Long studyBoardId, @PathVariable Long studyMemberId) {
-        StudyPost studyPost = studyPostService.findById(studyBoardId);
-        StudyMember studyMember = studyMemberService.findById(studyMemberId);
 
-        if (studyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        } else if (studyMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
+        try {
+            StudyPost studyPost = studyPostService.findById(studyBoardId);
+            StudyMember studyMember = studyMemberService.findById(studyMemberId);
+
+            studyMemberService.delete(studyPost, studyMember);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        studyMemberService.delete(studyPost, studyMember);
-
-        return ResponseEntity.ok().build();
     }
 }

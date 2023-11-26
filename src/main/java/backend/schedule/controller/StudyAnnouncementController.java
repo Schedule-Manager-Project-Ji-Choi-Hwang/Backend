@@ -37,25 +37,27 @@ public class StudyAnnouncementController {
     @PostMapping("/studyboard/{studyBoardId}/study-announcements/add")//스터디 공지 추가
     public ResponseEntity<?> studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
                                                    BindingResult bindingResult, @PathVariable Long studyBoardId) {
-        StudyPost findPost = studyPostService.findById(studyBoardId);
+        //스터디 리더만 작성가능하게 로직만들기
+        try {
+            StudyPost findPost = studyPostService.findById(studyBoardId);
 
-        if (findPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
+            findPost.addStudyAnnouncements(announcement);
+            Long announcementId = studyAnnouncementService.save(announcement);
+
+            return ResponseEntity.ok().body(new ReturnIdDto(announcementId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
-        findPost.addStudyAnnouncements(announcement);
-        Long announcementId = studyAnnouncementService.save(announcement);
-
-        return ResponseEntity.ok().body(new ReturnIdDto(announcementId));
     }
 
     /**
@@ -64,13 +66,15 @@ public class StudyAnnouncementController {
      */
     @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}/edit")
     public ResponseEntity<?> studyAnnouncementUpdateForm(@PathVariable Long announcementId) {
-        StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
+        //studyBoardId 아무거나 넣어도 announcementId만 있으면 수정됨, 스터디 리더만 수정가능하게
+        try {
+            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
-        if (announcement == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ANNOUNCEMENT));
+            return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
     }
 
     /**
@@ -78,10 +82,16 @@ public class StudyAnnouncementController {
      * Query: Fetch join이용 1번
      */
     @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}") //공지 단건 조회
-    public Result studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId) {
-        StudyPost studyPost = studyPostService.studyAnnouncement(studyBoardId, announcementId);
+    public ResponseEntity<?> studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId) {
 
-        return new Result(new StudyAnnouncementSetDto(studyPost));
+        try {
+            StudyPost studyPost = studyPostService.studyAnnouncement(studyBoardId, announcementId);
+
+            return ResponseEntity.ok().body(new Result(new StudyAnnouncementSetDto(studyPost)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+
     }
 
     /**
@@ -89,10 +99,16 @@ public class StudyAnnouncementController {
      * Query: Fetch join이용 1번
      */
     @GetMapping("/studyboard/{studyBoardId}/study-announcements") //전체 공지 조회
-    public Result studyAnnouncementList(@PathVariable Long studyBoardId) {
-        StudyPost studyPost = studyPostService.studyAnnouncements(studyBoardId);
+    public ResponseEntity<?> studyAnnouncementList(@PathVariable Long studyBoardId) {
 
-        return new Result(new StudyAnnouncementSetDto(studyPost));
+        try {
+            StudyPost studyPost = studyPostService.studyAnnouncements(studyBoardId);
+
+            return ResponseEntity.badRequest().body(new Result(new StudyAnnouncementSetDto(studyPost)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+
     }
 
     /**
@@ -104,24 +120,25 @@ public class StudyAnnouncementController {
     public ResponseEntity<?> studyAnnouncementUpdate(
             @Validated @RequestBody StudyAnnouncementDto announcementDto,
             BindingResult bindingResult, @PathVariable Long studyBoardId, @PathVariable Long announcementId) {
+        //studyBoardId 아무거나 넣어도 announcementId만 있으면 수정됨, 스터디 리더만 수정가능하게
+        try {
+            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
-        StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
 
-        if (announcement == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ANNOUNCEMENT));
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            announcement.announcementUpdate(announcementDto);
+
+            return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId, announcementId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        announcement.announcementUpdate(announcementDto);
-
-        return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId, announcementId));
     }
 
     /**
@@ -131,18 +148,18 @@ public class StudyAnnouncementController {
     @Transactional
     @DeleteMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}/delete")
     public ResponseEntity<?> studyAnnouncementDelete(@PathVariable Long studyBoardId, @PathVariable Long announcementId) {
-        StudyPost findPost = studyPostService.findById(studyBoardId);
-        StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
+        //studyBoardId 아무거나 넣어도 announcementId만 있으면 지워짐, 스터디 리더만 삭제가능하게
+        try {
+            StudyPost findPost = studyPostService.findById(studyBoardId);
+            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
-        if (findPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        } else if (announcement == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ANNOUNCEMENT));
+            findPost.removeStudyAnnouncement(announcement);
+            studyAnnouncementService.delete(announcementId);
+
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        findPost.removeStudyAnnouncement(announcement);
-        studyAnnouncementService.delete(announcementId);
-
-        return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }
 }

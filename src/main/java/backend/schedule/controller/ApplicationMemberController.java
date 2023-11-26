@@ -46,32 +46,30 @@ public class ApplicationMemberController {
      */
     @PostMapping("/studyboard/{studyboardId}/application-member/add")
     public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long studyboardId) {
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String secretKey = mySecretkey;
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Member member = memberService.getLoginMemberByLoginId(memberLoginId);
+        //스터디 포스트 addApplicationMember 편의 메서드에 들어가는거도 없음
+        try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String secretKey = mySecretkey;
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Member member = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        // 스터디 게시글 조회
-        StudyPost studyPost = studyPostService.findById(studyboardId);
-        if (studyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+            StudyPost studyPost = studyPostService.findById(studyboardId);
+
+            // 해당 스터디에 이미 가입되어 있으면 신청이 불가해야한다.
+            boolean studyMemberDuplicateCheck = applicationMemberService.StudyMemberDuplicateCheck(member, studyPost);
+            boolean applicationMemberDuplicate = applicationMemberService.ApplicationMemberDuplicate(member, studyPost);
+            if (applicationMemberDuplicate) {
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATE));
+            } else if (studyMemberDuplicateCheck) {
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ALREADY));
+            }
+
+            applicationMemberService.save(member, studyPost);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        // 해당 스터디에 이미 가입되어 있으면 신청이 불가해야한다.
-        boolean studyMemberDuplicateCheck = applicationMemberService.StudyMemberDuplicateCheck(member, studyPost);
-        boolean applicationMemberDuplicate = applicationMemberService.ApplicationMemberDuplicate(member, studyPost);
-        if (applicationMemberDuplicate) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATE));
-        } else if (studyMemberDuplicateCheck) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ALREADY));
-        }
-
-        // 신청 멤버 저장
-        applicationMemberService.save(member, studyPost);
-
-        // 응답
-        return ResponseEntity.ok().build();
     }
 
     /**
@@ -85,31 +83,29 @@ public class ApplicationMemberController {
      */
     @GetMapping("/studyboard/{studyboardId}/application-members")
     public ResponseEntity<?> applicationMembers(HttpServletRequest request, @PathVariable Long studyboardId) {
-        // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String secretKey = mySecretkey;
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
+        //재검토
+        try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String secretKey = mySecretkey;
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        // 스터디 멤버 식별 (권한 식별)
-        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(memberId, studyboardId);
-        if (studyMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(AUTHORITY));
+            // 스터디 멤버 식별 (권한 식별)
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyboardId);
+
+            // 스터디 게시글 조회
+            StudyPost studyPost = studyPostService.findById(studyboardId);
+
+            // 반환할 신청 멤버들 Dto 준비 (페치조인으로 바꿔야함 멤버가 3명이면 멤버 닉네임을 가져오기 위해 3번 쿼리가 더 나가고 100명이면 100번 더 나감)
+            List<ApplicationMemberDto> ApplicationMemberDtos = studyPost.getApplicationMembers().stream()
+                    .map(ApplicationMemberDto::new)
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok().body(new Result(ApplicationMemberDtos));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        // 스터디 게시글 조회
-        StudyPost studyPost = studyPostService.findById(studyboardId);
-        if (studyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        }
-
-        // 반환할 신청 멤버들 Dto 준비
-        List<ApplicationMemberDto> ApplicationMemberDtos = studyPost.getApplicationMembers().stream()
-                .map(ApplicationMemberDto::new)
-                .collect(Collectors.toList());
-
-        // 응답
-        return ResponseEntity.ok().body(new Result(ApplicationMemberDtos));
     }
 
     /**
@@ -123,17 +119,19 @@ public class ApplicationMemberController {
      */
     @DeleteMapping("/studyboard/{studyboardId}/application-members/{apMemberId}/delete")
     public ResponseEntity<?> rejectMember(@PathVariable Long studyboardId, @PathVariable Long apMemberId) {
-        StudyPost findStudyPost = studyPostService.findById(studyboardId);
-        ApplicationMember findApMember = applicationMemberService.findById(apMemberId);
+        //studyPostService, applicationMemberService에서 각각 findById하는게 아니라 applicationMemberService에서
+        //신청테이블, 회원, 게시글 id(pk) 맞는지 확인 후 삭제해야 할듯 -> applicationMemberService에서 다 처리
+        //리더가 아니여도 삭제 가능, studyboardId가 있기만하면 아무거나 넣어도 삭제가능, StudyPost 편의 메서드에서 제거기능 추가
+        try {
+            StudyPost findStudyPost = studyPostService.findById(studyboardId);
+            ApplicationMember findApMember = applicationMemberService.findById(apMemberId);
 
-        if (findStudyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        } else if (findApMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(APPLICATION));
+            applicationMemberService.rejectMember(apMemberId, findStudyPost, findApMember);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        applicationMemberService.rejectMember(apMemberId, findStudyPost, findApMember);
-
-        return ResponseEntity.ok().build();
     }
 }

@@ -6,6 +6,7 @@ import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,13 +31,13 @@ public class StudyMemberService {
     public StudyMember findById(Long StudyMemberId) {
         Optional<StudyMember> optionalStudyMember = studyMemberRepository.findById(StudyMemberId);
 
-        return optionalStudyMember.orElse(null);
+        return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.STUDY));
     }
 
     public StudyMember findByMemberAndStudyPost(Long memberId, Long studyBoardId) {
         Optional<StudyMember> optionalStudyMember = studyMemberRepository.findByMemberAndStudyPost(memberId, studyBoardId, ConfirmAuthor.LEADER);
 
-        return optionalStudyMember.orElse(null);
+        return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
     }
 
     public List<Long> findStudyPostIds(Long memberId) {

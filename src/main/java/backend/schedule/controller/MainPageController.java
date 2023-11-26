@@ -1,8 +1,10 @@
 package backend.schedule.controller;
 
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.dto.mainpage.ReturnLocalDateDto;
 import backend.schedule.dto.schedule.ScheduleResDto;
+import backend.schedule.entity.Member;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.ScheduleService;
@@ -38,21 +40,26 @@ public class MainPageController {
     @GetMapping("/main")
     public ResponseEntity<?> test(HttpServletRequest request, @RequestBody ReturnLocalDateDto returnLocalDateDto) {
         // 토큰 추출 및 멤버 식별
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String secretKey = mySecretkey;
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-        Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
+        try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String secretKey = mySecretkey;
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-        List<Object> return_data = new ArrayList();
+            List<Object> return_data = new ArrayList();
 
-        List<ScheduleResDto> scheduleResDtos = scheduleService.findSchedulesByMemberId(memberId, returnLocalDateDto.getDate());
-        return_data.addAll(scheduleResDtos);
+            List<ScheduleResDto> scheduleResDtos = scheduleService.findSchedulesByMemberId(findMember.getId(), returnLocalDateDto.getDate());
+            return_data.addAll(scheduleResDtos);
 
-        List<Long> studyPostIds = studyMemberService.findStudyPostIds(memberId);
-        for (Long studyPostId : studyPostIds) {
-            return_data.add(studyPostService.detailStudySchedules(studyPostId, returnLocalDateDto.getDate()));
+            List<Long> studyPostIds = studyMemberService.findStudyPostIds(findMember.getId());
+            for (Long studyPostId : studyPostIds) {
+                return_data.add(studyPostService.detailStudySchedules(studyPostId, returnLocalDateDto.getDate()));
+            }
+
+            return ResponseEntity.ok().body(new Result(return_data));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        return ResponseEntity.ok().body(new Result(return_data));
     }
 }

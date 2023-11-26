@@ -36,24 +36,26 @@ public class StudyScheduleController {
     @Transactional
     @PostMapping("/studyboard/{studyBoardId}/study-schedule/add")
     public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyBoardId) {
-        StudyPost findPost = studyPostService.findById(studyBoardId);
 
-        if (findPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+        try {
+            StudyPost findPost = studyPostService.findById(studyBoardId);
+
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            StudySchedule studySchedule = new StudySchedule(scheduleDto);
+            findPost.addStudySchedule(studySchedule);
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        StudySchedule studySchedule = new StudySchedule(scheduleDto);
-        findPost.addStudySchedule(studySchedule);
-
-        return ResponseEntity.ok().build();
     }
 
     /**
@@ -63,15 +65,16 @@ public class StudyScheduleController {
     @GetMapping({"/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/edit", "/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}"})
     //아무나 일정을 볼 수 있는 문제있음
     public ResponseEntity<?> studyScheduleUpdateForm(@PathVariable Long studyScheduleId) {
-        StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
 
-        if (findSchedule == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
+        try {
+            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+            StudyScheduleDto studyScheduleDto = new StudyScheduleDto(findSchedule);
+
+            return ResponseEntity.ok().body(studyScheduleDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        StudyScheduleDto studyScheduleDto = new StudyScheduleDto(findSchedule);
-
-        return ResponseEntity.ok().body(studyScheduleDto);
     }
 
     /**
@@ -79,10 +82,16 @@ public class StudyScheduleController {
      * Query: Fetch join이용 1번
      */
     @GetMapping("/studyboard/{studyBoardId}/study-schedules")
-    public ResponseEntity<Result> studyScheduleList(@PathVariable Long studyBoardId) {
-        StudyPost studyPost = studyPostService.studyScheduleList(studyBoardId);//optional 쓸 수 있는지 해보기
+    public ResponseEntity<?> studyScheduleList(@PathVariable Long studyBoardId) {
 
-        return ResponseEntity.ok().body(new Result(new StudyPostScheduleSetDto(studyPost)));
+        try {
+            StudyPost studyPost = studyPostService.studyScheduleList(studyBoardId);
+
+            return ResponseEntity.ok().body(new Result(new StudyPostScheduleSetDto(studyPost)));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+
     }
 
     /**
@@ -94,23 +103,24 @@ public class StudyScheduleController {
     public ResponseEntity<?> studyScheduleUpdate(
             @Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyScheduleId) {
 
-        StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+        try {
+            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
 
-        if (findSchedule == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            findSchedule.updateSchedule(scheduleDto.getScheduleName(), scheduleDto.getPeriod());
+
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        findSchedule.updateSchedule(scheduleDto.getScheduleName(), scheduleDto.getPeriod());
-
-        return ResponseEntity.ok().build();
     }
 
     /**
@@ -120,17 +130,17 @@ public class StudyScheduleController {
     @Transactional
     @DeleteMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/delete")
     public ResponseEntity<?> studyScheduleDelete(@PathVariable Long studyBoardId, @PathVariable Long studyScheduleId) {
-        StudyPost findPost = studyPostService.findById(studyBoardId);
-        StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
 
-        if (findPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        } else if (findSchedule == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(SCHEDULE));
+        try {
+            StudyPost findPost = studyPostService.findById(studyBoardId);
+            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+
+            findPost.removeStudySchedule(findSchedule);
+            //쿼리 4번 개선방법 생각
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        findPost.removeStudySchedule(findSchedule);
-        //쿼리 4번 개선방법 생각
-        return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
     }
 }

@@ -46,23 +46,23 @@ public class StudyPostController {
     @PostMapping("/studyboard/post") // 등록 버튼 누르면 post 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardPost(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult, HttpServletRequest request) {
 
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
+        try {
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
 
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
+            StudyPostFrontSaveDto savedStudyPostDto = studyPostService.save(studyPostDto, findMember);
+
+            return ResponseEntity.ok().body(savedStudyPostDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
-
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
-        }
-
-        StudyPostFrontSaveDto savedStudyPostDto = studyPostService.save(studyPostDto, findMember);
-
-        return ResponseEntity.ok().body(savedStudyPostDto);
     }
 
     /**
@@ -71,15 +71,16 @@ public class StudyPostController {
      */
     @GetMapping("/studyboard/{studyBoardId}")
     public ResponseEntity<?> findStudyBoard(@PathVariable Long studyBoardId) {
-        StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
-        if (findStudyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
+        try {
+            StudyPost findStudyPost = studyPostService.findById(studyBoardId);
+            StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
+
+            return ResponseEntity.ok().body(studyPostDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
-
-        return ResponseEntity.ok().body(studyPostDto);
     }
 
     /**
@@ -88,27 +89,19 @@ public class StudyPostController {
      */
     @GetMapping("/studyboard/{studyBoardId}/edit")
     public ResponseEntity<?> studyBoardUpdateForm(@PathVariable Long studyBoardId, HttpServletRequest request) {
-        Member findMember = findMemberByToken(request);
 
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        try {
+            Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+            StudyPost findStudyPost = studyPostService.findById(studyBoardId);
+
+            StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
+
+            return ResponseEntity.ok().body(studyPostDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
-
-        if (studyMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
-        } //edit, deleted 에도 적용
-
-        StudyPost findStudyPost = studyPostService.findById(studyBoardId);
-
-        if (findStudyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        }
-
-        StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
-
-        return ResponseEntity.ok().body(studyPostDto);
     }
 
     /**
@@ -130,35 +123,27 @@ public class StudyPostController {
     @PatchMapping("/studyboard/{studyBoardId}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
                                               @PathVariable Long studyBoardId, HttpServletRequest request) {
-        Member findMember = findMemberByToken(request);
 
-        if (findMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        try {
+            Member findMember = findMemberByToken(request);
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+            StudyPost findStudyPost = studyPostService.findById(studyBoardId);
+
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors().stream()
+                        .map(ObjectError::getDefaultMessage)
+                        .collect(Collectors.toList());
+
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
+            findStudyPost.updatePost(studyPostDto);
+
+            return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
-        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
-
-        if (studyMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
-        } //공통 부분 메서드화 해보기
-
-        StudyPost findStudyPost = studyPostService.findById(studyBoardId);
-
-        if (findStudyPost == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(POST));
-        }
-
-        if (bindingResult.hasErrors()) {
-            List<String> errorMessages = bindingResult.getAllErrors().stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-        }
-
-        findStudyPost.updatePost(studyPostDto);
-
-        return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId));
     }
 
     /**
@@ -182,6 +167,19 @@ public class StudyPostController {
         studyPostService.delete(studyBoardId);
 
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+        //studyMember의 foreign key 무결성 제약조건에 걸린다 하는데 아마 이거 게시글 지우면 스터디 멤버 관련된 로직도 싹다 지워야할듯
+
+//        try {
+//            Member findMember = findMemberByToken(request);
+//            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+//
+//            studyPostService.delete(studyBoardId);
+//
+//            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+//        }
+
     }
 
     /**
