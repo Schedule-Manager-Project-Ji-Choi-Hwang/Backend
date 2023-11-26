@@ -4,10 +4,10 @@ import backend.schedule.dto.*;
 import backend.schedule.dto.schedule.ScheduleDto;
 import backend.schedule.dto.schedule.ScheduleEditReqDto;
 import backend.schedule.dto.schedule.ScheduleReqDto;
-import backend.schedule.entity.PersonalSubject;
+import backend.schedule.entity.Subject;
 import backend.schedule.entity.Schedule;
 import backend.schedule.service.MemberService;
-import backend.schedule.service.PersonalSubjectService;
+import backend.schedule.service.SubjectService;
 import backend.schedule.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ErrorMessage.*;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -30,7 +28,7 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
     private final MemberService memberService;
-    private final PersonalSubjectService personalSubjectService;
+    private final SubjectService subjectService;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
@@ -150,7 +148,7 @@ public class ScheduleController {
     @DeleteMapping("/subjects/{subjectId}/schedules/{scheduleId}/delete")
     public ResponseEntity<?> deleteSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId) {
         try {
-            PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
+            Subject findSubject = subjectService.findOne(subjectId);
             Schedule findSchedule = scheduleService.findOne(scheduleId);
 
             // 스케쥴 삭제

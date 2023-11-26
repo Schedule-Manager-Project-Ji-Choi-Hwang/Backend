@@ -1,6 +1,6 @@
 package backend.schedule.dto.schedule;
 
-import backend.schedule.entity.PersonalSubject;
+import backend.schedule.entity.Subject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,10 +19,10 @@ public class ScheduleResDto {
 
     private List<ScheduleDto> schedules;
 
-    public ScheduleResDto(PersonalSubject personalSubject) {
-        this.subjectId = personalSubject.getId();
-        this.subjectName = personalSubject.getSubjectName();
-        this.schedules = personalSubject.getSchedules().stream()
+    public ScheduleResDto(Subject subject) {
+        this.subjectId = subject.getId();
+        this.subjectName = subject.getSubjectName();
+        this.schedules = subject.getSchedules().stream()
                 .map(ScheduleDto::new)
                 .collect(Collectors.toList());
     }

@@ -30,7 +30,7 @@ public class Member extends BaseTimeEntity{
     private String email;
 
     @OneToMany(mappedBy = "member")
-    private List<PersonalSubject> personalSubjects = new ArrayList<>();
+    private List<Subject> subjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<StudyMember> studyMembers = new ArrayList<>();
@@ -41,9 +41,9 @@ public class Member extends BaseTimeEntity{
     @OneToMany(mappedBy = "member")
     private List<StudyComment> studyComments = new ArrayList<>();
 
-    public void addPersonalSubject(PersonalSubject personalSubject) {
-        personalSubjects.add(personalSubject);
-        personalSubject.setMember(this);
+    public void addPersonalSubject(Subject subject) {
+        subjects.add(subject);
+        subject.setMember(this);
     }
 
     public void addStudyMember(StudyMember studyMember) {
@@ -61,8 +61,8 @@ public class Member extends BaseTimeEntity{
         studyComment.setMember(this);
     }
 
-    public void removeSubject(PersonalSubject personalSubject) {
-        personalSubjects.remove(personalSubject);
+    public void removeSubject(Subject subject) {
+        subjects.remove(subject);
     }
 
     public void changePassword(String password) {

@@ -1,9 +1,7 @@
 package backend.schedule.repository;
 
 import backend.schedule.entity.Member;
-import backend.schedule.entity.PersonalSubject;
-import backend.schedule.entity.StudyMember;
-import org.springframework.data.jpa.repository.EntityGraph;
+import backend.schedule.entity.Subject;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,8 +28,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 //            "WHERE m.id = :id")
 //    Optional<Member> findByIdWithPersonalSubjects(@Param("id") Long id);
 
-    @Query("SELECT DISTINCT ps FROM PersonalSubject ps " +
+    @Query("SELECT DISTINCT ps FROM Subject ps " +
             "LEFT JOIN FETCH ps.schedules sc " +
             "WHERE ps.member.id = :memberId and sc.period = :date")
-    List<PersonalSubject> findPersonalSubjectsWithSchedulesByMemberId(@Param("memberId") Long memberId, @Param("date")LocalDate date);
+    List<Subject> findPersonalSubjectsWithSchedulesByMemberId(@Param("memberId") Long memberId, @Param("date")LocalDate date);
 }

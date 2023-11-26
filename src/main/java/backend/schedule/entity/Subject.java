@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @SequenceGenerator(name = "PERSONALSUBJECT_SEQ_GENERATOR",
         sequenceName = "PERSONALSUBJECT_SEQ")
-public class PersonalSubject {
+public class Subject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERSONALSUBJECT_SEQ_GENERATOR")
@@ -27,15 +27,15 @@ public class PersonalSubject {
 
     private String subjectName;
 
-    @OneToMany(mappedBy = "personalSubject")
+    @OneToMany(mappedBy = "subject")
     private List<Schedule> schedules = new ArrayList<>();
 
     public void addSchedule(Schedule schedule) {
         schedules.add(schedule);
-        schedule.setPersonalSubject(this);
+        schedule.setSubject(this);
     }
 
-    public PersonalSubject(String subjectName) {
+    public Subject(String subjectName) {
         this.subjectName = subjectName;
     }
 
@@ -53,6 +53,6 @@ public class PersonalSubject {
 
     public void addSchedules(Schedule schedule) {
         this.schedules.add(schedule);
-        schedule.setPersonalSubject(this);
+        schedule.setSubject(this);
     }
 }

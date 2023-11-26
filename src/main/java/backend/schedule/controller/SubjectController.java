@@ -1,14 +1,14 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.MessageReturnDto;
-import backend.schedule.dto.subject.PersonalSubjectReqDto;
-import backend.schedule.dto.subject.PersonalSubjectResDto;
+import backend.schedule.dto.subject.SubjectReqDto;
+import backend.schedule.dto.subject.SubjectResDto;
 import backend.schedule.dto.Result;
 import backend.schedule.entity.Member;
-import backend.schedule.entity.PersonalSubject;
+import backend.schedule.entity.Subject;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
-import backend.schedule.service.PersonalSubjectService;
+import backend.schedule.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +22,12 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ErrorMessage.*;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class PersonalSubjectController {
+public class SubjectController {
 
-    private final PersonalSubjectService personalSubjectService;
+    private final SubjectService subjectService;
     private final MemberService memberService;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
@@ -42,7 +40,7 @@ public class PersonalSubjectController {
      *          2. 개인 과목 저장
      */
     @PostMapping("/subjects/add")
-    public ResponseEntity<?> subjectAdd(@Validated @RequestBody PersonalSubjectReqDto personalSubjectReqDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> subjectAdd(@Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
         try {
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -59,7 +57,7 @@ public class PersonalSubjectController {
             Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
             // 개인 과목 저장
-            PersonalSubjectResDto savedSubjectDto = personalSubjectService.save(personalSubjectReqDto, findMember);
+            SubjectResDto savedSubjectDto = subjectService.save(subjectReqDto, findMember);
 
             // 응답
             return ResponseEntity.ok().body(savedSubjectDto);
@@ -78,10 +76,10 @@ public class PersonalSubjectController {
     public ResponseEntity<?> findSubject(@PathVariable Long subjectId) {
         try {
             // 개인 과목 조회
-            PersonalSubject personalSubject = personalSubjectService.findOne(subjectId);
+            Subject subject = subjectService.findOne(subjectId);
 
             // 응답
-            return ResponseEntity.ok().body(new PersonalSubjectResDto(personalSubject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
+            return ResponseEntity.ok().body(new SubjectResDto(subject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -103,7 +101,7 @@ public class PersonalSubjectController {
             Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
             // 개인 과목 전체 조회 (멤버별)
-            List<PersonalSubjectResDto> findPersonalSubjects = personalSubjectService.findAll(findMember);
+            List<SubjectResDto> findPersonalSubjects = subjectService.findAll(findMember);
 
             // 응답
             return ResponseEntity.ok().body(new Result(findPersonalSubjects));
@@ -120,7 +118,7 @@ public class PersonalSubjectController {
      *          2. 개인 과목 제목 변경
      */
     @PatchMapping("/subjects/{subjectId}/edit")
-    public ResponseEntity<?> subjectUpdate(@PathVariable Long subjectId, @Validated @RequestBody PersonalSubjectReqDto personalSubjectReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> subjectUpdate(@PathVariable Long subjectId, @Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult) {
         try {
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -132,7 +130,7 @@ public class PersonalSubjectController {
             }
 
             // 개인 과목 변경 (제목)
-            personalSubjectService.subjectNameUpdate(subjectId, personalSubjectReqDto);
+            subjectService.subjectNameUpdate(subjectId, subjectReqDto);
 
             // 응답
             return ResponseEntity.ok().build();
@@ -158,10 +156,10 @@ public class PersonalSubjectController {
             String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
             Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
-            PersonalSubject findSubject = personalSubjectService.findOne(subjectId);
+            Subject findSubject = subjectService.findOne(subjectId);
 
             // 개인 과목 삭제
-            personalSubjectService.subjectDelete(findMember, findSubject);
+            subjectService.subjectDelete(findMember, findSubject);
 
             // 응답
             return ResponseEntity.ok().build();

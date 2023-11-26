@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
 @Getter
 @Setter
 @NoArgsConstructor
-public class PersonalSubjectReqDto {
+public class SubjectReqDto {
 
     @NotBlank(message = "과목 이름이 비어 있습니다.")
     private String subjectName;

@@ -1,7 +1,6 @@
 package backend.schedule.repository;
 
 import backend.schedule.entity.Member;
-import backend.schedule.entity.PersonalSubject;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;

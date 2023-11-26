@@ -30,15 +30,15 @@ public class Schedule {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ps_id")
-    private PersonalSubject personalSubject;
+    private Subject subject;
 
     public Schedule(ScheduleReqDto scheduleReqDto, LocalDate date) {
         this.scheduleName = scheduleReqDto.getScheduleName();
         this.period = date;
     }
 
-    public void setPersonalSubject(PersonalSubject personalSubject) {
-        this.personalSubject = personalSubject;
+    public void setSubject(Subject subject) {
+        this.subject = subject;
     }
 
     public void changeScheduleNameAndPeriod(ScheduleEditReqDto scheduleEditReqDto) {
