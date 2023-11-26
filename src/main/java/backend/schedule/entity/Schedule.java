@@ -45,4 +45,10 @@ public class Schedule {
         this.scheduleName = scheduleEditReqDto.getScheduleName();
         this.period = scheduleEditReqDto.getPeriod();
     }
+
+    public Schedule(String scheduleName, LocalDate period, Subject subject) {
+        this.scheduleName = scheduleName;
+        this.period = period;
+        this.subject = subject;
+    }
 }

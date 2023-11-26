@@ -55,4 +55,9 @@ public class Subject {
         this.schedules.add(schedule);
         schedule.setSubject(this);
     }
+
+    public Subject(Member member, String subjectName) {
+        this.member = member;
+        this.subjectName = subjectName;
+    }
 }

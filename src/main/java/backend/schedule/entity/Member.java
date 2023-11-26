@@ -75,4 +75,11 @@ public class Member extends BaseTimeEntity{
         this.nickname = memberJoinReqDto.getNickname();
         this.email = memberJoinReqDto.getEmail();
     }
+
+    public Member(String loginId, String encodedPassword, String nickname, String email) {
+        this.loginId = loginId;
+        this.password = encodedPassword;
+        this.nickname = nickname;
+        this.email = email;
+    }
 }
