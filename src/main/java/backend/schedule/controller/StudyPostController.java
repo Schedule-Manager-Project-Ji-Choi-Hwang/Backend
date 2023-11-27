@@ -8,6 +8,7 @@ import backend.schedule.dto.studypost.StudyPostFrontSaveDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.StudyMemberService;
@@ -39,6 +40,8 @@ public class StudyPostController {
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
+    //StudyPost 멤버별 스터디 과목 볼 수 있게 만들기
+    //시용자가 작성한 내 글 볼 수 있게 만들기
     /**
      * 스터디 게시글 작성
      * Query: 3번
@@ -92,7 +95,7 @@ public class StudyPostController {
 
         try {
             Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
-            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
@@ -126,7 +129,7 @@ public class StudyPostController {
 
         try {
             Member findMember = findMemberByToken(request);
-            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             if (bindingResult.hasErrors()) {
@@ -158,7 +161,7 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
-        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
 
         if (studyMember == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));

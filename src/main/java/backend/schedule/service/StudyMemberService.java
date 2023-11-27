@@ -34,8 +34,8 @@ public class StudyMemberService {
         return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.STUDY));
     }
 
-    public StudyMember findByMemberAndStudyPost(Long memberId, Long studyBoardId) {
-        Optional<StudyMember> optionalStudyMember = studyMemberRepository.findByMemberAndStudyPost(memberId, studyBoardId, ConfirmAuthor.LEADER);
+    public StudyMember findByMemberAndStudyPost(Long memberId, Long studyBoardId, ConfirmAuthor confirmAuthor) {
+        Optional<StudyMember> optionalStudyMember = studyMemberRepository.findByMemberAndStudyPost(memberId, studyBoardId, confirmAuthor);
 
         return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
     }

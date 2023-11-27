@@ -11,4 +11,5 @@ public interface StudyAnnouncementRepository extends JpaRepository<StudyAnnounce
 
     @Query("select sa from StudyAnnouncement sa join fetch sa.studyComments sc where sa.id = :id")
     Optional<StudyAnnouncement> announcementCommentList(@Param("id") Long id);
+
 }

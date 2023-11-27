@@ -58,4 +58,14 @@ public class ApplicationMemberService {
         applicationMemberRepository.deleteByIdAndStudyPost(apMemberId, studyPost);
     }
 
+    public ApplicationMember findApMember(Long applicationMemberId) {
+        Optional<ApplicationMember> optionalApplicationMember = applicationMemberRepository.findApMember(applicationMemberId);
+
+        return optionalApplicationMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.APPLICATION));
+    }
+
+    public void deleteApplicationMember(Long applicationMemberId, ApplicationMember applicationMember, Long studyPostId) {
+        applicationMember.getStudyPost().removeApplicationMember(applicationMember); // 편의 메서드 제거
+        applicationMemberRepository.deleteApmember(applicationMemberId, applicationMember.getMember().getId(), studyPostId);
+    }
 }

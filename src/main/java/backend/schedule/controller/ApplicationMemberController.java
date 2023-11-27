@@ -7,6 +7,7 @@ import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.MemberService;
@@ -46,7 +47,6 @@ public class ApplicationMemberController {
      */
     @PostMapping("/studyboard/{studyboardId}/application-member/add")
     public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long studyboardId) {
-        //스터디 포스트 addApplicationMember 편의 메서드에 들어가는거도 없음
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
             String secretKey = mySecretkey;
@@ -91,7 +91,7 @@ public class ApplicationMemberController {
             Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
             // 스터디 멤버 식별 (권한 식별)
-            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyboardId);
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyboardId, ConfirmAuthor.LEADER);
 
             // 스터디 게시글 조회
             StudyPost studyPost = studyPostService.findById(studyboardId);
@@ -118,15 +118,16 @@ public class ApplicationMemberController {
      * 5. 신청 멤버 삭제
      */
     @DeleteMapping("/studyboard/{studyboardId}/application-members/{apMemberId}/delete")
-    public ResponseEntity<?> rejectMember(@PathVariable Long studyboardId, @PathVariable Long apMemberId) {
-        //studyPostService, applicationMemberService에서 각각 findById하는게 아니라 applicationMemberService에서
-        //신청테이블, 회원, 게시글 id(pk) 맞는지 확인 후 삭제해야 할듯 -> applicationMemberService에서 다 처리
-        //리더가 아니여도 삭제 가능, studyboardId가 있기만하면 아무거나 넣어도 삭제가능, StudyPost 편의 메서드에서 제거기능 추가
+    public ResponseEntity<?> rejectMember(@PathVariable Long studyboardId, @PathVariable Long apMemberId, HttpServletRequest request) {
         try {
-            StudyPost findStudyPost = studyPostService.findById(studyboardId);
-            ApplicationMember findApMember = applicationMemberService.findById(apMemberId);
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+            Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
+            studyMemberService.findByMemberAndStudyPost(memberId, studyboardId, ConfirmAuthor.LEADER);
 
-            applicationMemberService.rejectMember(apMemberId, findStudyPost, findApMember);
+            ApplicationMember findApMember = applicationMemberService.findApMember(apMemberId);
+
+            applicationMemberService.deleteApplicationMember(apMemberId, findApMember, studyboardId);
 
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {

@@ -4,11 +4,18 @@ import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.dto.studycomment.StudyCommentDto;
 import backend.schedule.dto.studycomment.StudyCommentSetDto;
+import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyComment;
+import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.jwt.JwtTokenUtil;
+import backend.schedule.service.MemberService;
 import backend.schedule.service.StudyAnnouncementService;
 import backend.schedule.service.StudyCommentService;
+import backend.schedule.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -16,6 +23,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +35,10 @@ public class StudyCommentController {
 
     private final StudyAnnouncementService studyAnnouncementService;
     private final StudyCommentService studyCommentService;
+    private final StudyMemberService studyMemberService;
+    private final MemberService memberService;
+    @Value("${spring.jwt.secretkey}")
+    private String mySecretkey;
 
     /**
      * 스터디 댓글 추가
@@ -35,10 +47,17 @@ public class StudyCommentController {
     @Transactional
     @PostMapping("/study-announcements/{announcementId}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto commentDto,
-                                              BindingResult bindingResult, @PathVariable Long announcementId) {
-        //작성한 사람 정보가 안들어감
+                                              BindingResult bindingResult, @PathVariable Long announcementId, HttpServletRequest request) {
+        //작성한 사람 정보가 안들어감-해결
+        //새로운 문제 스터디 회원인 사람만 글 작성 가능하게-해결
         try {
             StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+
+            studyMemberService.findByMemberAndStudyPost(findMember.getId(), findAnnouncement.getStudyPost().getId(), ConfirmAuthor.MEMBER);
+            //findAnnouncement.getStudyPost().getId() 가져오는 방법은 페치조인이 효율적이긴함
 
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors().stream()
@@ -50,6 +69,7 @@ public class StudyCommentController {
 
             StudyComment studyComment = new StudyComment(commentDto);
             findAnnouncement.addStudyComment(studyComment);
+            findMember.addStudyComments(studyComment);
 
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
@@ -64,7 +84,7 @@ public class StudyCommentController {
      */
     @GetMapping("/study-announcements/{announcementId}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long commentId) {
-        //announcementId 아무거나 입력해도 commentId만 맞으면 불러와짐, 댓글 작성한 사람만 수정가능한 로직 필요
+        //announcementId 아무거나 입력해도 commentId만 맞으면 불러와짐, 댓글 작성한 사람만 수정가능한 로직 필요, 이미 댓글 작성 시 스터디 멤버 아니면 작성하게 해놨음
         try {
             StudyComment comment = studyCommentService.findById(commentId);
 
