@@ -12,13 +12,16 @@ import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +41,7 @@ public class MainPageController {
     private String mySecretkey;
 
     @GetMapping("/main")
-    public ResponseEntity<?> test(HttpServletRequest request, @RequestBody ReturnLocalDateDto returnLocalDateDto) {
+    public ResponseEntity<?> test(HttpServletRequest request,@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         // 토큰 추출 및 멤버 식별
         try {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
@@ -48,12 +51,12 @@ public class MainPageController {
 
             List<Object> return_data = new ArrayList();
 
-            List<ScheduleResDto> scheduleResDtos = scheduleService.findSchedulesByMemberId(findMember.getId(), returnLocalDateDto.getDate());
+            List<ScheduleResDto> scheduleResDtos = scheduleService.findSchedulesByMemberId(findMember.getId(), date);
             return_data.addAll(scheduleResDtos);
 
             List<Long> studyPostIds = studyMemberService.findStudyPostIds(findMember.getId());
             for (Long studyPostId : studyPostIds) {
-                return_data.add(studyPostService.detailStudySchedules(studyPostId, returnLocalDateDto.getDate()));
+                return_data.add(studyPostService.detailStudySchedules(studyPostId, date));
             }
 
             return ResponseEntity.ok().body(new Result(return_data));
