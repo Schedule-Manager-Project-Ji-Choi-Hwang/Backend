@@ -171,7 +171,7 @@ public class StudyCommentController {
 
             //삭제 안됐을때도 쿼리 그대로 나가고 postman에 삭제됐다나옴 오류나면 처리할 방법없나 고민 (아마 ApplicationMember 삭제부분 삭제쿼리 만든곳도 그럴듯)
             studyCommentService.commentRemove(findAnnouncement.getId(), comment.getId(), findMember.getId()); // 멤버 토큰이 아무거나 들어가도 삭제되는데 왜? -> 밑 편의 메서드 때문
-            findAnnouncement.removeStudyComment(comment);
+            findAnnouncement.removeStudyComment(comment); //위 코드랑 역할이 겹침 정밀한건 위 코드
             //orphanRemoval옵션 켜져있어서 편의 메서드로 삭제 가능해 DELETE문 따로 만들필요는 없지만 댓글 작성한 사람만 삭제가능하게 확인하는 로직은 어짜피 만들어야하고
             //그 로직 만들면서 삭제하는 쿼리 만들면 그거도 가능함 -> 결국 편의메서드 문제
             //쿼리 4번 개선방법 생각
