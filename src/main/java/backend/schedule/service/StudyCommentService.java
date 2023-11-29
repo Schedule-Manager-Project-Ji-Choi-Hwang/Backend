@@ -20,4 +20,14 @@ public class StudyCommentService {
 
         return optionalStudyComment.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.COMMENT));
     }
+
+    public StudyComment writerCheck(Long studyAnnouncementId, Long studyCommentId, Long memberId) {
+        Optional<StudyComment> optionalStudyComment = studyCommentRepository.findByStudyAnnouncementIdAndIdAndMemberId(studyAnnouncementId, studyCommentId, memberId);
+
+        return optionalStudyComment.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
+    }
+
+    public void commentRemove(Long studyAnnouncementId, Long studyCommentId, Long memberId) {
+        studyCommentRepository.commentRemove(studyAnnouncementId, studyCommentId, memberId);
+    }
 }

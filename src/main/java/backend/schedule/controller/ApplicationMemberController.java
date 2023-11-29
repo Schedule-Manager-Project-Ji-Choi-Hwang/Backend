@@ -91,7 +91,7 @@ public class ApplicationMemberController {
             Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
 
             // 스터디 멤버 식별 (권한 식별)
-            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyboardId, ConfirmAuthor.LEADER);
+            studyMemberService.studyMemberSearch(findMember.getId(), studyboardId, ConfirmAuthor.LEADER);
 
             // 스터디 게시글 조회
             StudyPost studyPost = studyPostService.findById(studyboardId);
@@ -123,7 +123,7 @@ public class ApplicationMemberController {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
             String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
             Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
-            studyMemberService.findByMemberAndStudyPost(memberId, studyboardId, ConfirmAuthor.LEADER);
+            studyMemberService.studyMemberSearch(memberId, studyboardId, ConfirmAuthor.LEADER);
 
             ApplicationMember findApMember = applicationMemberService.findApMember(apMemberId);
 

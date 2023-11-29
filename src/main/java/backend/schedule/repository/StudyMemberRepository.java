@@ -14,7 +14,7 @@ import java.util.Optional;
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
 
     @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId and sm.confirmAuthor = :confirmAuthor")
-    Optional<StudyMember> findByMemberAndStudyPost(@Param("memberId") Long memberId,
+    Optional<StudyMember> studyMemberSearch(@Param("memberId") Long memberId,
                                                    @Param("studyBoardId") Long studyBoardId,
                                                    @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
 

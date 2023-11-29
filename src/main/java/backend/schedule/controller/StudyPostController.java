@@ -95,7 +95,7 @@ public class StudyPostController {
 
         try {
             Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
-            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
+            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
@@ -129,7 +129,7 @@ public class StudyPostController {
 
         try {
             Member findMember = findMemberByToken(request);
-            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
+            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             if (bindingResult.hasErrors()) {
@@ -161,7 +161,7 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
-        StudyMember studyMember = studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
+        StudyMember studyMember = studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
 
         if (studyMember == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
@@ -174,7 +174,7 @@ public class StudyPostController {
 
 //        try {
 //            Member findMember = findMemberByToken(request);
-//            studyMemberService.findByMemberAndStudyPost(findMember.getId(), studyBoardId);
+//            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId);
 //
 //            studyPostService.delete(studyBoardId);
 //

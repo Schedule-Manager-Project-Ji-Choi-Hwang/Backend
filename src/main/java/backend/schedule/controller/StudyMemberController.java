@@ -38,10 +38,11 @@ public class StudyMemberController {
      */
     @PostMapping("/studyboard/{studyBoardId}/applicationmember/{applicationMemberId}/add")
     public ResponseEntity<?> save(@PathVariable Long studyBoardId, @PathVariable Long applicationMemberId) {
-
+        //여기도 리더권한 확인하는거 없음 -> 리더만 수락 가능하게
+        //studyBoardId DB에 저장된 번호 아무거나 써도 작동문제
         try {
             ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId); // 신청 멤버 조회
-            Member member = applicationMember.getMember(); // 멤버 획득
+            Member member = applicationMember.getMember(); // 멤버 획득, 신청멤버 조회시 페치조인으로 한번에 긁어올까? 고민 쿼리 한번 줄일 수 있음
             StudyPost studyPost = studyPostService.findById(studyBoardId); // 스터디 게시글 조회
 
             studyMemberService.save(member, studyPost); // 스터디 멤버 저장
