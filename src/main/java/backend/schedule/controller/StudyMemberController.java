@@ -7,13 +7,19 @@ import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.ApplicationMemberService;
+import backend.schedule.service.MemberService;
 import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 import static backend.schedule.enumlist.ErrorMessage.*;
@@ -25,6 +31,10 @@ public class StudyMemberController {
     private final StudyMemberService studyMemberService;
     private final ApplicationMemberService applicationMemberService;
     private final StudyPostService studyPostService;
+    private final MemberService memberService;
+
+    @Value("${spring.jwt.secretkey}")
+    private String mySecretkey;
 
     /**
      * 스터디 멤버 저장 기능
@@ -80,9 +90,17 @@ public class StudyMemberController {
      * 4. 스터디 멤버 삭제
      */
     @DeleteMapping("/studyboard/{studyBoardId}/studyMembers/{studyMemberId}")
-    public ResponseEntity<?> deleteStudyMember(@PathVariable Long studyBoardId, @PathVariable Long studyMemberId) {
+    public ResponseEntity<?> deleteStudyMember(HttpServletRequest request, @PathVariable Long studyBoardId, @PathVariable Long studyMemberId) {
 
         try {
+            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+            String secretKey = mySecretkey;
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            Member member = memberService.getLoginMemberByLoginId(memberLoginId);
+
+            // 권한 식별
+            studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.MEMBER);
+
             StudyPost studyPost = studyPostService.findById(studyBoardId);
             StudyMember studyMember = studyMemberService.findById(studyMemberId);
 

@@ -6,9 +6,11 @@ import backend.schedule.dto.subject.SubjectResDto;
 import backend.schedule.dto.Result;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.Subject;
+import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.SubjectService;
+import backend.schedule.validation.RequestDataValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +31,7 @@ public class SubjectController {
 
     private final SubjectService subjectService;
     private final MemberService memberService;
+    private final JwtTokenExtraction jwtTokenExtraction;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
@@ -40,21 +43,23 @@ public class SubjectController {
      *          2. 개인 과목 저장
      */
     @PostMapping("/subjects/add")
-    public ResponseEntity<?> subjectAdd(@Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> subjectAdd(@Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest request) {
         try {
             // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(objectError -> objectError.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+//            if (bindingResult.hasErrors()) {
+//                List<String> errorMessages = bindingResult.getAllErrors()
+//                        .stream()
+//                        .map(objectError -> objectError.getDefaultMessage())
+//                        .collect(Collectors.toList());
+//                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+//            }
+            RequestDataValidation.beanValidation(bindingResult);
 
             // 토큰 추출 및 멤버 식별
-            String accessToken = httpServletRequest.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+//            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
+//            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
+//            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 개인 과목 저장
             SubjectResDto savedSubjectDto = subjectService.save(subjectReqDto, findMember);
