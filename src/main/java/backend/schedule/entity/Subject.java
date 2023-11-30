@@ -27,7 +27,7 @@ public class Subject {
 
     private String subjectName;
 
-    @OneToMany(mappedBy = "subject")
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.REMOVE)
     private List<Schedule> schedules = new ArrayList<>();
 
     public void addSchedule(Schedule schedule) {

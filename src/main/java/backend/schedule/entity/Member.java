@@ -29,7 +29,7 @@ public class Member extends BaseTimeEntity{
 
     private String email;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
     private List<Subject> subjects = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
