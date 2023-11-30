@@ -1,10 +1,8 @@
 package backend.schedule;
 
 
-import backend.schedule.entity.Member;
-import backend.schedule.entity.Schedule;
-import backend.schedule.entity.StudyPost;
-import backend.schedule.entity.Subject;
+import backend.schedule.entity.*;
+import backend.schedule.enumlist.ConfirmAuthor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -57,6 +55,11 @@ public class InitData {
                     em.persist(testSchedule);
                 }
             }
+            StudyPost testStudyPost = new StudyPost("프로젝트!!", LocalDate.now());
+            em.persist(testStudyPost);
+            StudyMember testStudyMember = new StudyMember(testMember, testStudyPost, ConfirmAuthor.LEADER);
+            testStudyPost.addStudyMember(testStudyMember);
+            em.persist(testStudyMember);
             // 민현 추가
         }
     }

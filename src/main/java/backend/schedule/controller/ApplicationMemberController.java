@@ -54,7 +54,7 @@ public class ApplicationMemberController {
             Member member = memberService.getLoginMemberByLoginId(memberLoginId);
 
             // 권한 식별
-            studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.LEADER);
+//            studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.LEADER);
 
             StudyPost studyPost = studyPostService.findById(studyBoardId);
 
@@ -97,7 +97,9 @@ public class ApplicationMemberController {
             studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
 
             // 스터디 게시글 조회
-            StudyPost studyPost = studyPostService.findById(studyBoardId);
+//            StudyPost studyPost = studyPostService.findById(studyBoardId);
+            // 스터디 게시글 조회 (민현 추가 - join fetch 버전)
+            StudyPost studyPost = studyPostService.findStudyPostByApplicationMembers(studyBoardId);
 
             // 반환할 신청 멤버들 Dto 준비 (페치조인으로 바꿔야함 멤버가 3명이면 멤버 닉네임을 가져오기 위해 3번 쿼리가 더 나가고 100명이면 100번 더 나감)
             List<ApplicationMemberDto> ApplicationMemberDtos = studyPost.getApplicationMembers().stream()

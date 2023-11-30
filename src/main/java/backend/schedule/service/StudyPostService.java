@@ -75,4 +75,11 @@ public class StudyPostService {
 
         return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
+
+    // 민현 추가
+    public StudyPost findStudyPostByApplicationMembers(Long studyBoardId) {
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostByApplicationMembers(studyBoardId);
+
+        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(ErrorMessage.POST));
+    }
 }
