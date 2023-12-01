@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import static backend.schedule.enumlist.ConfirmAuthor.LEADER;
 import static backend.schedule.enumlist.ConfirmAuthor.MEMBER;
 import static backend.schedule.enumlist.ErrorMessage.DELETE;
+import static backend.schedule.enumlist.ErrorMessage.NOTDELETE;
 
 @RestController
 @RequiredArgsConstructor
@@ -100,7 +101,7 @@ public class StudyAnnouncementController {
         //스터디에 속한 회원이 맞으면 단건조회
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearch(memberId, studyBoardId, MEMBER); // 리더,멤버가 다볼 수 있게 하려면 어떻게?
+            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?
             StudyPost studyPost = studyPostService.studyAnnouncement(studyBoardId, announcementId);
 
             return ResponseEntity.ok().body(new Result(new StudyAnnouncementSetDto(studyPost)));
@@ -119,7 +120,7 @@ public class StudyAnnouncementController {
         //스터디에 속한 회원이 맞으면 전체조회
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearch(memberId, studyBoardId, MEMBER); // 리더,멤버가 다볼 수 있게 하려면 어떻게?, 쿼리하나 새로 권한만 없는거로?
+            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?, 쿼리하나 새로 권한만 없는거로?
             StudyPost studyPost = studyPostService.studyAnnouncements(studyBoardId);
 
             return ResponseEntity.badRequest().body(new Result(new StudyAnnouncementSetDto(studyPost)));
@@ -141,7 +142,7 @@ public class StudyAnnouncementController {
         //studyBoardId 아무거나 넣어도 announcementId만 있으면 수정됨, 스터디 리더만 수정가능하게
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
+            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
             StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
             if (bindingResult.hasErrors()) {
@@ -172,14 +173,16 @@ public class StudyAnnouncementController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
-            StudyPost findPost = studyPostService.findById(studyBoardId);
-            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
+            int removeAnnouncement = studyAnnouncementService.removeAnnouncement(studyBoardId, announcementId);
+//            StudyPost findPost = studyPostService.findById(studyBoardId);
+//            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
             //리스트에 들어간 데이터 따로 삭제 안해줘도 데이터 전체조회 할때 삭제된채로 반영되는거 같음 일단 비슷한거 더 테스트해보고 맞으면 다 삭제
 //            findPost.removeStudyAnnouncement(announcement);
-            studyAnnouncementService.delete(announcementId);
+//            studyAnnouncementService.delete(announcementId);
 
-            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+            if (removeAnnouncement == 1) return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+            else return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(NOTDELETE));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

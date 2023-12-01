@@ -18,6 +18,9 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
                                                    @Param("studyBoardId") Long studyBoardId,
                                                    @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
 
+    @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId")
+    Optional<StudyMember> studyMemberSearchNoAuthority(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
+
     boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
 
     @Query("SELECT sp FROM StudyPost sp " +

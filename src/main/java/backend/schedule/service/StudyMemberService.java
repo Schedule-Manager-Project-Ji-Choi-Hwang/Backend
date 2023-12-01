@@ -40,6 +40,12 @@ public class StudyMemberService {
         return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
     }
 
+    public StudyMember studyMemberSearchNoAuthority(Long memberId, Long studyBoardId) {
+        Optional<StudyMember> optionalStudyMember = studyMemberRepository.studyMemberSearchNoAuthority(memberId, studyBoardId);
+
+        return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
+    }
+
     public List<Long> findStudyPostIds(Long memberId) {
         List<Long> studyPostIds = studyMemberRepository.MainPageStudyMembers(memberId).stream().map(s -> s.getStudyPost().getId())
                 .collect(Collectors.toList());

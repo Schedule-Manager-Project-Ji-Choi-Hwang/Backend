@@ -36,7 +36,7 @@ public class StudyScheduleController {
     @Transactional
     @PostMapping("/studyboard/{studyBoardId}/study-schedule/add")
     public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyBoardId) {
-
+        //스터디 일정도 리더만 작성가능하게?
         try {
             StudyPost findPost = studyPostService.findById(studyBoardId);
 

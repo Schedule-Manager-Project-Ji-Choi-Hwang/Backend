@@ -25,6 +25,16 @@ public class StudyAnnouncementService {
         return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
+    public int removeAnnouncement(Long studyBoardId, Long announcementId) {
+        return studyAnnouncementRepository.removeAnnouncement(studyBoardId, announcementId);
+
+//        if (removeAnnouncement == 1) {
+//            return ErrorMessage.DELETE;
+//        } else {
+//            return new IllegalArgumentException(ErrorMessage.NOTDELETE);
+//        }
+    }
+
     public void delete(Long id) {
         studyAnnouncementRepository.deleteById(id);
     }

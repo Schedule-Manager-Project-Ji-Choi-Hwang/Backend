@@ -12,6 +12,8 @@ public class ErrorMessage {
 
     public static final String DELETE = "삭제되었습니다.";
 
+    public static final String NOTDELETE = "삭제할 수 없습니다.";
+
     public static final String APPLICATION = "신청 회원을 찾을 수 없습니다.";
 
     public static final String DUPLICATELOGINID = "로그인 아이디가 중복됩니다.";
