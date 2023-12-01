@@ -173,7 +173,7 @@ public class StudyAnnouncementController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
-            int removeAnnouncement = studyAnnouncementService.removeAnnouncement(studyBoardId, announcementId);
+            String removeAnnouncement = studyAnnouncementService.removeAnnouncement(studyBoardId, announcementId);
 //            StudyPost findPost = studyPostService.findById(studyBoardId);
 //            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
@@ -181,8 +181,7 @@ public class StudyAnnouncementController {
 //            findPost.removeStudyAnnouncement(announcement);
 //            studyAnnouncementService.delete(announcementId);
 
-            if (removeAnnouncement == 1) return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
-            else return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(NOTDELETE));
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(removeAnnouncement));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

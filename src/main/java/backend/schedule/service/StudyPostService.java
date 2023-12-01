@@ -35,7 +35,7 @@ public class StudyPostService {
 
     public StudyPostFrontSaveDto save(StudyPostDto studyPostDto, Member findMember) {
         StudyPost studyPost = new StudyPost(studyPostDto);
-        StudyMember studyMember = new StudyMember(findMember, studyPost, ConfirmAuthor.LEADER);
+        StudyMember studyMember = new StudyMember(findMember, ConfirmAuthor.LEADER);
 
         studyPost.addStudyMember(studyMember);
         StudyPost savedStudyPost = studyPostRepository.save(studyPost);//스터디 멤버 리더 지정
@@ -54,8 +54,12 @@ public class StudyPostService {
         return studyPostRepository.searchPost(lastPostId, condition, pageable);
     }
 
-    public void delete(Long id) {
+    public void deleteById(Long id) {
         studyPostRepository.deleteById(id);
+    }
+
+    public void delete(StudyPost studyPost) {
+        studyPostRepository.delete(studyPost);
     }
 
     public StudyPost studyScheduleList(Long id) {

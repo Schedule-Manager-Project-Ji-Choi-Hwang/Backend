@@ -53,9 +53,6 @@ public class ApplicationMemberController {
             String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
             Member member = memberService.getLoginMemberByLoginId(memberLoginId);
 
-            // 권한 식별
-//            studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.LEADER);
-
             StudyPost studyPost = studyPostService.findById(studyBoardId);
 
             // 해당 스터디에 이미 가입되어 있으면 신청이 불가해야한다.

@@ -8,6 +8,7 @@ import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyMemberRepository;
+import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,15 +16,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static backend.schedule.enumlist.ConfirmAuthor.LEADER;
+
 @Service
 @RequiredArgsConstructor
 public class StudyMemberService {
 
     private final StudyMemberRepository studyMemberRepository;
+    private final StudyPostRepository studyPostRepository;
 
 
     public void save(Member member, StudyPost studyPost) {
-        StudyMember studyMember = new StudyMember(member, studyPost, ConfirmAuthor.MEMBER);
+        StudyMember studyMember = new StudyMember(member, ConfirmAuthor.MEMBER);
         studyPost.addStudyMember(studyMember);
         studyMemberRepository.save(studyMember);
     }
@@ -46,6 +50,28 @@ public class StudyMemberService {
         return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
     }
 
+    public StudyMember studyMemberGetStudyPost(Long memberId, Long studyBoardId) {
+        Optional<StudyMember> optionalStudyMember = studyMemberRepository.studyMemberGetStudyPost(memberId, studyBoardId);
+
+        return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.STUDY));
+    }
+
+    public void deleteStudyMember(StudyMember studyMember) {
+
+        if (studyMember.getConfirmAuthor() == LEADER) {
+            if (studyMember.getStudyPost().getStudyMembers().size() == 1) {
+                studyMemberRepository.delete(studyMember);
+                studyPostRepository.delete(studyMember.getStudyPost()); // 추후에 연관관계 더 세팅하고 삭제되는지 확인(cascade or 연관관계 관련된거 다 딜리트)
+            } else {
+                StudyMember secondStudyMember = studyMember.getStudyPost().getStudyMembers().get(1); // 2번째 멤버 찾아오기
+                secondStudyMember.changeLeader(); // 2번째 멤버 리더권한 양도
+                studyMemberRepository.delete(studyMember); // 원래 리더는 탈퇴
+            }
+        } else {
+            studyMemberRepository.delete(studyMember);
+        }
+    }
+
     public List<Long> findStudyPostIds(Long memberId) {
         List<Long> studyPostIds = studyMemberRepository.MainPageStudyMembers(memberId).stream().map(s -> s.getStudyPost().getId())
                 .collect(Collectors.toList());
@@ -53,8 +79,8 @@ public class StudyMemberService {
         return studyPostIds;
     }
 
-    public void delete(StudyPost studyPost, StudyMember studyMember) {
-        studyPost.removeStudyMember(studyMember);
+    public void delete(StudyMember studyMember) {
+//        studyPost.removeStudyMember(studyMember);
         studyMemberRepository.delete(studyMember);
     }
 
@@ -69,7 +95,7 @@ public class StudyMemberService {
             return studyMemberResDtos;
         }
 
-        return null;
+        throw new IllegalArgumentException(ErrorMessage.STUDY);
     }
 
 }

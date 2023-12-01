@@ -21,11 +21,12 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId")
     Optional<StudyMember> studyMemberSearchNoAuthority(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
 
+    @Query("select sm from StudyMember sm join fetch sm.studyPost sp join fetch sp.studyMembers where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId")
+    Optional<StudyMember> studyMemberGetStudyPost(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
+
     boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
 
-    @Query("SELECT sp FROM StudyPost sp " +
-            "LEFT JOIN FETCH sp.studyMembers " +
-            "WHERE sp.id = :studyBoardId")
+    @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sm.member where sp.id = :studyBoardId")
     Optional<StudyPost> studyMembersByStudyboardId(@Param("studyBoardId") Long studyBoardId);
 
     @Query("SELECT DISTINCT sm FROM StudyMember sm " +

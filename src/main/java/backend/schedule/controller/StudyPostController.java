@@ -167,7 +167,7 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
         }
 
-        studyPostService.delete(studyBoardId);
+        studyPostService.deleteById(studyBoardId);
 
         return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
         //studyMember의 foreign key 무결성 제약조건에 걸린다 하는데 아마 이거 게시글 지우면 스터디 멤버 관련된 로직도 싹다 지워야할듯

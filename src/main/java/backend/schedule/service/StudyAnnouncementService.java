@@ -25,14 +25,14 @@ public class StudyAnnouncementService {
         return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
-    public int removeAnnouncement(Long studyBoardId, Long announcementId) {
-        return studyAnnouncementRepository.removeAnnouncement(studyBoardId, announcementId);
+    public String removeAnnouncement(Long studyBoardId, Long announcementId) {
+        int removeAnnouncement = studyAnnouncementRepository.removeAnnouncement(studyBoardId, announcementId);
 
-//        if (removeAnnouncement == 1) {
-//            return ErrorMessage.DELETE;
-//        } else {
-//            return new IllegalArgumentException(ErrorMessage.NOTDELETE);
-//        }
+        if (removeAnnouncement == 1) {
+            return ErrorMessage.DELETE;
+        } else {
+            throw new IllegalArgumentException(ErrorMessage.NOTDELETE);
+        }
     }
 
     public void delete(Long id) {

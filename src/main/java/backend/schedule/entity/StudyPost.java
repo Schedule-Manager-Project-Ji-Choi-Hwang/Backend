@@ -51,7 +51,7 @@ public class StudyPost extends BaseTimeEntity {
 
     public void addStudyMember(StudyMember studyMember) {
         studyMembers.add(studyMember);
-//        studyMember.setStudyPost(this);
+        studyMember.setStudyPost(this);
     }
 
     public void addApplicationMember(ApplicationMember applicationMember) {

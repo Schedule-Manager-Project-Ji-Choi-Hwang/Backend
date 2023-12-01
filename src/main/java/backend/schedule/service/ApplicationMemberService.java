@@ -53,8 +53,7 @@ public class ApplicationMemberService {
      * (스터디 멤버 저장)
      * 신청 멤버 삭제
      */
-    public void rejectMember(Long apMemberId, StudyPost studyPost, ApplicationMember apMember) {
-        studyPost.removeApplicationMember(apMember);
+    public void rejectMember(Long apMemberId, StudyPost studyPost) {
         applicationMemberRepository.deleteByIdAndStudyPost(apMemberId, studyPost);
     }
 

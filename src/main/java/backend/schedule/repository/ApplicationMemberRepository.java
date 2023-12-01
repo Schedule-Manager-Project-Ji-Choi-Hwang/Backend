@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ApplicationMemberRepository extends JpaRepository<ApplicationMember, Long> {
-    void deleteByIdAndStudyPost(Long apMemberId, StudyPost studyPost);
+    void deleteByIdAndStudyPost(Long apMemberId, StudyPost studyPost); //반환방식 int로
 
     @Modifying
     @Query("delete from ApplicationMember ap where ap.id = :applicationMemberId and ap.member.id = :memberId and ap.studyPost.id = :studyPostId")

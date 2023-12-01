@@ -57,7 +57,7 @@ public class InitData {
             }
             StudyPost testStudyPost = new StudyPost("프로젝트!!", LocalDate.now());
             em.persist(testStudyPost);
-            StudyMember testStudyMember = new StudyMember(testMember, testStudyPost, ConfirmAuthor.LEADER);
+            StudyMember testStudyMember = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost.addStudyMember(testStudyMember);
             em.persist(testStudyMember);
             // 민현 추가

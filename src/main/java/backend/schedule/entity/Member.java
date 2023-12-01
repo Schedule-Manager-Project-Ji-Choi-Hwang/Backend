@@ -46,10 +46,10 @@ public class Member extends BaseTimeEntity{
         subject.setMember(this);
     }
 
-    public void addStudyMember(StudyMember studyMember) {
-        studyMembers.add(studyMember);
-        studyMember.setMember(this);
-    }
+//    public void addStudyMember(StudyMember studyMember) {
+//        studyMembers.add(studyMember);
+//        studyMember.setMember(this);
+//    }
 
 //    public void addApplicationMember(ApplicationMember applicationMember) {
 //        applicationMembers.add(applicationMember);

@@ -43,9 +43,12 @@ public class StudyMember {
         this.studyPost = studyPost;
     }
 
-    public StudyMember(Member member, StudyPost studyPost, ConfirmAuthor confirmAuthor) {
+    public StudyMember(Member member, ConfirmAuthor confirmAuthor) {
         this.member = member;
-        this.studyPost = studyPost;
         this.confirmAuthor = confirmAuthor;
+    }
+
+    public void changeLeader() {
+        this.confirmAuthor = ConfirmAuthor.LEADER;
     }
 }
