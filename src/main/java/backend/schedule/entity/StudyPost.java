@@ -42,7 +42,7 @@ public class StudyPost extends BaseTimeEntity {
     @OneToMany(mappedBy = "studyPost")
     private List<ApplicationMember> applicationMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "studyPost")
     private List<StudySchedule> studySchedules = new ArrayList<>();
 
     @OneToMany(mappedBy = "studyPost")

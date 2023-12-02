@@ -9,7 +9,8 @@ import javax.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @Getter
 @SequenceGenerator(name = "STUDYSCHEDULE_SEQ_GENERATOR",
         sequenceName = "STUDYSCHEDULE_SEQ")
@@ -33,11 +34,17 @@ public class StudySchedule {
         this.period = scheduleDto.getPeriod();
     }
 
-    public void updateSchedule(String scheduleName, LocalDate period) {
-        this.scheduleName = scheduleName;
-        this.period = period;
+    public void updateSchedule(StudyScheduleDto scheduleDto) {
+        this.scheduleName = scheduleDto.getScheduleName();
+        this.period = scheduleDto.getPeriod();
     }
 
+    public StudySchedule testSchedule(String scheduleName, LocalDate period) {
+        this.scheduleName = scheduleName;
+        this.period = period;
+
+        return this;
+    }
 
 
     public void setStudyPost(StudyPost studyPost) {

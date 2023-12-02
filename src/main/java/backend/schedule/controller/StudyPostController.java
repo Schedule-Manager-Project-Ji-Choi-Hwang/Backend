@@ -3,12 +3,14 @@ package backend.schedule.controller;
 
 import backend.schedule.dto.*;
 import backend.schedule.dto.studypost.SearchPostCondition;
+import backend.schedule.dto.studypost.StudyMemberToPostReqDto;
 import backend.schedule.dto.studypost.StudyPostDto;
 import backend.schedule.dto.studypost.StudyPostFrontSaveDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.StudyMemberService;
@@ -34,14 +36,16 @@ import static backend.schedule.enumlist.ErrorMessage.*;
 @RequiredArgsConstructor
 public class StudyPostController {
 
+    private final MemberService memberService;
     private final StudyPostService studyPostService;
     private final StudyMemberService studyMemberService;
-    private final MemberService memberService;
+    private final JwtTokenExtraction jwtTokenExtraction;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
     //StudyPost 멤버별 스터디 과목 볼 수 있게 만들기
-    //시용자가 작성한 내 글 볼 수 있게 만들기
+    //시용자가 작성한 내 글 볼 수 있게 만들기 -> 내가 작성한 글
+    //리더가 스터디 탈퇴할때 다른 멤버들이 있으면 그 멤버들 중 하나에게 리더권한을 넘겨주게 됨 근데 게시글 작성한 사람 식별은 스터디 멤버 테이블에서 리더로 확인하는데 이거 맞나?
     /**
      * 스터디 게시글 작성
      * Query: 3번
@@ -108,13 +112,31 @@ public class StudyPostController {
     }
 
     /**
+     * 내가 작성한 스터디 게시글 조회
+     * Query: 1번
+     */
+    @GetMapping("/myPostList")
+    public ResponseEntity<?> myPostList(HttpServletRequest request) {
+
+        try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            List<StudyMemberToPostReqDto> studyMemberToPostReqDtos = studyMemberService.myPostList(memberId);
+
+            return ResponseEntity.ok().body(new Result(studyMemberToPostReqDtos));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+
+    }
+
+    /**
      * @param lastPostId 마지막 조회 id (처음 조회 시는 null)
      * @param condition  게시글 검색 조건 (게시글 제목)
      * Query: Query Dsl이용 1번
      */
     @GetMapping("/studyboard") //스터디 게시글 전체 조회
     public ResponseEntity<Result> studyBoardLists(@RequestParam(required = false) Long lastPostId,
-                                                  @RequestBody SearchPostCondition condition, Pageable pageable) {
+                                                  @RequestBody SearchPostCondition condition, Pageable pageable) { //검색어 제목입력받는거 쿼리파라미터 형식으로 바꾸기
         return ResponseEntity.ok().body(new Result(studyPostService.search(lastPostId, condition, pageable)));
     }
 

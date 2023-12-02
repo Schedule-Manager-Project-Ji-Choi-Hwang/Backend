@@ -2,6 +2,7 @@ package backend.schedule.service;
 
 
 import backend.schedule.dto.studymember.StudyMemberResDto;
+import backend.schedule.dto.studypost.StudyMemberToPostReqDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
@@ -73,10 +74,17 @@ public class StudyMemberService {
     }
 
     public List<Long> findStudyPostIds(Long memberId) {
-        List<Long> studyPostIds = studyMemberRepository.MainPageStudyMembers(memberId).stream().map(s -> s.getStudyPost().getId())
+        List<Long> studyPostIds = studyMemberRepository.MainPageStudyMembers(memberId).stream()
+                .map(s -> s.getStudyPost().getId())
                 .collect(Collectors.toList());
 
         return studyPostIds;
+    }
+
+    public List<StudyMemberToPostReqDto> myPostList(Long memberId) {
+        return studyMemberRepository.myPostList(memberId, LEADER).stream()
+                .map(StudyMemberToPostReqDto::new)
+                .collect(Collectors.toList());
     }
 
     public void delete(StudyMember studyMember) {

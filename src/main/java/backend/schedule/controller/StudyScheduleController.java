@@ -7,9 +7,13 @@ import backend.schedule.dto.studyschedule.StudyPostScheduleSetDto;
 import backend.schedule.dto.studyschedule.StudyScheduleDto;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.entity.StudySchedule;
+import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.jwt.JwtTokenExtraction;
+import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import backend.schedule.service.StudyScheduleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -17,9 +21,11 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static backend.schedule.enumlist.ConfirmAuthor.*;
 import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
@@ -27,17 +33,24 @@ import static backend.schedule.enumlist.ErrorMessage.*;
 public class StudyScheduleController {
 
     private final StudyPostService studyPostService;
+    private final JwtTokenExtraction jwtTokenExtraction;
+    private final StudyMemberService studyMemberService;
     private final StudyScheduleService studyScheduleService;
+    @Value("${spring.jwt.secretkey}")
+    private String mySecretkey;
 
     /**
      * 스터디 일정 추가
      * Query: 2번
      */
-    @Transactional
+//    @Transactional
     @PostMapping("/studyboard/{studyBoardId}/study-schedule/add")
-    public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyBoardId) {
-        //스터디 일정도 리더만 작성가능하게?
+    public ResponseEntity<?> studyScheduleAdd(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult,
+                                              @PathVariable Long studyBoardId, HttpServletRequest request) {
+
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
             StudyPost findPost = studyPostService.findById(studyBoardId);
 
             if (bindingResult.hasErrors()) {
@@ -48,8 +61,7 @@ public class StudyScheduleController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            StudySchedule studySchedule = new StudySchedule(scheduleDto);
-            findPost.addStudySchedule(studySchedule);
+            studyScheduleService.save(scheduleDto, findPost);
 
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
@@ -62,11 +74,34 @@ public class StudyScheduleController {
      * 스터디 일정 조회
      * Query: 1번
      */
-    @GetMapping({"/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/edit", "/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}"})
-    //아무나 일정을 볼 수 있는 문제있음
-    public ResponseEntity<?> studyScheduleUpdateForm(@PathVariable Long studyScheduleId) {
+    @GetMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}")
+    public ResponseEntity<?> studyScheduleSearch(@PathVariable Long studyBoardId, @PathVariable Long studyScheduleId, HttpServletRequest request) {
 
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
+
+            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+            StudyScheduleDto studyScheduleDto = new StudyScheduleDto(findSchedule);
+
+            return ResponseEntity.ok().body(studyScheduleDto);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+
+    }
+
+    /**
+     * 스터디 일정 수정 조회
+     * Query: 1번
+     */
+    @GetMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/edit")
+    public ResponseEntity<?> studyScheduleUpdateForm(@PathVariable Long studyBoardId, @PathVariable Long studyScheduleId, HttpServletRequest request) {
+
+        try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
+
             StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
             StudyScheduleDto studyScheduleDto = new StudyScheduleDto(findSchedule);
 
@@ -82,9 +117,12 @@ public class StudyScheduleController {
      * Query: Fetch join이용 1번
      */
     @GetMapping("/studyboard/{studyBoardId}/study-schedules")
-    public ResponseEntity<?> studyScheduleList(@PathVariable Long studyBoardId) {
+    public ResponseEntity<?> studyScheduleList(@PathVariable Long studyBoardId, HttpServletRequest request) {
 
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
+
             StudyPost studyPost = studyPostService.studyScheduleList(studyBoardId);
 
             return ResponseEntity.ok().body(new Result(new StudyPostScheduleSetDto(studyPost)));
@@ -98,13 +136,14 @@ public class StudyScheduleController {
      * 스터디 일정 수정
      * Query: 2번
      */
-    @Transactional
+//    @Transactional
     @PatchMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/edit")
-    public ResponseEntity<?> studyScheduleUpdate(
-            @Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult, @PathVariable Long studyScheduleId) {
+    public ResponseEntity<?> studyScheduleUpdate(@Validated @RequestBody StudyScheduleDto scheduleDto, BindingResult bindingResult,
+                                                 @PathVariable Long studyBoardId, @PathVariable Long studyScheduleId, HttpServletRequest request) {
 
         try {
-            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
 
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors().stream()
@@ -114,7 +153,7 @@ public class StudyScheduleController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            findSchedule.updateSchedule(scheduleDto.getScheduleName(), scheduleDto.getPeriod());
+            studyScheduleService.studyScheduleUpdate(studyScheduleId, scheduleDto);
 
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
@@ -127,17 +166,22 @@ public class StudyScheduleController {
      * 스터디 일정 삭제
      * Query: 3번
      */
-    @Transactional
+//    @Transactional
     @DeleteMapping("/studyboard/{studyBoardId}/study-schedule/{studyScheduleId}/delete")
-    public ResponseEntity<?> studyScheduleDelete(@PathVariable Long studyBoardId, @PathVariable Long studyScheduleId) {
+    public ResponseEntity<?> studyScheduleDelete(@PathVariable Long studyBoardId, @PathVariable Long studyScheduleId, HttpServletRequest request) {
 
         try {
-            StudyPost findPost = studyPostService.findById(studyBoardId);
-            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
 
-            findPost.removeStudySchedule(findSchedule);
+            String removeStudySchedule = studyScheduleService.removeStudySchedule(studyBoardId, studyScheduleId);
+
+//            StudyPost findPost = studyPostService.findById(studyBoardId);
+//            StudySchedule findSchedule = studyScheduleService.findById(studyScheduleId);
+//
+//            findPost.removeStudySchedule(findSchedule);
             //쿼리 4번 개선방법 생각
-            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(removeStudySchedule));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

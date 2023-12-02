@@ -14,9 +14,7 @@ import java.util.Optional;
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
 
     @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId and sm.confirmAuthor = :confirmAuthor")
-    Optional<StudyMember> studyMemberSearch(@Param("memberId") Long memberId,
-                                                   @Param("studyBoardId") Long studyBoardId,
-                                                   @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
+    Optional<StudyMember> studyMemberSearch(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId, @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
 
     @Query("select sm from StudyMember sm where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId")
     Optional<StudyMember> studyMemberSearchNoAuthority(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
@@ -24,14 +22,15 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     @Query("select sm from StudyMember sm join fetch sm.studyPost sp join fetch sp.studyMembers where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId")
     Optional<StudyMember> studyMemberGetStudyPost(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
 
-    boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
-
     @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sm.member where sp.id = :studyBoardId")
     Optional<StudyPost> studyMembersByStudyboardId(@Param("studyBoardId") Long studyBoardId);
 
-    @Query("SELECT DISTINCT sm FROM StudyMember sm " +
-            "LEFT JOIN FETCH  sm.studyPost " +
-            "WHERE sm.member.id = :memberId")
+    @Query("select distinct sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId")
     List<StudyMember> MainPageStudyMembers(@Param("memberId") Long memberId);
+
+    @Query("select sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId and sm.confirmAuthor = :confirmAuthor")
+    List<StudyMember> myPostList(@Param("memberId") Long memberId, @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
+
+    boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
 
 }
