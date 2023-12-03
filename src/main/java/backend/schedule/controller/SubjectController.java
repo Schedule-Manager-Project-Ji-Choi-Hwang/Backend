@@ -46,19 +46,16 @@ public class SubjectController {
     public ResponseEntity<?> subjectAdd(@Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest request) {
         try {
             // 빈 검증
-//            if (bindingResult.hasErrors()) {
-//                List<String> errorMessages = bindingResult.getAllErrors()
-//                        .stream()
-//                        .map(objectError -> objectError.getDefaultMessage())
-//                        .collect(Collectors.toList());
-//                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-//            }
-            RequestDataValidation.beanValidation(bindingResult);
+            if (bindingResult.hasErrors()) {
+                List<String> errorMessages = bindingResult.getAllErrors()
+                        .stream()
+                        .map(objectError -> objectError.getDefaultMessage())
+                        .collect(Collectors.toList());
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
+            }
+
 
             // 토큰 추출 및 멤버 식별
-//            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-//            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-//            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 개인 과목 저장
@@ -101,9 +98,7 @@ public class SubjectController {
     public ResponseEntity<?> findSubjects(HttpServletRequest request) {
         try {
             // 토큰 추출 및 멤버 식별
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 개인 과목 전체 조회 (멤버별)
             List<SubjectResDto> findPersonalSubjects = subjectService.findAll(findMember);
@@ -154,17 +149,11 @@ public class SubjectController {
      *          4. 개인 과목 삭제
      */
     @DeleteMapping("/subjects/{subjectId}/delete")
-    public ResponseEntity<?> subjectDelete(HttpServletRequest request, @PathVariable Long subjectId) {
+    public ResponseEntity<?> subjectDelete(@PathVariable Long subjectId) {
         try {
-            // 토큰 추출 및 멤버 식별
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
-
             Subject findSubject = subjectService.findOne(subjectId);
-
             // 개인 과목 삭제
-            subjectService.subjectDelete(findMember, findSubject);
+            subjectService.deleteSubject(findSubject);
 
             // 응답
             return ResponseEntity.ok().build();

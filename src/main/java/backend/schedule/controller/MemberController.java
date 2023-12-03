@@ -3,7 +3,9 @@ package backend.schedule.controller;
 import backend.schedule.dto.*;
 import backend.schedule.dto.member.*;
 import backend.schedule.entity.Member;
+import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
+import backend.schedule.repository.MemberRepository;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.RefreshTokenService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,8 @@ public class MemberController {
 
     private final MemberService memberService;
     private final RefreshTokenService refreshTokenService;
+    private final JwtTokenExtraction jwtTokenExtraction;
+    private final MemberRepository memberRepository;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
     @Value("${spring.jwt.token.access.expire}")
@@ -237,10 +241,7 @@ public class MemberController {
             }
 
             // 토큰 추출 및 멤버 식별
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String secretKey = mySecretkey;
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 비밀번호 변경
             memberService.changePW(findMember, memberChangePasswordReqDto);
@@ -262,13 +263,12 @@ public class MemberController {
     public ResponseEntity<?> deleteMember(HttpServletRequest request) {
         try {
             // 토큰 추출 및 멤버 식별
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String secretKey = mySecretkey;
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
+            //String removeMember = memberService.deleteMember(findMember); // 수정 버전
             memberService.deleteMember(findMember);
 
+            //return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(removeMember)); // 수정 버전
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));

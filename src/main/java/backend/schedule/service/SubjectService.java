@@ -72,8 +72,7 @@ public class SubjectService {
      * (개인 과목 삭제)
      * 개인 과목 삭제
      */
-    public void subjectDelete(Member member, Subject subject) {
-        member.removeSubject(subject);
+    public void deleteSubject(Subject subject) {
         subjectRepository.delete(subject);
     }
 }
