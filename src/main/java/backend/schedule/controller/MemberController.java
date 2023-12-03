@@ -95,14 +95,13 @@ public class MemberController {
             // 로그인 아이디 및 비밀번호 통해 멤버 식별 (로그인)
             Member member = memberService.login(memberLoginReqDto);
 
-            // 시크릿 키 및 토큰 만료 기한 가져오기
-            String secretKey = mySecretkey;
+            // 토큰 만료 기한 가져오기
             long accessTokenExpireMs = Long.parseLong(myAccessTokenExpireMs);
             long refreshTokenExpireMs = Long.parseLong(myRefreshTokenExpireMs);
 
             // 토큰 생성
-            String accessToken = JwtTokenUtil.createAccessToken(member.getLoginId(), secretKey, accessTokenExpireMs);
-            String refreshToken = JwtTokenUtil.createRefreshToken(secretKey, refreshTokenExpireMs);
+            String accessToken = JwtTokenUtil.createAccessToken(member.getLoginId(), mySecretkey, accessTokenExpireMs);
+            String refreshToken = JwtTokenUtil.createRefreshToken(mySecretkey, refreshTokenExpireMs);
 
             // Refresh 토큰 저장
             refreshTokenService.save(refreshToken, member.getId());
@@ -125,7 +124,7 @@ public class MemberController {
      *          2. 해당 회원의 DB Refresh 토큰 조회
      */
     @GetMapping("/member/refresh")
-    public ResponseEntity<?> refresh(HttpServletRequest request) {
+    public ResponseEntity<?> tokenRefresh(HttpServletRequest request) {
         try {
             // 요청 헤더의 토큰 포함 여부 확인
             if (!validateHeader(request)) {
@@ -136,19 +135,18 @@ public class MemberController {
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
             String refreshToken = request.getHeader("Refresh-Token").substring(7);
 
-            // 시크릿 키 및 만료 기한 가져오기
-            String secretKey = mySecretkey;
+            // 만료 기한 가져오기
             long accessTokenExpireMs = Long.parseLong(myAccessTokenExpireMs);
 
             // 토큰 정보 이용해 멤버 식별
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
+            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
             Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
 
             // 요청 Refresh토큰과 DB Refresh 토큰 일치 여부 확인 및 만료기한 검사
-            refreshTokenService.matches(refreshToken, memberId, secretKey);
+            refreshTokenService.matches(refreshToken, memberId, mySecretkey);
 
             // 재발급 할 Access토큰 생성
-            String reissuanceAccessToken = JwtTokenUtil.createAccessToken(memberLoginId, secretKey, accessTokenExpireMs);
+            String reissuanceAccessToken = JwtTokenUtil.createAccessToken(memberLoginId, mySecretkey, accessTokenExpireMs);
 
             // 응답
             return ResponseEntity.noContent()
@@ -174,7 +172,7 @@ public class MemberController {
                         .stream()
                         .map(objectError -> objectError.getDefaultMessage())
                         .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
             // 멤버 조회 및 아이디값 조회
@@ -229,7 +227,7 @@ public class MemberController {
      *          2. 멤버 비밀번호 변경
      */
     @PatchMapping("/member/edit")
-    public ResponseEntity<?> changePW(HttpServletRequest request, @Validated @RequestBody MemberChangePasswordReqDto memberChangePasswordReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> changePassword(HttpServletRequest request, @Validated @RequestBody MemberChangePasswordReqDto memberChangePasswordReqDto, BindingResult bindingResult) {
         try {
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -244,7 +242,7 @@ public class MemberController {
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 비밀번호 변경
-            memberService.changePW(findMember, memberChangePasswordReqDto);
+            memberService.changePassword(findMember, memberChangePasswordReqDto);
 
             // 응답
             return ResponseEntity.ok().body("비밀번호가 변경 되었습니다."); // 변경 완료 시 재로그인 시켜야함.
@@ -260,15 +258,14 @@ public class MemberController {
      */
 
     @DeleteMapping("/member/delete")
-    public ResponseEntity<?> deleteMember(HttpServletRequest request) {
+    public ResponseEntity<?> memberWithdrawal(HttpServletRequest request) {
         try {
             // 토큰 추출 및 멤버 식별
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
-            //String removeMember = memberService.deleteMember(findMember); // 수정 버전
+            // 멤버 삭제
             memberService.deleteMember(findMember);
 
-            //return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(removeMember)); // 수정 버전
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));

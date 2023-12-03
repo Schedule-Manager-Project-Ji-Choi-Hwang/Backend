@@ -7,14 +7,11 @@ import backend.schedule.dto.Result;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.Subject;
 import backend.schedule.jwt.JwtTokenExtraction;
-import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.SubjectService;
-import backend.schedule.validation.RequestDataValidation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -43,7 +40,7 @@ public class SubjectController {
      *          2. 개인 과목 저장
      */
     @PostMapping("/subjects/add")
-    public ResponseEntity<?> subjectAdd(@Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest request) {
+    public ResponseEntity<?> addSubject(@Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest request) {
         try {
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -59,10 +56,10 @@ public class SubjectController {
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 개인 과목 저장
-            SubjectResDto savedSubjectDto = subjectService.save(subjectReqDto, findMember);
+            subjectService.save(subjectReqDto, findMember);
 
             // 응답
-            return ResponseEntity.ok().body(savedSubjectDto);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -78,10 +75,10 @@ public class SubjectController {
     public ResponseEntity<?> findSubject(@PathVariable Long subjectId) {
         try {
             // 개인 과목 조회
-            Subject subject = subjectService.findOne(subjectId);
+            Subject subject = subjectService.findSubjectById(subjectId);
 
             // 응답
-            return ResponseEntity.ok().body(new SubjectResDto(subject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto, 기간이나 일정 추가 필요할 듯
+            return ResponseEntity.ok().body(new SubjectResDto(subject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -101,10 +98,10 @@ public class SubjectController {
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 개인 과목 전체 조회 (멤버별)
-            List<SubjectResDto> findPersonalSubjects = subjectService.findAll(findMember);
+            List<SubjectResDto> findSubjects = subjectService.findSubjects(findMember);
 
             // 응답
-            return ResponseEntity.ok().body(new Result(findPersonalSubjects));
+            return ResponseEntity.ok().body(new Result(findSubjects));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -118,7 +115,7 @@ public class SubjectController {
      *          2. 개인 과목 제목 변경
      */
     @PatchMapping("/subjects/{subjectId}/edit")
-    public ResponseEntity<?> subjectUpdate(@PathVariable Long subjectId, @Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateSubject(@PathVariable Long subjectId, @Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult) {
         try {
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -130,7 +127,7 @@ public class SubjectController {
             }
 
             // 개인 과목 변경 (제목)
-            subjectService.subjectNameUpdate(subjectId, subjectReqDto);
+            subjectService.updateSubjectName(subjectId, subjectReqDto);
 
             // 응답
             return ResponseEntity.ok().build();
@@ -151,7 +148,7 @@ public class SubjectController {
     @DeleteMapping("/subjects/{subjectId}/delete")
     public ResponseEntity<?> subjectDelete(@PathVariable Long subjectId) {
         try {
-            Subject findSubject = subjectService.findOne(subjectId);
+            Subject findSubject = subjectService.findSubjectById(subjectId);
             // 개인 과목 삭제
             subjectService.deleteSubject(findSubject);
 

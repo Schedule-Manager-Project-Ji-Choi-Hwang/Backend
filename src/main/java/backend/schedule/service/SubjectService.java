@@ -27,21 +27,20 @@ public class SubjectService {
      * (개인 과목 저장)
      * 개인 과목 저장
      */
-    public SubjectResDto save(SubjectReqDto subjectReqDto, Member member) {
+    public void save(SubjectReqDto subjectReqDto, Member member) {
         // 개인 과목 객체 생성 및 연관 관계 설정
         Subject subject = new Subject(subjectReqDto.getSubjectName());
         member.addPersonalSubject(subject);
         
         // 개인 과목 객체 저장
-        Subject savedSubject = subjectRepository.save(subject);
-        return new SubjectResDto(savedSubject);
+        subjectRepository.save(subject);
     }
 
     /**
      * (개인 과목 단일 조회)
      * 개인 과목 단일 조회
      */
-    public Subject findOne(Long subjectId) {
+    public Subject findSubjectById(Long subjectId) {
         // id값 이용해 개인 과목 조회
         Optional<Subject> optionalPersonalSubject = subjectRepository.findById(subjectId);
 
@@ -52,7 +51,7 @@ public class SubjectService {
      * (개인 과목 전체 조회)
      * 개인 과목 전체 조회 (멤버별)
      */
-    public List<SubjectResDto> findAll(Member member) {
+    public List<SubjectResDto> findSubjects(Member member) {
         return subjectRepository.findByMember(member)
                 .stream()
                 .map(SubjectResDto::new)
@@ -63,8 +62,8 @@ public class SubjectService {
      * (개인 과목 변경)
      * 개인 과목 변경 (제목)
      */
-    public void subjectNameUpdate(Long subjectId, SubjectReqDto subjectReqDto) {
-        Subject findSubject = findOne(subjectId);
+    public void updateSubjectName(Long subjectId, SubjectReqDto subjectReqDto) {
+        Subject findSubject = findSubjectById(subjectId);
         findSubject.subjectNameUpdate(subjectReqDto.getSubjectName());
     }
 

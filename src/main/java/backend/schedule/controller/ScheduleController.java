@@ -4,7 +4,6 @@ import backend.schedule.dto.*;
 import backend.schedule.dto.schedule.ScheduleDto;
 import backend.schedule.dto.schedule.ScheduleEditReqDto;
 import backend.schedule.dto.schedule.ScheduleReqDto;
-import backend.schedule.entity.Subject;
 import backend.schedule.entity.Schedule;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.SubjectService;
@@ -34,18 +33,13 @@ public class ScheduleController {
 
     /**
      * 스케쥴 저장 기능
-     * 요청 데이터 : 일정 제목, 날짜, 과목 이름(과목 id로 대체 예정)
-     * (단일)요청 횟수 : 2회
-     * 1. 개인 과목 조회
-     * 2. 일정 추가
-     * <p>
      * 요청 데이터 : 일정 제목, 시작 날짜, 종료 날짜, 반복(repeat), 과목 이름(과목 id로 대체 예정)
      * (반복)요청 횟수 : 1 + N회
      * 1. 개인 과목 조회
      * 2. 일정 갯수 만큼 추가
      */
     @PostMapping("/subjects/{subjectId}/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
-    public ResponseEntity<?> add(@PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> addSchedule(@PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
         try {
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -57,7 +51,7 @@ public class ScheduleController {
             }
 
             // 스케쥴 저장
-            scheduleService.add(scheduleReqDto, subjectId);
+            scheduleService.addSchedule(scheduleReqDto, subjectId);
 
             // 응답
             return ResponseEntity.ok().body("일정 등록 성공");
@@ -75,7 +69,7 @@ public class ScheduleController {
     @GetMapping("/subjects/schedules/{scheduleId}")
     public ResponseEntity<?> findSchedule(@PathVariable Long scheduleId) {
         try {
-            Schedule findSchedule = scheduleService.findOne(scheduleId);
+            Schedule findSchedule = scheduleService.findScheduleById(scheduleId);
 
             ScheduleDto scheduleDto = new ScheduleDto(findSchedule);
 
@@ -145,14 +139,13 @@ public class ScheduleController {
      * 3. 개인 과목 id로 일정 조회
      * 4. 일정 삭제
      */
-    @DeleteMapping("/subjects/{subjectId}/schedules/{scheduleId}/delete")
-    public ResponseEntity<?> deleteSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId) {
+    @DeleteMapping("/subjects/schedules/{scheduleId}/delete")
+    public ResponseEntity<?> deleteSchedule(@PathVariable Long scheduleId) {
         try {
-            Subject findSubject = subjectService.findOne(subjectId);
-            Schedule findSchedule = scheduleService.findOne(scheduleId);
+            Schedule findSchedule = scheduleService.findScheduleById(scheduleId);
 
             // 스케쥴 삭제
-            scheduleService.deleteSchedule(findSubject, findSchedule);
+            scheduleService.deleteSchedule(findSchedule);
 
             // 응답
             return ResponseEntity.ok("삭제 되었습니다.");

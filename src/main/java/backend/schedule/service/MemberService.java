@@ -58,12 +58,10 @@ public class MemberService {
      * (회원가입)
      * 회원 저장 (비밀번호 암호화)
      */
-    public Long join(MemberJoinReqDto memberJoinReqDto) {
+    public void join(MemberJoinReqDto memberJoinReqDto) {
         // 비밀번호 암호화
         String encodedPassword = encoder.encode(memberJoinReqDto.getPassword());
-
-        // 비밀번호 저장 및 id값 반환
-        return memberRepository.save(new Member(memberJoinReqDto, encodedPassword)).getId();
+        memberRepository.save(new Member(memberJoinReqDto, encodedPassword));
     }
 
     /**
@@ -134,7 +132,7 @@ public class MemberService {
      * (회원 정보 변경)
      * 비밀번호 변경 (비밀번호 암호화)
      */
-    public void changePW(Member member, MemberChangePasswordReqDto memberChangePasswordReqDto) {
+    public void changePassword(Member member, MemberChangePasswordReqDto memberChangePasswordReqDto) {
         // 멤버 비밀번호 변경(비밀번호 암호화)
         member.changePassword(encoder.encode(memberChangePasswordReqDto.getPassword()));
     }

@@ -35,7 +35,7 @@ public class ScheduleService {
      * (스케쥴 저장)
      * 단일 저장 및 반복 저장
      */
-    public void add(ScheduleReqDto scheduleReqDto, Long subjectId) {
+    public void addSchedule(ScheduleReqDto scheduleReqDto, Long subjectId) {
         Optional<Subject> optionalPersonalSubject = subjectRepository.findById(subjectId);
         if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
             Subject subject = optionalPersonalSubject.get();
@@ -82,7 +82,7 @@ public class ScheduleService {
      * (스케쥴 단일 조회)
      * 스케쥴 단일 조회
      */
-    public Schedule findOne(Long scheduleId) {
+    public Schedule findScheduleById(Long scheduleId) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
 
         return optionalSchedule.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
@@ -101,7 +101,7 @@ public class ScheduleService {
      * 스케쥴 전체 조회 (멤버별)
      */
     public List<ScheduleResDto> findSchedulesByMemberId(Long memberId, LocalDate date) {
-        List<ScheduleResDto> scheduleResDtos = memberRepository.findPersonalSubjectsWithSchedulesByMemberId(memberId, date).stream()
+        List<ScheduleResDto> scheduleResDtos = subjectRepository.findSubjectsWithSchedulesByMemberId(memberId, date).stream()
                 .map(ScheduleResDto::new)
                 .collect(Collectors.toList());
 
@@ -127,8 +127,7 @@ public class ScheduleService {
      * (스케쥴 삭제)
      * 스케쥴 삭제
      */
-    public void deleteSchedule(Subject subject, Schedule schedule) {
-        subject.removeSchedule(schedule);
+    public void deleteSchedule(Schedule schedule) {
         scheduleRepository.delete(schedule);
     }
 }
