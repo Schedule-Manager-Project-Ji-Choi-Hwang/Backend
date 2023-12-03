@@ -14,5 +14,5 @@ public interface StudyCommentRepository extends JpaRepository<StudyComment, Long
 
     @Modifying
     @Query("delete from StudyComment sc where sc.studyAnnouncement.id = :studyAnnouncementId and sc.id = :studyCommentId and sc.member.id = :memberId")
-    void commentRemove(@Param("studyAnnouncementId") Long studyAnnouncementId, @Param("studyCommentId") Long studyCommentId, @Param("memberId") Long memberId);
+    int commentRemove(@Param("studyAnnouncementId") Long studyAnnouncementId, @Param("studyCommentId") Long studyCommentId, @Param("memberId") Long memberId);
 }

@@ -30,16 +30,12 @@ public class StudyAnnouncement extends BaseTimeEntity{
     @JoinColumn(name = "studypost_id")
     private StudyPost studyPost;
 
-    @OneToMany(mappedBy = "studyAnnouncement", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "studyAnnouncement")
     private List<StudyComment> studyComments = new ArrayList<>();
 
     public void addStudyComment(StudyComment studyComment) {
         studyComments.add(studyComment);
         studyComment.setStudyAnnouncement(this);
-    }
-
-    public void removeStudyComment(StudyComment studyComment) {
-        studyComments.remove(studyComment);
     }
 
     public void setStudyPost(StudyPost studyPost) {

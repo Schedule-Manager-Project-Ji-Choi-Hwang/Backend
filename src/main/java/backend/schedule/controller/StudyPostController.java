@@ -5,7 +5,6 @@ import backend.schedule.dto.*;
 import backend.schedule.dto.studypost.SearchPostCondition;
 import backend.schedule.dto.studypost.StudyMemberToPostReqDto;
 import backend.schedule.dto.studypost.StudyPostDto;
-import backend.schedule.dto.studypost.StudyPostFrontSaveDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
@@ -36,7 +35,6 @@ import static backend.schedule.enumlist.ErrorMessage.*;
 @RequiredArgsConstructor
 public class StudyPostController {
 
-    private final MemberService memberService;
     private final StudyPostService studyPostService;
     private final StudyMemberService studyMemberService;
     private final JwtTokenExtraction jwtTokenExtraction;
@@ -62,10 +60,10 @@ public class StudyPostController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
-            StudyPostFrontSaveDto savedStudyPostDto = studyPostService.save(studyPostDto, findMember);
+            Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
+            studyPostService.save(studyPostDto, member);
 
-            return ResponseEntity.ok().body(savedStudyPostDto);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -98,8 +96,8 @@ public class StudyPostController {
     public ResponseEntity<?> studyBoardUpdateForm(@PathVariable Long studyBoardId, HttpServletRequest request) {
 
         try {
-            Member findMember = findMemberByToken(request); // 토큰 추출 및 멤버 식별
-            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, ConfirmAuthor.LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
@@ -150,8 +148,8 @@ public class StudyPostController {
                                               @PathVariable Long studyBoardId, HttpServletRequest request) {
 
         try {
-            Member findMember = findMemberByToken(request);
-            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, ConfirmAuthor.LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             if (bindingResult.hasErrors()) {
@@ -177,13 +175,13 @@ public class StudyPostController {
      */
     @DeleteMapping("/studyboard/{studyBoardId}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
     public ResponseEntity<?> studyBoardDelete(@PathVariable Long studyBoardId, HttpServletRequest request) {
-        Member findMember = findMemberByToken(request);
+        Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
-        if (findMember == null) {
+        if (member == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
         }
 
-        StudyMember studyMember = studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
+        StudyMember studyMember = studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.LEADER);
 
         if (studyMember == null) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
@@ -205,16 +203,5 @@ public class StudyPostController {
 //            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
 //        }
 
-    }
-
-    /**
-     * 토큰이용 Member찾기
-     * @param request
-     * @return Member
-     */
-    private Member findMemberByToken(HttpServletRequest request) {
-        String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-        String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-        return memberService.getLoginMemberByLoginId(memberLoginId);
     }
 }

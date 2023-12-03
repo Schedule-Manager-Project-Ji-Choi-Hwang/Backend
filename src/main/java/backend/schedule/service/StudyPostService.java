@@ -3,7 +3,6 @@ package backend.schedule.service;
 
 import backend.schedule.dto.studypost.SearchPostCondition;
 import backend.schedule.dto.studypost.StudyPostDto;
-import backend.schedule.dto.studypost.StudyPostFrontSaveDto;
 import backend.schedule.dto.studyschedule.StudyPostScheduleSetDto;
 import backend.schedule.dto.studypost.StudyPostResDto;
 import backend.schedule.entity.Member;
@@ -33,15 +32,13 @@ public class StudyPostService {
         return new StudyPostScheduleSetDto(studyPost);
     }
 
-    public StudyPostFrontSaveDto save(StudyPostDto studyPostDto, Member findMember) {
+    public void save(StudyPostDto studyPostDto, Member member) {
         StudyPost studyPost = new StudyPost(studyPostDto);
-        StudyMember studyMember = new StudyMember(findMember, ConfirmAuthor.LEADER);
+        StudyMember studyMember = new StudyMember(member, ConfirmAuthor.LEADER);
 
         studyPost.addStudyMember(studyMember);
-        StudyPost savedStudyPost = studyPostRepository.save(studyPost);//스터디 멤버 리더 지정
+        studyPostRepository.save(studyPost);//스터디 멤버 리더 지정
         studyMemberRepository.save(studyMember);
-
-        return new StudyPostFrontSaveDto(savedStudyPost);
     }
 
     public StudyPost findById(Long id) {

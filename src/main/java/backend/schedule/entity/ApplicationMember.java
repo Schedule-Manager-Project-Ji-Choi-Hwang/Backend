@@ -35,8 +35,7 @@ public class ApplicationMember {
         this.studyPost = studyPost;
     }
 
-    public ApplicationMember(Member member, StudyPost studyPost) {
+    public ApplicationMember(Member member) {
         this.member = member;
-        this.studyPost = studyPost;
     }
 }
