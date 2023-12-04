@@ -8,6 +8,7 @@ import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.MemberService;
@@ -29,10 +30,12 @@ import static backend.schedule.enumlist.ErrorMessage.*;
 @RequiredArgsConstructor
 public class ApplicationMemberController {
 
-    private final ApplicationMemberService applicationMemberService;
     private final MemberService memberService;
     private final StudyPostService studyPostService;
     private final StudyMemberService studyMemberService;
+    private final JwtTokenExtraction jwtTokenExtraction;
+    private final ApplicationMemberService applicationMemberService;
+
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
@@ -122,17 +125,13 @@ public class ApplicationMemberController {
     @DeleteMapping("/studyboard/{studyBoardId}/application-members/{apMemberId}/delete")
     public ResponseEntity<?> rejectMember(@PathVariable Long studyBoardId, @PathVariable Long apMemberId, HttpServletRequest request) {
         try {
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, mySecretkey);
-            Long memberId = memberService.getLoginMemberByLoginId(memberLoginId).getId();
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             // 권한 식별
             studyMemberService.studyMemberSearch(memberId, studyBoardId, ConfirmAuthor.LEADER);
 
-            ApplicationMember findApMember = applicationMemberService.findApMember(apMemberId);
+            String deleteApplicationMember = applicationMemberService.deleteApplicationMember(apMemberId, memberId, studyBoardId);
 
-            applicationMemberService.deleteApplicationMember(apMemberId, findApMember, studyBoardId);
-
-            return ResponseEntity.ok().build();
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(deleteApplicationMember));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

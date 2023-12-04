@@ -3,7 +3,9 @@ package backend.schedule.entity;
 
 import backend.schedule.dto.studypost.StudyPostDto;
 import backend.schedule.enumlist.FieldTag;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -12,6 +14,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SequenceGenerator(name = "STUDYPOST_SEQ_GENERATOR", sequenceName = "STUDYPOST_SEQ")
 public class StudyPost extends BaseTimeEntity {
 
@@ -56,7 +59,7 @@ public class StudyPost extends BaseTimeEntity {
 
     public void addApplicationMember(ApplicationMember applicationMember) {
         applicationMembers.add(applicationMember);
-//        applicationMember.setStudyPost(this);
+        applicationMember.setStudyPost(this);
     }
 
     public void addStudySchedule(StudySchedule studySchedule) {
@@ -67,25 +70,6 @@ public class StudyPost extends BaseTimeEntity {
     public void addStudyAnnouncements(StudyAnnouncement studyAnnouncement) {
         studyAnnouncements.add(studyAnnouncement);
         studyAnnouncement.setStudyPost(this);
-    }
-
-    public void removeStudySchedule(StudySchedule studySchedule) {
-        studySchedules.remove(studySchedule);
-    }
-
-    public void removeStudyAnnouncement(StudyAnnouncement studyAnnouncement) {
-        studyAnnouncements.remove(studyAnnouncement);
-    }
-
-    public void removeApplicationMember(ApplicationMember applicationMember) {
-        applicationMembers.remove(applicationMember);
-    }
-
-    public void removeStudyMember(StudyMember studyMember) {
-        studyMembers.remove(studyMember);
-    }
-
-    protected StudyPost() {
     }
 
     public StudyPost(StudyPostDto studyPostDto) {

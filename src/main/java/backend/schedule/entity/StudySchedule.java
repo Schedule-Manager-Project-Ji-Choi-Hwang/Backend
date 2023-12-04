@@ -46,7 +46,6 @@ public class StudySchedule {
         return this;
     }
 
-
     public void setStudyPost(StudyPost studyPost) {
         this.studyPost = studyPost;
     }

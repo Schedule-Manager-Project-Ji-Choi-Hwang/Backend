@@ -26,7 +26,7 @@ public class ApplicationMemberService {
      * 신청 멤버 저장
      */
     public void save(Member member, StudyPost studyPost) {
-        ApplicationMember applicationMember = new ApplicationMember(member, studyPost);
+        ApplicationMember applicationMember = new ApplicationMember(member);
         studyPost.addApplicationMember(applicationMember);
         applicationMemberRepository.save(applicationMember);
     }
@@ -63,8 +63,14 @@ public class ApplicationMemberService {
         return optionalApplicationMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.APPLICATION));
     }
 
-    public void deleteApplicationMember(Long applicationMemberId, ApplicationMember applicationMember, Long studyPostId) {
-        applicationMember.getStudyPost().removeApplicationMember(applicationMember); // 편의 메서드 제거
-        applicationMemberRepository.deleteApmember(applicationMemberId, applicationMember.getMember().getId(), studyPostId);
+    public String deleteApplicationMember(Long applicationMemberId, Long memberId, Long studyPostId) {
+        int deleteApmember = applicationMemberRepository.deleteApmember(applicationMemberId, memberId, studyPostId);
+
+        if (deleteApmember == 1) {
+            return ErrorMessage.DELETE;
+        } else {
+            throw new IllegalArgumentException(ErrorMessage.NOTDELETE);
+        }
+
     }
 }
