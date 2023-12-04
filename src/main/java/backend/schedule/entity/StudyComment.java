@@ -45,4 +45,8 @@ public class StudyComment extends BaseTimeEntity{
     public void commentUpdate(StudyCommentDto commentDto) {
         this.comment = commentDto.getComment();
     }
+
+    public StudyComment(String comment) {
+        this.comment = comment;
+    }
 }

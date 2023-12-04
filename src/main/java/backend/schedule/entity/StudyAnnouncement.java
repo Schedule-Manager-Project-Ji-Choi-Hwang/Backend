@@ -30,7 +30,7 @@ public class StudyAnnouncement extends BaseTimeEntity{
     @JoinColumn(name = "studypost_id")
     private StudyPost studyPost;
 
-    @OneToMany(mappedBy = "studyAnnouncement")
+    @OneToMany(mappedBy = "studyAnnouncement", cascade = CascadeType.REMOVE)
     private List<StudyComment> studyComments = new ArrayList<>();
 
     public void addStudyComment(StudyComment studyComment) {
@@ -50,5 +50,10 @@ public class StudyAnnouncement extends BaseTimeEntity{
     public void announcementUpdate(StudyAnnouncementDto announcementDto) {
         this.announcementTitle = announcementDto.getAnnouncementTitle();
         this.announcementPost = announcementDto.getAnnouncementPost();
+    }
+
+    public StudyAnnouncement(String announcementTitle, String announcementPost) {
+        this.announcementTitle = announcementTitle;
+        this.announcementPost = announcementPost;
     }
 }

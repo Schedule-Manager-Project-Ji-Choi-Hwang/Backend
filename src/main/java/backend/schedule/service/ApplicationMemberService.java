@@ -71,6 +71,9 @@ public class ApplicationMemberService {
         } else {
             throw new IllegalArgumentException(ErrorMessage.NOTDELETE);
         }
+    }
 
+    public void ApplicationMembersWithdrawal(Long memberId) {
+        applicationMemberRepository.ApplicationMembersWithdrawal(memberId);
     }
 }

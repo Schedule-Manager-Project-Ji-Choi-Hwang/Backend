@@ -39,16 +39,16 @@ public class StudyPost extends BaseTimeEntity {
     @Lob
     private String post;
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.REMOVE)
     private List<StudyMember> studyMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.REMOVE)
     private List<ApplicationMember> applicationMembers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.REMOVE)
     private List<StudySchedule> studySchedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "studyPost")
+    @OneToMany(mappedBy = "studyPost", cascade = CascadeType.REMOVE)
     private List<StudyAnnouncement> studyAnnouncements = new ArrayList<>();
 
 

@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ApplicationMemberRepository extends JpaRepository<ApplicationMember, Long> {
@@ -21,4 +22,7 @@ public interface ApplicationMemberRepository extends JpaRepository<ApplicationMe
     Optional<ApplicationMember> findApMember(@Param("applicationMemberId") Long applicationMemberId);
 
     boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
+    @Modifying
+    @Query("delete from ApplicationMember ap where ap.member.id = :memberId")
+    void ApplicationMembersWithdrawal(@Param("memberId") Long memberId);
 }

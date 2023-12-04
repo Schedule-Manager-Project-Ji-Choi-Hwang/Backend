@@ -61,7 +61,6 @@ public class StudyMemberService {
 
         if (studyMember.getConfirmAuthor() == LEADER) {
             if (studyMember.getStudyPost().getStudyMembers().size() == 1) {
-                studyMemberRepository.delete(studyMember);
                 studyPostRepository.delete(studyMember.getStudyPost()); // 추후에 연관관계 더 세팅하고 삭제되는지 확인(cascade or 연관관계 관련된거 다 딜리트)
             } else {
                 StudyMember secondStudyMember = studyMember.getStudyPost().getStudyMembers().get(1); // 2번째 멤버 찾아오기
@@ -104,6 +103,16 @@ public class StudyMemberService {
         }
 
         throw new IllegalArgumentException(ErrorMessage.STUDY);
+    }
+
+    public List<StudyMember> findStudyMembersWithdrawal(Long memberId) {
+        return studyMemberRepository.findStudyMembersWithdrawal(memberId);
+    }
+
+    public void StudyMembersWithdrawal(List<StudyMember> studyMembers) {
+        for (StudyMember studyMember : studyMembers) {
+            deleteStudyMember(studyMember);
+        }
     }
 
 }

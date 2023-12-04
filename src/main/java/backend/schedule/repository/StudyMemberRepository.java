@@ -33,4 +33,7 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
 
     boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
 
+    @Query("select sm from StudyMember sm join fetch sm.studyPost sp join fetch sp.studyMembers where sm.member.id = :memberId")
+    List<StudyMember> findStudyMembersWithdrawal(@Param("memberId") Long memberId);
+
 }

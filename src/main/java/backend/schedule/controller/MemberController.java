@@ -3,11 +3,14 @@ package backend.schedule.controller;
 import backend.schedule.dto.*;
 import backend.schedule.dto.member.*;
 import backend.schedule.entity.Member;
+import backend.schedule.entity.StudyMember;
 import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.repository.MemberRepository;
+import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.RefreshTokenService;
+import backend.schedule.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -31,7 +34,8 @@ public class MemberController {
     private final MemberService memberService;
     private final RefreshTokenService refreshTokenService;
     private final JwtTokenExtraction jwtTokenExtraction;
-    private final MemberRepository memberRepository;
+    private final StudyMemberService studyMemberService;
+    private final ApplicationMemberService applicationMemberService;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
     @Value("${spring.jwt.token.access.expire}")
@@ -262,6 +266,14 @@ public class MemberController {
         try {
             // 토큰 추출 및 멤버 식별
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
+
+            List<StudyMember> studyMembers = studyMemberService.findStudyMembersWithdrawal(findMember.getId());
+
+            studyMemberService.StudyMembersWithdrawal(studyMembers);
+
+            // 신청 회원 조회 및 삭제
+            applicationMemberService.ApplicationMembersWithdrawal(findMember.getId());
+
 
             // 멤버 삭제
             memberService.deleteMember(findMember);

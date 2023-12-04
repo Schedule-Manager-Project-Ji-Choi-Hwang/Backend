@@ -38,7 +38,7 @@ public class Member extends BaseTimeEntity{
 //    @OneToMany(mappedBy = "member")
 //    private List<ApplicationMember> applicationMembers = new ArrayList();
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
     private List<StudyComment> studyComments = new ArrayList<>();
 
     public void addPersonalSubject(Subject subject) {
