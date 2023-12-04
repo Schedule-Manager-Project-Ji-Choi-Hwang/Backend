@@ -8,6 +8,7 @@ import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.ApplicationMemberService;
@@ -96,10 +97,9 @@ public class ApplicationMemberController {
             // 스터디 멤버 식별 (권한 식별)
             studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
 
-            // 스터디 게시글 조회
-//            StudyPost studyPost = studyPostService.findById(studyBoardId);
             // 스터디 게시글 조회 (민현 추가 - join fetch 버전)
             StudyPost studyPost = studyPostService.findStudyPostByApplicationMembers(studyBoardId);
+
 
             // 반환할 신청 멤버들 Dto 준비 (페치조인으로 바꿔야함 멤버가 3명이면 멤버 닉네임을 가져오기 위해 3번 쿼리가 더 나가고 100명이면 100번 더 나감)
             List<ApplicationMemberDto> ApplicationMemberDtos = studyPost.getApplicationMembers().stream()
@@ -109,6 +109,8 @@ public class ApplicationMemberController {
             return ResponseEntity.ok().body(new Result(ApplicationMemberDtos));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(e.getMessage()));
         }
 
     }

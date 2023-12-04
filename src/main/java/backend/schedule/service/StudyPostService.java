@@ -81,6 +81,6 @@ public class StudyPostService {
     public StudyPost findStudyPostByApplicationMembers(Long studyBoardId) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostByApplicationMembers(studyBoardId);
 
-        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(ErrorMessage.POST));
+        return optionalStudyPost.orElseThrow(() -> new ArrayIndexOutOfBoundsException(ErrorMessage.APPLICATION));
     }
 }
