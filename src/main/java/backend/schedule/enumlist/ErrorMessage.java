@@ -38,7 +38,9 @@ public class ErrorMessage {
 
     public static final String AUTHORITY = "권한이 없습니다.";
 
-    public static final String STUDY = "스터디 회원을 찾을 수 없습니다.";
+    public static final String STUDY = "스터디 멤버를 찾을 수 없습니다.";
+
+    public static final String EXPULSIONSTUDYMEMBER = "해당 스터디 멤버를 추방 하였습니다.";
 
     public static final String TOKENEXPIRE = "해당 토큰이 만료되었습니다.";
 }

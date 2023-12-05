@@ -12,14 +12,17 @@ import backend.schedule.repository.StudyMemberRepository;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static backend.schedule.enumlist.ConfirmAuthor.*;
 import static backend.schedule.enumlist.ConfirmAuthor.LEADER;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class StudyMemberService {
 
@@ -28,7 +31,7 @@ public class StudyMemberService {
 
 
     public void save(Member member, StudyPost studyPost) {
-        StudyMember studyMember = new StudyMember(member, ConfirmAuthor.MEMBER);
+        StudyMember studyMember = new StudyMember(member, MEMBER);
         studyPost.addStudyMember(studyMember);
         studyMemberRepository.save(studyMember);
     }
@@ -112,6 +115,16 @@ public class StudyMemberService {
     public void StudyMembersWithdrawal(List<StudyMember> studyMembers) {
         for (StudyMember studyMember : studyMembers) {
             deleteStudyMember(studyMember);
+        }
+    }
+
+    public String expulsionStudyMember(Long studyBoardId, Long studyMemberId) {
+        int deleteStudyMember = studyMemberRepository.deleteStudyMember(studyBoardId, studyMemberId, MEMBER);
+
+        if (deleteStudyMember == 1) {
+            return ErrorMessage.EXPULSIONSTUDYMEMBER;
+        } else {
+            throw new IllegalArgumentException(ErrorMessage.STUDY);
         }
     }
 

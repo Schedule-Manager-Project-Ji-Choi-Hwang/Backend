@@ -52,7 +52,7 @@ public class StudyCommentController {
 
         try {
             Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
-            studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.MEMBER);
+            studyMemberService.studyMemberSearchNoAuthority(member.getId(), studyBoardId);
             //findAnnouncement.getStudyPost().getId() 가져오는 방법은 페치조인이 효율적이긴함
             //아니면 도메인에 게시글 PathVariable 추가하던가 - 채택
 
