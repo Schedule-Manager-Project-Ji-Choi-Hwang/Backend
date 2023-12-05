@@ -14,9 +14,6 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId and sc.period = :date")
     StudyPost DetailPageStudySchedules(@Param("boardId") Long boardId, @Param("date")LocalDate date);
 
-    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId")
-    Optional<StudyPost> studyScheduleList(@Param("boardId") Long boardId);
-
     @Query("select s from StudyPost s join fetch s.studyAnnouncements sa where s.id = :boardId and sa.id = :id")
     Optional<StudyPost> studyAnnouncement(@Param("boardId") Long boardId, @Param("id") Long id);
 
@@ -26,7 +23,9 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     @Query("select s from StudyPost s join fetch s.studySchedules ss where s.id = :boardId")
     List<StudyPost> detailPage(@Param("boardId") Long boardId);
 
-    // 민현 추가 - 신청 멤버 조회에 사용
     @Query("select s from StudyPost s join fetch s.applicationMembers am join fetch am.member where s.id = :boardId ")
     Optional<StudyPost> findStudyPostByApplicationMembers(@Param("boardId") Long studyBoardId);
+
+    //    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId")
+//    Optional<StudyPost> studyScheduleList(@Param("boardId") Long boardId);
 }

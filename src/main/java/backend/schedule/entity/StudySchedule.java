@@ -1,7 +1,7 @@
 package backend.schedule.entity;
 
-import backend.schedule.dto.studyschedule.StudyScheduleDto;
-import lombok.AccessLevel;
+import backend.schedule.dto.studyschedule.StudyScheduleEditReqDto;
+import backend.schedule.dto.studyschedule.StudyScheduleReqDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,14 +29,14 @@ public class StudySchedule {
     @JoinColumn(name = "studypost_id")
     private StudyPost studyPost;
 
-    public StudySchedule(StudyScheduleDto scheduleDto) {
-        this.scheduleName = scheduleDto.getScheduleName();
-        this.period = scheduleDto.getPeriod();
+    public StudySchedule(StudyScheduleReqDto scheduleReqDto, LocalDate date) {
+        this.scheduleName = scheduleReqDto.getStudyScheduleName();
+        this.period = date;
     }
 
-    public void updateSchedule(StudyScheduleDto scheduleDto) {
-        this.scheduleName = scheduleDto.getScheduleName();
-        this.period = scheduleDto.getPeriod();
+    public void updateSchedule(StudyScheduleEditReqDto scheduleEditReqDto) {
+        this.scheduleName = scheduleEditReqDto.getScheduleName();
+        this.period = scheduleEditReqDto.getPeriod();
     }
 
     public StudySchedule testSchedule(String scheduleName, LocalDate period) {

@@ -27,10 +27,10 @@ public class StudyPostService {
     private final StudyPostRepository studyPostRepository;
     private final StudyMemberRepository studyMemberRepository;
 
-    public StudyPostScheduleSetDto detailStudySchedules(Long studyboardId, LocalDate date) {
-        StudyPost studyPost = studyPostRepository.DetailPageStudySchedules(studyboardId, date);
-        return new StudyPostScheduleSetDto(studyPost);
-    }
+//    public StudyPostScheduleSetDto detailStudySchedules(Long studyboardId, LocalDate date) {
+//        StudyPost studyPost = studyPostRepository.DetailPageStudySchedules(studyboardId, date);
+//        return new StudyPostScheduleSetDto(studyPost);
+//    }
 
     public void save(StudyPostDto studyPostDto, Member member) {
         StudyPost studyPost = new StudyPost(studyPostDto);
@@ -51,18 +51,8 @@ public class StudyPostService {
         return studyPostRepository.searchPost(lastPostId, condition, pageable);
     }
 
-    public void deleteById(Long id) {
-        studyPostRepository.deleteById(id);
-    }
-
     public void delete(StudyPost studyPost) {
         studyPostRepository.delete(studyPost);
-    }
-
-    public StudyPost studyScheduleList(Long id) {
-        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyScheduleList(id);
-
-        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
     }
 
     public StudyPost studyAnnouncement(Long boardId, Long id) {
@@ -77,10 +67,15 @@ public class StudyPostService {
         return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
-    // 민현 추가
     public StudyPost findStudyPostByApplicationMembers(Long studyBoardId) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostByApplicationMembers(studyBoardId);
 
         return optionalStudyPost.orElseThrow(() -> new ArrayIndexOutOfBoundsException(ErrorMessage.APPLICATION));
     }
+
+//    public StudyPost studyScheduleList(Long id) {
+//        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyScheduleList(id);
+//
+//        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
+//    }
 }

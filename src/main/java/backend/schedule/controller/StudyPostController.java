@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static backend.schedule.enumlist.ConfirmAuthor.*;
 import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
@@ -97,12 +98,10 @@ public class StudyPostController {
 
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearch(memberId, studyBoardId, ConfirmAuthor.LEADER);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
-            StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
-
-            return ResponseEntity.ok().body(studyPostDto);
+            return ResponseEntity.ok().body(new StudyPostDto(findStudyPost));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -149,7 +148,7 @@ public class StudyPostController {
 
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearch(memberId, studyBoardId, ConfirmAuthor.LEADER);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
             if (bindingResult.hasErrors()) {
@@ -175,33 +174,17 @@ public class StudyPostController {
      */
     @DeleteMapping("/studyboard/{studyBoardId}/delete") //삭제 성공하면 /studyboard 스터디 게시판으로 이동
     public ResponseEntity<?> studyBoardDelete(@PathVariable Long studyBoardId, HttpServletRequest request) {
-        Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
-        if (member == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(MEMBER));
+        try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
+
+            StudyPost findStudyPost = studyPostService.findById(studyBoardId);
+            studyPostService.delete(findStudyPost);
+
+            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-        StudyMember studyMember = studyMemberService.studyMemberSearch(member.getId(), studyBoardId, ConfirmAuthor.LEADER);
-
-        if (studyMember == null) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(STUDY));
-        }
-
-        studyPostService.deleteById(studyBoardId);
-
-        return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
-        //studyMember의 foreign key 무결성 제약조건에 걸린다 하는데 아마 이거 게시글 지우면 스터디 멤버 관련된 로직도 싹다 지워야할듯
-
-//        try {
-//            Member findMember = findMemberByToken(request);
-//            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId);
-//
-//            studyPostService.delete(studyBoardId);
-//
-//            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(DELETE));
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
-//        }
-
     }
 }

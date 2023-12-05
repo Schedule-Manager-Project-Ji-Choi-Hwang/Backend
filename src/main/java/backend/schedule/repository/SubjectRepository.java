@@ -13,9 +13,7 @@ import java.util.Optional;
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
     List<Subject> findByMember(Member member);
 
-    @Query("select distinct ps from Subject ps " +
-            "join fetch ps.schedules sc " +
-            "where ps.member.id = :memberId and sc.period = :date")
+    @Query("select distinct ps from Subject ps join fetch ps.schedules sc where ps.member.id = :memberId and sc.period = :date")
     List<Subject> findSubjectsWithSchedulesByMemberId(@Param("memberId") Long memberId, @Param("date") LocalDate date);
 
 }

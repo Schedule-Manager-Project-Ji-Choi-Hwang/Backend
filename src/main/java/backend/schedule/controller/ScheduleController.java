@@ -111,6 +111,9 @@ public class ScheduleController {
     @PatchMapping("/subjects/schedules/{scheduleId}/edit")
     public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId, @Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult) {
         try {
+
+            Schedule findSchedule = scheduleService.findById(scheduleId);
+
             // 빈 검증
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors()
@@ -121,7 +124,7 @@ public class ScheduleController {
             }
 
             // 스케쥴 변경
-            scheduleService.updateSchedule(scheduleId, scheduleEditReqDto);
+            scheduleService.updateSchedule(findSchedule, scheduleEditReqDto);
 
             // 응답
             return ResponseEntity.ok("변경 되었습니다.");

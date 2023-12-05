@@ -1,6 +1,6 @@
 package backend.schedule.dto.studyschedule;
 
-import backend.schedule.dto.studyschedule.StudyScheduleDto;
+import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.FieldTag;
 import lombok.Data;
@@ -17,14 +17,14 @@ public class StudyPostScheduleSetDto {
 
     private FieldTag tag;
 
-    private List<StudyScheduleDto> studySchedules;
+    private List<StudyScheduleResDto> studySchedules;
 
-    public StudyPostScheduleSetDto(StudyPost studyPost) {
-        this.studyPostId = studyPost.getId();
-        this.studyName = studyPost.getStudyName();
-        this.tag = studyPost.getTag();
-        this.studySchedules = studyPost.getStudySchedules().stream()
-                .map(StudyScheduleDto::new)
+    public StudyPostScheduleSetDto(StudyMember studyMember) {
+        this.studyPostId = studyMember.getStudyPost().getId();
+        this.studyName = studyMember.getStudyPost().getStudyName();
+        this.tag = studyMember.getStudyPost().getTag();
+        this.studySchedules = studyMember.getStudyPost().getStudySchedules().stream()
+                .map(StudyScheduleResDto::new)
                 .collect(Collectors.toList());
     }
 }

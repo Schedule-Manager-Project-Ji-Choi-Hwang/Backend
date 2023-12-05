@@ -1,4 +1,4 @@
-package backend.schedule.dto.schedule;
+package backend.schedule.dto.studyschedule;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ScheduleEditReqDto {
+public class StudyScheduleEditReqDto {
 
     @NotEmpty(message = "일정 제목을 입력해주세요.")
     private String scheduleName;

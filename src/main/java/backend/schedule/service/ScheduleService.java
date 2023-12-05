@@ -36,7 +36,7 @@ public class ScheduleService {
      * 단일 저장 및 반복 저장
      */
     public void addSchedule(ScheduleReqDto scheduleReqDto, Long subjectId) {
-        Optional<Subject> optionalPersonalSubject = subjectRepository.findById(subjectId);
+        Optional<Subject> optionalPersonalSubject = subjectRepository.findById(subjectId); // controller로 빼기
         if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
             Subject subject = optionalPersonalSubject.get();
 
@@ -112,15 +112,14 @@ public class ScheduleService {
      * (스케쥴 변경)
      * 스케쥴 변경 (제목, 기간(period))
      */
-    public Schedule updateSchedule(Long scheduleId, ScheduleEditReqDto scheduleEditReqDto) {
+    public void updateSchedule(Schedule schedule, ScheduleEditReqDto scheduleEditReqDto) {
+        schedule.changeScheduleNameAndPeriod(scheduleEditReqDto);
+    }
+
+    public Schedule findById(Long scheduleId) {
         Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
-        if (optionalSchedule.isPresent()) {
-            Schedule schedule = optionalSchedule.get();
-            schedule.changeScheduleNameAndPeriod(scheduleEditReqDto);
-            return schedule;
-        } else {
-            throw new IllegalArgumentException(ErrorMessage.SCHEDULE);
-        }
+
+        return optionalSchedule.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
     }
 
     /**
