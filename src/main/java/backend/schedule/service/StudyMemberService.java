@@ -94,18 +94,11 @@ public class StudyMemberService {
         studyMemberRepository.delete(studyMember);
     }
 
-    public List<StudyMemberResDto> findStudyMembers(Long studyboardId) {
-        Optional<StudyPost> optionalStudyPost = studyMemberRepository.studyMembersByStudyboardId(studyboardId);
-
-        if (optionalStudyPost.isPresent()) {
-            StudyPost studyPost = optionalStudyPost.get();
-            List<StudyMemberResDto> studyMemberResDtos = studyPost.getStudyMembers().stream()
-                    .map(StudyMemberResDto::new)
-                    .collect(Collectors.toList());
-            return studyMemberResDtos;
-        }
-
-        throw new IllegalArgumentException(ErrorMessage.STUDY);
+    public List<StudyMemberResDto> findStudyMembers(StudyPost studyPost) {
+        List<StudyMemberResDto> studyMemberResDtos = studyPost.getStudyMembers().stream()
+                .map(StudyMemberResDto::new)
+                .collect(Collectors.toList());
+        return studyMemberResDtos;
     }
 
     public List<StudyMember> findStudyMembersWithdrawal(Long memberId) {

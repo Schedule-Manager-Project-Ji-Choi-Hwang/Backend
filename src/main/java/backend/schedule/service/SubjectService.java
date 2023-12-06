@@ -4,6 +4,7 @@ import backend.schedule.dto.subject.SubjectReqDto;
 import backend.schedule.dto.subject.SubjectResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.Subject;
+import backend.schedule.repository.MemberRepository;
 import backend.schedule.repository.SubjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import static backend.schedule.enumlist.ErrorMessage.*;
 public class SubjectService {
 
     private final SubjectRepository subjectRepository;
+    private final MemberRepository memberRepository;
 
 
     /**
@@ -40,19 +42,19 @@ public class SubjectService {
      * (개인 과목 단일 조회)
      * 개인 과목 단일 조회
      */
-    public Subject findSubjectById(Long subjectId) {
+    public Subject findSubjectById(Long subjectId, Long memberId) {
         // id값 이용해 개인 과목 조회
-        Optional<Subject> optionalPersonalSubject = subjectRepository.findById(subjectId);
+        Optional<Subject> optionalPersonalSubject = subjectRepository.findSubject(subjectId, memberId);
 
-        return optionalPersonalSubject.orElseThrow(() -> new IllegalArgumentException(SUBJECT));
+        return optionalPersonalSubject.orElseThrow(() -> new IllegalArgumentException(AUTHORITY));
     }
 
     /**
      * (개인 과목 전체 조회)
      * 개인 과목 전체 조회 (멤버별)
      */
-    public List<SubjectResDto> findSubjects(Member member) {
-        return subjectRepository.findByMember(member)
+    public List<SubjectResDto> findSubjects(Long memberId) {
+         return subjectRepository.findByMember(memberId)
                 .stream()
                 .map(SubjectResDto::new)
                 .collect(Collectors.toList());
@@ -62,9 +64,8 @@ public class SubjectService {
      * (개인 과목 변경)
      * 개인 과목 변경 (제목)
      */
-    public void updateSubjectName(Long subjectId, SubjectReqDto subjectReqDto) {
-        Subject findSubject = findSubjectById(subjectId);
-        findSubject.subjectNameUpdate(subjectReqDto.getSubjectName());
+    public void updateSubjectName(Subject subject, SubjectReqDto subjectReqDto) {
+        subject.subjectNameUpdate(subjectReqDto);
     }
 
     /**

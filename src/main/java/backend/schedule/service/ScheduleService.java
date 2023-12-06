@@ -6,7 +6,6 @@ import backend.schedule.dto.schedule.ScheduleResDto;
 import backend.schedule.entity.Subject;
 import backend.schedule.entity.Schedule;
 import backend.schedule.enumlist.ErrorMessage;
-import backend.schedule.repository.MemberRepository;
 import backend.schedule.repository.SubjectRepository;
 import backend.schedule.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,52 +28,42 @@ public class ScheduleService {
 
     private final SubjectRepository subjectRepository;
 
-    private final MemberRepository memberRepository;
-
     /**
      * (스케쥴 저장)
      * 단일 저장 및 반복 저장
      */
-    public void addSchedule(ScheduleReqDto scheduleReqDto, Long subjectId) {
-        Optional<Subject> optionalPersonalSubject = subjectRepository.findById(subjectId); // controller로 빼기
-        if (optionalPersonalSubject.isPresent()) { // 옵셔널 검사 코드
-            Subject subject = optionalPersonalSubject.get();
+    public void addSchedule(ScheduleReqDto scheduleReqDto, Subject subject) {
+        if (scheduleReqDto.getStartDate().equals(scheduleReqDto.getEndDate())) { // 단일 등록
+            Schedule schedule = new Schedule(scheduleReqDto, scheduleReqDto.getStartDate());
+            subject.addSchedules(schedule);
+            scheduleRepository.save(schedule);
 
-            if (scheduleReqDto.getStartDate().equals(scheduleReqDto.getEndDate())) { // 단일 등록
-                Schedule schedule = new Schedule(scheduleReqDto, scheduleReqDto.getStartDate());
+        } else { // 반복 등록
+            LocalDate nextDate = scheduleReqDto.getStartDate(); // 저장될 날짜를 가지고 있는 놈. for문의 i 변수같은 존재.
+
+            Schedule schedule1 = new Schedule(scheduleReqDto, nextDate);
+            subject.addSchedules(schedule1);
+            scheduleRepository.save(schedule1);
+
+            while (!nextDate.isAfter(scheduleReqDto.getEndDate())) { // nextDate가 endDate를 지났는가? (서로 날짜가 같으면 통과해버림. 지나야 반복 종료됨)
+
+                switch (scheduleReqDto.getRepeat()) {
+                    case "DAILY":
+                        nextDate = nextDate.plusDays(1); // 하루 +
+                        break;
+                    case "WEEKLY":
+                        nextDate = nextDate.plusWeeks(1); // 일주일 +
+                        break;
+                    case "MONTHLY":
+                        nextDate = nextDate.plusMonths(1); // 한달 +
+                        break;
+                }
+                Schedule schedule = new Schedule(scheduleReqDto, nextDate);
                 subject.addSchedules(schedule);
                 scheduleRepository.save(schedule);
 
-            } else { // 반복 등록
-                LocalDate nextDate = scheduleReqDto.getStartDate(); // 저장될 날짜를 가지고 있는 놈. for문의 i 변수같은 존재.
-
-                Schedule schedule1 = new Schedule(scheduleReqDto, nextDate);
-                subject.addSchedules(schedule1);
-                scheduleRepository.save(schedule1);
-
-                while (!nextDate.isAfter(scheduleReqDto.getEndDate())) { // nextDate가 endDate를 지났는가? (서로 날짜가 같으면 통과해버림. 지나야 반복 종료됨)
-
-                    switch (scheduleReqDto.getRepeat()) {
-                        case "DAILY":
-                            nextDate = nextDate.plusDays(1); // 하루 +
-                            break;
-                        case "WEEKLY":
-                            nextDate = nextDate.plusWeeks(1); // 일주일 +
-                            break;
-                        case "MONTHLY":
-                            nextDate = nextDate.plusMonths(1); // 한달 +
-                            break;
-                    }
-                    Schedule schedule = new Schedule(scheduleReqDto, nextDate);
-                    subject.addSchedules(schedule);
-                    scheduleRepository.save(schedule);
-                    if (nextDate.isEqual(scheduleReqDto.getEndDate())) { // nextDate가 endDate와 같으면 반복 종료시킴.
-                        break;
-                    }
-                }
+                if (nextDate.isEqual(scheduleReqDto.getEndDate())) break;
             }
-        } else {
-            throw new IllegalArgumentException(ErrorMessage.SCHEDULEFAIL);
         }
     }
 
@@ -82,8 +71,8 @@ public class ScheduleService {
      * (스케쥴 단일 조회)
      * 스케쥴 단일 조회
      */
-    public Schedule findScheduleById(Long scheduleId) {
-        Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
+    public Schedule findScheduleById(Long scheduleId, Long subjectId) {
+        Optional<Schedule> optionalSchedule = scheduleRepository.findSchedule(scheduleId, subjectId);
 
         return optionalSchedule.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
     }
@@ -113,13 +102,7 @@ public class ScheduleService {
      * 스케쥴 변경 (제목, 기간(period))
      */
     public void updateSchedule(Schedule schedule, ScheduleEditReqDto scheduleEditReqDto) {
-        schedule.changeScheduleNameAndPeriod(scheduleEditReqDto);
-    }
-
-    public Schedule findById(Long scheduleId) {
-        Optional<Schedule> optionalSchedule = scheduleRepository.findById(scheduleId);
-
-        return optionalSchedule.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
+        schedule.changeSchedule(scheduleEditReqDto);
     }
 
     /**

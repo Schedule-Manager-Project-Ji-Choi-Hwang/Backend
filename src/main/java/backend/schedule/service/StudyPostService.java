@@ -73,6 +73,12 @@ public class StudyPostService {
         return optionalStudyPost.orElseThrow(() -> new ArrayIndexOutOfBoundsException(ErrorMessage.APPLICATION));
     }
 
+    public StudyPost returnToStudyMembers(Long studyBoardId) {
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostGetStudyMembers(studyBoardId);
+
+        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(ErrorMessage.POST));
+    }
+
 //    public StudyPost studyScheduleList(Long id) {
 //        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyScheduleList(id);
 //

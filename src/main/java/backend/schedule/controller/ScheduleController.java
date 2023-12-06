@@ -5,6 +5,8 @@ import backend.schedule.dto.schedule.ScheduleDto;
 import backend.schedule.dto.schedule.ScheduleEditReqDto;
 import backend.schedule.dto.schedule.ScheduleReqDto;
 import backend.schedule.entity.Schedule;
+import backend.schedule.entity.Subject;
+import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.SubjectService;
 import backend.schedule.service.ScheduleService;
@@ -17,6 +19,7 @@ import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +31,7 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
     private final MemberService memberService;
     private final SubjectService subjectService;
+    private final JwtTokenExtraction jwtTokenExtraction;
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
@@ -39,8 +43,12 @@ public class ScheduleController {
      * 2. 일정 갯수 만큼 추가
      */
     @PostMapping("/subjects/{subjectId}/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
-    public ResponseEntity<?> addSchedule(@PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> addSchedule(HttpServletRequest request, @PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+
+            Subject findSubject = subjectService.findSubjectById(subjectId, memberId);
+
             // 빈 검증
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors()
@@ -51,7 +59,7 @@ public class ScheduleController {
             }
 
             // 스케쥴 저장
-            scheduleService.addSchedule(scheduleReqDto, subjectId);
+            scheduleService.addSchedule(scheduleReqDto, findSubject);
 
             // 응답
             return ResponseEntity.ok().body("일정 등록 성공");
@@ -66,14 +74,15 @@ public class ScheduleController {
      * 요청 횟수 : 1회
      * 1. 일정 조회
      */
-    @GetMapping("/subjects/schedules/{scheduleId}")
-    public ResponseEntity<?> findSchedule(@PathVariable Long scheduleId) {
+    @GetMapping("/subjects/{subjectId}/schedules/{scheduleId}")
+    public ResponseEntity<?> findSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId, HttpServletRequest request) {
         try {
-            Schedule findSchedule = scheduleService.findScheduleById(scheduleId);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            subjectService.findSubjectById(subjectId, memberId);
 
-            ScheduleDto scheduleDto = new ScheduleDto(findSchedule);
+            Schedule findSchedule = scheduleService.findScheduleById(scheduleId, subjectId);
 
-            return ResponseEntity.ok().body(new Result(scheduleDto));
+            return ResponseEntity.ok().body(new ScheduleDto(findSchedule));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -108,11 +117,13 @@ public class ScheduleController {
      * 1. 일정 id 이용해 일정 조회
      * 2. 일정 제목 변경
      */
-    @PatchMapping("/subjects/schedules/{scheduleId}/edit")
-    public ResponseEntity<?> updateSchedule(@PathVariable Long scheduleId, @Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult) {
+    @PatchMapping("/subjects/{subjectId}/schedules/{scheduleId}/edit")
+    public ResponseEntity<?> updateSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId, @Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult, HttpServletRequest request) {
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            subjectService.findSubjectById(subjectId, memberId);
 
-            Schedule findSchedule = scheduleService.findById(scheduleId);
+            Schedule findSchedule = scheduleService.findScheduleById(scheduleId, subjectId);
 
             // 빈 검증
             if (bindingResult.hasErrors()) {
@@ -142,10 +153,13 @@ public class ScheduleController {
      * 3. 개인 과목 id로 일정 조회
      * 4. 일정 삭제
      */
-    @DeleteMapping("/subjects/schedules/{scheduleId}/delete")
-    public ResponseEntity<?> deleteSchedule(@PathVariable Long scheduleId) {
+    @DeleteMapping("/subjects/{subjectId}/schedules/{scheduleId}/delete")
+    public ResponseEntity<?> deleteSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId, HttpServletRequest request) {
         try {
-            Schedule findSchedule = scheduleService.findScheduleById(scheduleId);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            subjectService.findSubjectById(subjectId, memberId);
+
+            Schedule findSchedule = scheduleService.findScheduleById(scheduleId, subjectId);
 
             // 스케쥴 삭제
             scheduleService.deleteSchedule(findSchedule);

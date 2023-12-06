@@ -52,23 +52,15 @@ public class ApplicationMemberController {
     @PostMapping("/studyboard/{studyBoardId}/application-member/add")
     public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long studyBoardId) {
         try {
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String secretKey = mySecretkey;
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            Member member = memberService.getLoginMemberByLoginId(memberLoginId);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             StudyPost studyPost = studyPostService.findById(studyBoardId);
 
             // 해당 스터디에 이미 가입되어 있으면 신청이 불가해야한다.
-            boolean studyMemberDuplicateCheck = applicationMemberService.StudyMemberDuplicateCheck(member, studyPost);
-            boolean applicationMemberDuplicate = applicationMemberService.ApplicationMemberDuplicate(member, studyPost);
-            if (applicationMemberDuplicate) {
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATE));
-            } else if (studyMemberDuplicateCheck) {
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(ALREADY));
-            }
+            applicationMemberService.StudyMemberDuplicateCheck(findMember.getId(), studyBoardId);
+            applicationMemberService.ApplicationMemberDuplicate(findMember.getId(), studyBoardId);
 
-            applicationMemberService.save(member, studyPost);
+            applicationMemberService.save(findMember, studyPost);
 
             return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
@@ -89,10 +81,7 @@ public class ApplicationMemberController {
     public ResponseEntity<?> applicationMembers(HttpServletRequest request, @PathVariable Long studyBoardId) {
         //재검토
         try {
-            String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
-            String secretKey = mySecretkey;
-            String memberLoginId = JwtTokenUtil.getLoginId(accessToken, secretKey);
-            Member findMember = memberService.getLoginMemberByLoginId(memberLoginId);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
             // 스터디 멤버 식별 (권한 식별)
             studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, ConfirmAuthor.LEADER);
@@ -102,11 +91,9 @@ public class ApplicationMemberController {
 
 
             // 반환할 신청 멤버들 Dto 준비 (페치조인으로 바꿔야함 멤버가 3명이면 멤버 닉네임을 가져오기 위해 3번 쿼리가 더 나가고 100명이면 100번 더 나감)
-            List<ApplicationMemberDto> ApplicationMemberDtos = studyPost.getApplicationMembers().stream()
-                    .map(ApplicationMemberDto::new)
-                    .collect(Collectors.toList());
+            List<ApplicationMemberDto> applicationMemberDtos = applicationMemberService.applicationMemberList(studyPost);
 
-            return ResponseEntity.ok().body(new Result(ApplicationMemberDtos));
+            return ResponseEntity.ok().body(new Result(applicationMemberDtos));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -131,7 +118,7 @@ public class ApplicationMemberController {
             // 권한 식별
             studyMemberService.studyMemberSearch(memberId, studyBoardId, ConfirmAuthor.LEADER);
 
-            String deleteApplicationMember = applicationMemberService.deleteApplicationMember(apMemberId, memberId, studyBoardId);
+            String deleteApplicationMember = applicationMemberService.deleteApplicationMember(apMemberId, studyBoardId);
 
             return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(deleteApplicationMember));
         } catch (IllegalArgumentException e) {

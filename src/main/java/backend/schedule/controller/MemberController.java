@@ -107,6 +107,9 @@ public class MemberController {
             String accessToken = JwtTokenUtil.createAccessToken(member.getLoginId(), mySecretkey, accessTokenExpireMs);
             String refreshToken = JwtTokenUtil.createRefreshToken(mySecretkey, refreshTokenExpireMs);
 
+            // 여기
+            refreshTokenService.checkRefreshTokenDuplicate(member.getId());
+
             // Refresh 토큰 저장
             refreshTokenService.save(refreshToken, member.getId());
 

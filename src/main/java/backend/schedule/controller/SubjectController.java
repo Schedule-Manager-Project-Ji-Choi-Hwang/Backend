@@ -72,10 +72,11 @@ public class SubjectController {
      *          1. id값 이용해 개인 과목 조회
      */
     @GetMapping("/subjects/{subjectId}")
-    public ResponseEntity<?> findSubject(@PathVariable Long subjectId) {
+    public ResponseEntity<?> findSubject(HttpServletRequest request, @PathVariable Long subjectId) {
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             // 개인 과목 조회
-            Subject subject = subjectService.findSubjectById(subjectId);
+            Subject subject = subjectService.findSubjectById(subjectId, memberId);
 
             // 응답
             return ResponseEntity.ok().body(new SubjectResDto(subject)); // 개인 과목 카드를 눌렀을 때 출력될 Dto
@@ -95,10 +96,10 @@ public class SubjectController {
     public ResponseEntity<?> findSubjects(HttpServletRequest request) {
         try {
             // 토큰 추출 및 멤버 식별
-            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
             // 개인 과목 전체 조회 (멤버별)
-            List<SubjectResDto> findSubjects = subjectService.findSubjects(findMember);
+            List<SubjectResDto> findSubjects = subjectService.findSubjects(memberId);
 
             // 응답
             return ResponseEntity.ok().body(new Result(findSubjects));
@@ -115,8 +116,11 @@ public class SubjectController {
      *          2. 개인 과목 제목 변경
      */
     @PatchMapping("/subjects/{subjectId}/edit")
-    public ResponseEntity<?> updateSubject(@PathVariable Long subjectId, @Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> updateSubject(@PathVariable Long subjectId, @Validated @RequestBody SubjectReqDto subjectReqDto, BindingResult bindingResult, HttpServletRequest request) {
         try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            Subject findSubject = subjectService.findSubjectById(subjectId, memberId);
+
             // 빈 검증
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors()
@@ -127,7 +131,7 @@ public class SubjectController {
             }
 
             // 개인 과목 변경 (제목)
-            subjectService.updateSubjectName(subjectId, subjectReqDto);
+            subjectService.updateSubjectName(findSubject, subjectReqDto);
 
             // 응답
             return ResponseEntity.ok().build();
@@ -146,9 +150,10 @@ public class SubjectController {
      *          4. 개인 과목 삭제
      */
     @DeleteMapping("/subjects/{subjectId}/delete")
-    public ResponseEntity<?> subjectDelete(@PathVariable Long subjectId) {
+    public ResponseEntity<?> subjectDelete(@PathVariable Long subjectId, HttpServletRequest request) {
         try {
-            Subject findSubject = subjectService.findSubjectById(subjectId);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            Subject findSubject = subjectService.findSubjectById(subjectId, memberId);
             // 개인 과목 삭제
             subjectService.deleteSubject(findSubject);
 

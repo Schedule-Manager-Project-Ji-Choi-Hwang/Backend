@@ -1,6 +1,7 @@
 package backend.schedule.entity;
 
 
+import backend.schedule.dto.subject.SubjectReqDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,8 +48,8 @@ public class Subject {
         this.member = member;
     }
 
-    public void subjectNameUpdate(String subjectName) {
-        this.subjectName = subjectName;
+    public void subjectNameUpdate(SubjectReqDto subjectReqDto) {
+        this.subjectName = subjectReqDto.getSubjectName();
     }
 
     public void addSchedules(Schedule schedule) {

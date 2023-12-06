@@ -29,6 +29,15 @@ public class RefreshTokenService {
         refreshTokenRepository.save(createRefreshToken);
     }
 
+    public void checkRefreshTokenDuplicate(Long memberId) {
+        Optional<RefreshToken> optionalRefreshToken = refreshTokenRepository.findByMemberId(memberId);
+
+        if (optionalRefreshToken.isPresent()) {
+            RefreshToken findRefreshToken = optionalRefreshToken.get();
+            refreshTokenRepository.delete(findRefreshToken);
+        }
+    }
+
     /**
      * (Access 토큰 재발급)
      * 요청 헤더의 Refresh토큰과 DB Refresh토큰 일치 여부 확인

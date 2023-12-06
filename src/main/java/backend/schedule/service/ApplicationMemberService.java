@@ -1,6 +1,7 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.applicationmember.ApplicationMemberDto;
 import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
@@ -11,7 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @Service
 @Transactional
@@ -35,42 +40,44 @@ public class ApplicationMemberService {
      * (스터디 멤버 저장)
      * 신청 멤버 조회
      */
-    public ApplicationMember findById(Long id) {
-        Optional<ApplicationMember> optionalApplicationMember = applicationMemberRepository.findById(id);
+    public ApplicationMember findApplicationMember(Long applicationMemberId, Long StudyBoardId) {
+        Optional<ApplicationMember> optionalApplicationMember = applicationMemberRepository.findApMember(applicationMemberId, StudyBoardId);
 
-        return optionalApplicationMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.APPLICATION));
+        return optionalApplicationMember.orElseThrow(() -> new IllegalArgumentException(APPLICATION));
     }
 
-    public boolean ApplicationMemberDuplicate(Member member, StudyPost studyPost) {
-        return applicationMemberRepository.existsByMemberAndStudyPost(member, studyPost);
+    public void ApplicationMemberDuplicate(Long memberId, Long studyPostId) {
+        boolean findApMember = applicationMemberRepository.existsApplicationMember(memberId, studyPostId);
+
+        if (findApMember) throw new IllegalArgumentException(DUPLICATE);
+
     }
 
-    public boolean StudyMemberDuplicateCheck(Member member, StudyPost studyPost) {
-        return studyMemberRepository.existsByMemberAndStudyPost(member, studyPost);
+    public void StudyMemberDuplicateCheck(Long memberId, Long studyBoardId) {
+        boolean findStudyMember = studyMemberRepository.existsStudyMember(memberId, studyBoardId);
+
+        if (findStudyMember) throw new IllegalArgumentException(ALREADY);
     }
 
     /**
      * (스터디 멤버 저장)
      * 신청 멤버 삭제
      */
-    public void rejectMember(Long apMemberId, StudyPost studyPost) {
-        applicationMemberRepository.deleteByIdAndStudyPost(apMemberId, studyPost);
+    public void rejectMember(Long apMemberId, Long studyBoardId) {
+        applicationMemberRepository.deleteByIdAndStudyPost(apMemberId, studyBoardId);
     }
 
-    public ApplicationMember findApMember(Long applicationMemberId) {
-        Optional<ApplicationMember> optionalApplicationMember = applicationMemberRepository.findApMember(applicationMemberId);
-
-        return optionalApplicationMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.APPLICATION));
+    public List<ApplicationMemberDto> applicationMemberList(StudyPost studyPost) {
+        return studyPost.getApplicationMembers().stream()
+                .map(ApplicationMemberDto::new)
+                .collect(Collectors.toList());
     }
 
-    public String deleteApplicationMember(Long applicationMemberId, Long memberId, Long studyPostId) {
-        int deleteApmember = applicationMemberRepository.deleteApmember(applicationMemberId, memberId, studyPostId);
+    public String deleteApplicationMember(Long applicationMemberId, Long studyPostId) {
+        int deleteApmember = applicationMemberRepository.deleteApmember(applicationMemberId, studyPostId);
 
-        if (deleteApmember == 1) {
-            return ErrorMessage.DELETE;
-        } else {
-            throw new IllegalArgumentException(ErrorMessage.NOTDELETE);
-        }
+        if (deleteApmember == 1) return DELETE;
+        else throw new IllegalArgumentException(NOTDELETE);
     }
 
     public void ApplicationMembersWithdrawal(Long memberId) {

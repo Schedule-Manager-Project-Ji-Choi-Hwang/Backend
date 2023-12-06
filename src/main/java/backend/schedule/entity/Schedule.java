@@ -41,7 +41,7 @@ public class Schedule {
         this.subject = subject;
     }
 
-    public void changeScheduleNameAndPeriod(ScheduleEditReqDto scheduleEditReqDto) {
+    public void changeSchedule(ScheduleEditReqDto scheduleEditReqDto) {
         this.scheduleName = scheduleEditReqDto.getScheduleName();
         this.period = scheduleEditReqDto.getPeriod();
     }

@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StudyMemberResDto {
 
-    private Long id;
+    private Long studyMemberId;
 
     private String nickname;
 
     private ConfirmAuthor authority;
 
     public StudyMemberResDto(StudyMember studyMember) {
-        this.id = studyMember.getId();
+        this.studyMemberId = studyMember.getId();
         this.nickname = studyMember.getMember().getNickname();
         this.authority = studyMember.getConfirmAuthor();
     }

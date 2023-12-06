@@ -25,16 +25,16 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     @Query("select sm from StudyMember sm join fetch sm.studyPost sp join fetch sp.studyMembers where sm.member.id = :memberId and sm.studyPost.id = :studyBoardId")
     Optional<StudyMember> studyMemberGetStudyPost(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
 
-    @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sm.member where sp.id = :studyBoardId")
-    Optional<StudyPost> studyMembersByStudyboardId(@Param("studyBoardId") Long studyBoardId);
-
     @Query("select distinct sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId")
     List<StudyMember> MainPageStudyMembers(@Param("memberId") Long memberId);
 
     @Query("select sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId and sm.confirmAuthor = :confirmAuthor")
     List<StudyMember> myPostList(@Param("memberId") Long memberId, @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
 
-    boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
+    //boolean existsByMemberAndStudyPost(Member member, StudyPost studyPost);
+
+    @Query("SELECT CASE WHEN COUNT(s) = 1 THEN true ELSE false END FROM StudyMember s WHERE s.member.id = :memberId AND s.studyPost.id = :studyBoardId")
+    boolean existsStudyMember(@Param("memberId") Long memberId, @Param("studyBoardId") Long studyBoardId);
 
     @Query("select sm from StudyMember sm join fetch sm.studyPost sp join fetch sp.studyMembers where sm.member.id = :memberId")
     List<StudyMember> findStudyMembersWithdrawal(@Param("memberId") Long memberId);

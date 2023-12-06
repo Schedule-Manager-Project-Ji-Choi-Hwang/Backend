@@ -53,14 +53,15 @@ public class StudyMemberController {
         //여기도 리더권한 확인하는거 없음 -> 리더만 수락 가능하게
         //studyBoardId DB에 저장된 번호 아무거나 써도 작동문제
         try {
-            Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
-            studyMemberService.studyMemberSearch(member.getId(), studyBoardId, LEADER);
+            Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
+            studyMemberService.studyMemberSearch(findMember.getId(), studyBoardId, LEADER);
 
-//            ApplicationMember applicationMember = applicationMemberService.findById(applicationMemberId); // 신청 멤버 조회 편의메서드 삭제때문에 필요
+            Member joinMember = applicationMemberService.findApplicationMember(applicationMemberId, studyBoardId).getMember(); // 신청 멤버 조회 편의메서드 삭제때문에 필요
+
             StudyPost studyPost = studyPostService.findById(studyBoardId); // 스터디 게시글 조회 편의메서드 때문
 
-            studyMemberService.save(member, studyPost); // 스터디 멤버 저장
-            applicationMemberService.rejectMember(applicationMemberId, studyPost); // 신청 멤버 삭제
+            studyMemberService.save(joinMember, studyPost); // 스터디 멤버 저장
+            applicationMemberService.rejectMember(applicationMemberId, studyBoardId); // 신청 멤버 삭제
 
 
             return ResponseEntity.ok().body("스터디 멤버에 등록 성공!");
@@ -83,7 +84,10 @@ public class StudyMemberController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
-            List<StudyMemberResDto> studyMembers = studyMemberService.findStudyMembers(studyBoardId);
+
+            StudyPost findStudyPost = studyPostService.returnToStudyMembers(studyBoardId);
+
+            List<StudyMemberResDto> studyMembers = studyMemberService.findStudyMembers(findStudyPost);
 
 
             return ResponseEntity.ok().body(new Result(studyMembers));
