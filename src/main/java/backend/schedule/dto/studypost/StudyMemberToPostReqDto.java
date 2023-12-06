@@ -2,28 +2,27 @@ package backend.schedule.dto.studypost;
 
 import backend.schedule.entity.StudyMember;
 import backend.schedule.enumlist.ConfirmAuthor;
+import backend.schedule.enumlist.FieldTag;
 import lombok.Data;
 
 @Data
 public class StudyMemberToPostReqDto {
 
-    private Long studyMemberId;
-
-    private ConfirmAuthor authority;
-
-//    private List<MyStudyPostListReqDto> studyPostList;
+    private Long studyPostId;
 
     private String studyName;
 
-    private String post;
+    private FieldTag tag;
+
+    private int currentMember;
 
     private int recruitMember;
 
     public StudyMemberToPostReqDto(StudyMember studyMember) {
-        this.studyMemberId = studyMember.getId();
-        this.authority = studyMember.getConfirmAuthor();
+        this.studyPostId = studyMember.getStudyPost().getId();
         this.studyName = studyMember.getStudyPost().getStudyName();
-        this.post = studyMember.getStudyPost().getPost();
+        this.tag = studyMember.getStudyPost().getTag();
+        this.currentMember = studyMember.getStudyPost().getStudyMembers().size();
         this.recruitMember = studyMember.getStudyPost().getRecruitMember();
     }
 }

@@ -7,6 +7,7 @@ import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementSetDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.service.StudyAnnouncementService;
 import backend.schedule.service.StudyMemberService;
@@ -44,7 +45,6 @@ public class StudyAnnouncementController {
      * 스터디 공지 추가
      * Query: 2번
      */
-    @Transactional
     @PostMapping("/studyboard/{studyBoardId}/study-announcements/add")//스터디 공지 추가
     public ResponseEntity<?> studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto,
                                                    BindingResult bindingResult, @PathVariable Long studyBoardId, HttpServletRequest request) {
@@ -62,9 +62,8 @@ public class StudyAnnouncementController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            StudyAnnouncement announcement = new StudyAnnouncement(announcementDto);
-            findPost.addStudyAnnouncements(announcement);
-            Long announcementId = studyAnnouncementService.save(announcement);
+
+            Long announcementId = studyAnnouncementService.save(findPost, announcementDto);
 
             return ResponseEntity.ok().body(new ReturnIdDto(announcementId));
         } catch (IllegalArgumentException e) {
@@ -83,7 +82,7 @@ public class StudyAnnouncementController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
-            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
+            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
 
             return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
         } catch (IllegalArgumentException e) {
@@ -94,7 +93,6 @@ public class StudyAnnouncementController {
 
     /**
      * 스터디 공지 조회
-     * Query: Fetch join이용 1번
      */
     @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}") //공지 단건 조회
     public ResponseEntity<?> studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
@@ -102,9 +100,9 @@ public class StudyAnnouncementController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?
-            StudyPost studyPost = studyPostService.studyAnnouncement(studyBoardId, announcementId);
+            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
 
-            return ResponseEntity.ok().body(new Result(new StudyAnnouncementSetDto(studyPost)));
+            return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -123,7 +121,7 @@ public class StudyAnnouncementController {
             studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?, 쿼리하나 새로 권한만 없는거로?
             StudyPost studyPost = studyPostService.studyAnnouncements(studyBoardId);
 
-            return ResponseEntity.badRequest().body(new Result(new StudyAnnouncementSetDto(studyPost)));
+            return ResponseEntity.ok().body(new Result(new StudyAnnouncementSetDto(studyPost)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -134,7 +132,6 @@ public class StudyAnnouncementController {
      * 스터디 공지 수정
      * Query: 2번
      */
-    @Transactional
     @PatchMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}/edit")
     public ResponseEntity<?> studyAnnouncementUpdate(
             @Validated @RequestBody StudyAnnouncementDto announcementDto,
@@ -142,8 +139,8 @@ public class StudyAnnouncementController {
         //studyBoardId 아무거나 넣어도 announcementId만 있으면 수정됨, 스터디 리더만 수정가능하게
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
-            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
+            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
+            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
 
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors().stream()
@@ -153,7 +150,7 @@ public class StudyAnnouncementController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            announcement.announcementUpdate(announcementDto);
+            studyAnnouncementService.updateStudyAnnouncement(announcement, announcementDto);
 
             return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId, announcementId));
         } catch (IllegalArgumentException e) {
@@ -173,15 +170,12 @@ public class StudyAnnouncementController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
-            String removeAnnouncement = studyAnnouncementService.removeAnnouncement(studyBoardId, announcementId);
-//            StudyPost findPost = studyPostService.findById(studyBoardId);
-//            StudyAnnouncement announcement = studyAnnouncementService.findById(announcementId);
 
-            //리스트에 들어간 데이터 따로 삭제 안해줘도 데이터 전체조회 할때 삭제된채로 반영되는거 같음 일단 비슷한거 더 테스트해보고 맞으면 다 삭제
-//            findPost.removeStudyAnnouncement(announcement);
-//            studyAnnouncementService.delete(announcementId);
+            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
 
-            return ResponseEntity.ok().body(new MessageReturnDto().okSuccess(removeAnnouncement));
+            studyAnnouncementService.removeAnnouncement(announcement);
+
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

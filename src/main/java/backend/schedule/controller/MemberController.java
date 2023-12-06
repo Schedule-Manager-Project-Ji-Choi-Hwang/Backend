@@ -170,7 +170,7 @@ public class MemberController {
      * 요청 횟수 : 1회
      *          1. 이메일 이용해 멤버 조회
      */
-    @GetMapping("/member/findLoginId")
+    @PostMapping("/member/findLoginId")
     public ResponseEntity<?> findLoginId(@Validated @RequestBody MemberFindLoginIdReqDto memberFindLoginIdReqDto, BindingResult bindingResult) {
         try {
             // 빈 검증

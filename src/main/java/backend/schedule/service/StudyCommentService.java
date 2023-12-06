@@ -22,9 +22,9 @@ public class StudyCommentService {
 
     @Transactional
     public void save(StudyCommentDto studyCommentDto, StudyAnnouncement studyAnnouncement, Member member) {
-        StudyComment studyComment = new StudyComment(studyCommentDto); //member편의 메서드 삭제되면 여기다 멤버 객체입력
+        StudyComment studyComment = new StudyComment(studyCommentDto);
         studyAnnouncement.addStudyComment(studyComment);
-        member.addStudyComments(studyComment); // 내가 작성한 댓글 목록 구현할거면 필요 아니면 편의 메서드는 없어도 될듯함
+        member.addStudyComments(studyComment);
         studyCommentRepository.save(studyComment);
     }
 

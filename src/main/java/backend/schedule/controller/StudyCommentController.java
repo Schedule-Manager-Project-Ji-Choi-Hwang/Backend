@@ -46,17 +46,15 @@ public class StudyCommentController {
      * Query: 2번
      */
 //    @Transactional
-    @PostMapping("studyboard/{studyBoardId}/study-announcements/{announcementId}/comment/add")//스터디 공지 댓글 추가
+    @PostMapping("study-board/{studyBoardId}/study-announcements/{announcementId}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto studyCommentDto, BindingResult bindingResult,
                                               @PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
 
         try {
             Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(member.getId(), studyBoardId);
-            //findAnnouncement.getStudyPost().getId() 가져오는 방법은 페치조인이 효율적이긴함
-            //아니면 도메인에 게시글 PathVariable 추가하던가 - 채택
 
-            StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
+            StudyAnnouncement findAnnouncement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
 
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors().stream()
@@ -79,7 +77,7 @@ public class StudyCommentController {
      * 스터디 댓글 수정 조회
      * Query: 1번
      */
-    @GetMapping("/study-announcements/{announcementId}/comment/{commentId}/edit")
+    @GetMapping("/study-board/study-announcements/{announcementId}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
         //스터디 멤버 확인하는 로직 없는 이유는 댓글 작성했을때 확인했으니 굳이 할필요 있나해서 없음
         try {
@@ -97,11 +95,15 @@ public class StudyCommentController {
      * 스터디 댓글 전체 조회
      * Query: Fetch join이용 1번
      */
-    @GetMapping("/study-announcements/{announcementId}/comments")
-    public ResponseEntity<?> announcementCommentList(@PathVariable Long announcementId) {
+    @GetMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/comments")
+    public ResponseEntity<?> announcementCommentList(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
         //검증 필요한가 고민
         try {
-            StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId);
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+
+            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
+
+            StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId, studyBoardId);
 
             return ResponseEntity.ok().body(new Result(new StudyCommentSetDto(announcement)));
         } catch (IllegalArgumentException e) {
@@ -115,7 +117,7 @@ public class StudyCommentController {
      * Query: 2번
      */
 //    @Transactional
-    @PatchMapping("/study-announcements/{announcementId}/comment/{commentId}/edit")
+    @PatchMapping("/study-board/study-announcements/{announcementId}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdate(
             @Validated @RequestBody StudyCommentDto studyCommentDto, BindingResult bindingResult,
             @PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
@@ -150,8 +152,6 @@ public class StudyCommentController {
     public ResponseEntity<?> studyCommentDelete(@PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
         //댓글 작성한 사람만 삭제가능한 로직 필요
         try {
-//            StudyAnnouncement findAnnouncement = studyAnnouncementService.findById(announcementId);
-//            StudyComment comment = studyCommentService.findById(commentId); // 어짜피 commentRemove에서 없으면 삭제 안될텐데 있을필요가?
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
             String commentRemove = studyCommentService.commentRemove(announcementId, commentId, memberId);

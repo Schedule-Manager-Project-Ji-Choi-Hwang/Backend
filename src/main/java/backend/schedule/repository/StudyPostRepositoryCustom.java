@@ -7,5 +7,5 @@ import org.springframework.data.domain.Slice;
 
 public interface StudyPostRepositoryCustom {
 
-    Slice<StudyPostResDto> searchPost(Long lastPostId, SearchPostCondition condition, Pageable pageable);
+    Slice<StudyPostResDto> searchPost(Long lastPostId, String studyName, Pageable pageable);
 }

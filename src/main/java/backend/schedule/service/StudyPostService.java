@@ -16,11 +16,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class StudyPostService {
 
@@ -47,10 +49,11 @@ public class StudyPostService {
         return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.POST));
     }
 
-    public Slice<StudyPostResDto> search(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
-        return studyPostRepository.searchPost(lastPostId, condition, pageable);
+    public Slice<StudyPostResDto> search(Long lastPostId, String studyName, Pageable pageable) {
+        return studyPostRepository.searchPost(lastPostId, studyName, pageable);
     }
 
+    @Transactional
     public void delete(StudyPost studyPost) {
         studyPostRepository.delete(studyPost);
     }
@@ -77,6 +80,11 @@ public class StudyPostService {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostGetStudyMembers(studyBoardId);
 
         return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(ErrorMessage.POST));
+    }
+
+    @Transactional
+    public void updateStudyPost(StudyPost studyPost, StudyPostDto studyPostDto) {
+        studyPost.updatePost(studyPostDto);
     }
 
 //    public StudyPost studyScheduleList(Long id) {

@@ -33,14 +33,14 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
      * 조건: 스터디 이름 검색 조건
      */
     @Override
-    public Slice<StudyPostResDto> searchPost(Long lastPostId, SearchPostCondition condition, Pageable pageable) {
+    public Slice<StudyPostResDto> searchPost(Long lastPostId, String studyName, Pageable pageable) {
         List<StudyPostResDto> results =
                 query.select(new QStudyPostResDto(studyPost.id, studyPost.studyName,
                                 studyPost.tag, studyPost.period, studyPost.recruitMember,
                                 studyPost.onOff, studyPost.area, studyPost.post))
                         .from(studyPost)
                         .where(ltPostId(lastPostId),
-                                searchCondition(condition.getStudyName()))
+                                searchCondition(studyName))
                         .orderBy(studyPost.id.desc())
                         .limit(pageable.getPageSize() + 1)
                         .fetch();

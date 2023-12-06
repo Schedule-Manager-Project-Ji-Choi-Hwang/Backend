@@ -53,6 +53,8 @@ public class StudyPostController {
     public ResponseEntity<?> studyBoardPost(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult, HttpServletRequest request) {
 
         try {
+            Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
+
             if (bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getAllErrors().stream()
                         .map(ObjectError::getDefaultMessage)
@@ -61,7 +63,6 @@ public class StudyPostController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
             studyPostService.save(studyPostDto, member);
 
             return ResponseEntity.ok().build();
@@ -80,9 +81,8 @@ public class StudyPostController {
 
         try {
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
-            StudyPostDto studyPostDto = new StudyPostDto(findStudyPost);
 
-            return ResponseEntity.ok().body(studyPostDto);
+            return ResponseEntity.ok().body(new StudyPostDto(findStudyPost));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
@@ -133,15 +133,14 @@ public class StudyPostController {
      */
     @GetMapping("/studyboard") //스터디 게시글 전체 조회
     public ResponseEntity<Result> studyBoardLists(@RequestParam(required = false) Long lastPostId,
-                                                  @RequestBody SearchPostCondition condition, Pageable pageable) { //검색어 제목입력받는거 쿼리파라미터 형식으로 바꾸기
-        return ResponseEntity.ok().body(new Result(studyPostService.search(lastPostId, condition, pageable)));
+                                                  @RequestParam(required = false) String studyName, Pageable pageable) { //검색어 제목입력받는거 쿼리파라미터 형식으로 바꾸기
+        return ResponseEntity.ok().body(new Result(studyPostService.search(lastPostId, studyName, pageable)));
     }
 
     /**
      * 스터디 게시글 수정
      * Query: 2번
      */
-    @Transactional
     @PatchMapping("/studyboard/{studyBoardId}/edit") // 업데이트 처리 후 /studyboard/{id} 스터디 게시글로 이동
     public ResponseEntity<?> studyBoardUpdate(@Validated @RequestBody StudyPostDto studyPostDto, BindingResult bindingResult,
                                               @PathVariable Long studyBoardId, HttpServletRequest request) {
@@ -159,7 +158,7 @@ public class StudyPostController {
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
             }
 
-            findStudyPost.updatePost(studyPostDto);
+            studyPostService.updateStudyPost(findStudyPost, studyPostDto);
 
             return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId));
         } catch (IllegalArgumentException e) {
