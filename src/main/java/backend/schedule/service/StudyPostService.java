@@ -1,6 +1,7 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.studypost.AnnouncementsAndStudyMembersDto;
 import backend.schedule.dto.studypost.SearchPostCondition;
 import backend.schedule.dto.studypost.StudyPostDto;
 import backend.schedule.dto.studyschedule.StudyPostScheduleSetDto;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
+
+import static backend.schedule.enumlist.ErrorMessage.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -46,7 +49,7 @@ public class StudyPostService {
     public StudyPost findById(Long id) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findById(id);
 
-        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.POST));
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(POST));
     }
 
     public Slice<StudyPostResDto> search(Long lastPostId, String studyName, Pageable pageable) {
@@ -61,30 +64,40 @@ public class StudyPostService {
     public StudyPost studyAnnouncement(Long boardId, Long id) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.studyAnnouncement(boardId, id);
 
-        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ANNOUNCEMENT));
     }
 
     public StudyPost studyAnnouncements(Long boardId) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.studyAnnouncements(boardId);
 
-        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ANNOUNCEMENT));
     }
 
     public StudyPost findStudyPostByApplicationMembers(Long studyBoardId) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostByApplicationMembers(studyBoardId);
 
-        return optionalStudyPost.orElseThrow(() -> new ArrayIndexOutOfBoundsException(ErrorMessage.APPLICATION));
+        return optionalStudyPost.orElseThrow(() -> new ArrayIndexOutOfBoundsException(APPLICATION));
     }
 
     public StudyPost returnToStudyMembers(Long studyBoardId) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostGetStudyMembers(studyBoardId);
 
-        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(ErrorMessage.POST));
+        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(POST));
     }
 
     @Transactional
     public void updateStudyPost(StudyPost studyPost, StudyPostDto studyPostDto) {
         studyPost.updatePost(studyPostDto);
+    }
+
+    public StudyPost findStudyGroupDetailPage(Long studyBoardId) {
+        Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostGetSmAndSa(studyBoardId);
+
+        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(POST));
+    }
+
+    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPost) {
+        return new AnnouncementsAndStudyMembersDto(studyPost);
     }
 
 //    public StudyPost studyScheduleList(Long id) {

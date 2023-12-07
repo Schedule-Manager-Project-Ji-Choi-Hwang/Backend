@@ -29,6 +29,9 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sm.member where sp.id = :studyBoardId")
     Optional<StudyPost> findStudyPostGetStudyMembers(@Param("studyBoardId") Long studyBoardId);
 
+    @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sp.studyAnnouncements where sp.id = :studyBoardId")
+    Optional<StudyPost> findStudyPostGetSmAndSa(@Param("studyBoardId") Long studyBoardId);
+
     //    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId")
 //    Optional<StudyPost> studyScheduleList(@Param("boardId") Long boardId);
 }

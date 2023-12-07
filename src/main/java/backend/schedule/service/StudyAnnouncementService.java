@@ -1,6 +1,7 @@
 package backend.schedule.service;
 
 
+import backend.schedule.dto.studyannouncement.AnnouncementAndCommentsDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
@@ -56,8 +57,12 @@ public class StudyAnnouncementService {
     }
 
     public StudyAnnouncement announcementCommentList(Long announcementId, Long studyBoardId) {
-        Optional<StudyAnnouncement> optionalStudyAnnouncement = studyAnnouncementRepository.announcementCommentList(announcementId, studyBoardId);
+        Optional<StudyAnnouncement> optionalStudyAnnouncement = studyAnnouncementRepository.findAnnouncementGetComments(announcementId, studyBoardId);
 
         return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
+    }
+
+    public AnnouncementAndCommentsDto returnAnnouncementAndComments(StudyAnnouncement studyAnnouncement) {
+        return new AnnouncementAndCommentsDto(studyAnnouncement);
     }
 }

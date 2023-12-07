@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class StudyCommentDto {
 
+    private Long commentId;
+
     @NotBlank(message = "댓글을 입력해 주세요")
     private String comment;
 
@@ -19,6 +21,7 @@ public class StudyCommentDto {
     private LocalDateTime lastModifiedDate;
 
     public StudyCommentDto(StudyComment comment) {
+        this.commentId = comment.getId();
         this.comment = comment.getComment();
         this.createdDate = comment.getCreatedDate();
         this.lastModifiedDate = comment.getLastModifiedDate();

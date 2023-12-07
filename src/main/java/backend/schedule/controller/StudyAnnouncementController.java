@@ -91,23 +91,22 @@ public class StudyAnnouncementController {
 
     }
 
-    /**
-     * 스터디 공지 조회
-     */
-    @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}") //공지 단건 조회
-    public ResponseEntity<?> studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
-        //스터디에 속한 회원이 맞으면 단건조회
-        try {
-            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?
-            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
-
-            return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
-        }
-
-    }
+//    /**
+//     * 스터디 공지 조회
+//     */
+//    @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}") //공지 단건 조회
+//    public ResponseEntity<?> studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
+//        //스터디에 속한 회원이 맞으면 단건조회
+//        try {
+//            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+//            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?
+//            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
+//
+//            return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+//        }
+//    }
 
     /**
      * 스터디 공지 전체 조회

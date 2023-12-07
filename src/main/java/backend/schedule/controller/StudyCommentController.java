@@ -91,26 +91,25 @@ public class StudyCommentController {
         }
     }
 
-    /**
-     * 스터디 댓글 전체 조회
-     * Query: Fetch join이용 1번
-     */
-    @GetMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/comments")
-    public ResponseEntity<?> announcementCommentList(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
-        //검증 필요한가 고민
-        try {
-            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-
-            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
-
-            StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId, studyBoardId);
-
-            return ResponseEntity.ok().body(new Result(new StudyCommentSetDto(announcement)));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
-        }
-
-    }
+//    /**
+//     * 스터디 댓글 전체 조회
+//     * Query: Fetch join이용 1번
+//     */
+//    @GetMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/comments")
+//    public ResponseEntity<?> announcementCommentList(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
+//        //검증 필요한가 고민
+//        try {
+//            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+//
+//            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
+//
+//            StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId, studyBoardId);
+//
+//            return ResponseEntity.ok().body(new Result(new StudyCommentSetDto(announcement)));
+//        } catch (IllegalArgumentException e) {
+//            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+//        }
+//    }
 
     /**
      * 스터디 댓글 수정
