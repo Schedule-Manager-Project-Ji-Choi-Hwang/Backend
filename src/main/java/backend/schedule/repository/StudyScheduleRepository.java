@@ -11,10 +11,10 @@ import java.util.Optional;
 
 public interface StudyScheduleRepository extends JpaRepository<StudySchedule, Long> {
 
+    @Query("select ss from StudySchedule ss where ss.studyPost.id = :studyBoardId and ss.id = :studyScheduleId")
+    Optional<StudySchedule> findSchedule(@Param("studyBoardId") Long studyBoardId, @Param("studyScheduleId") Long studyScheduleId);
+
     @Modifying
     @Query("delete from StudySchedule ss where ss.studyPost.id = :studyBoardId and ss.id = :studyScheduleId")
     int removeStudySchedule(@Param("studyBoardId") Long studyBoardId, @Param("studyScheduleId") Long studyScheduleId);
-
-    @Query("select ss from StudySchedule ss where ss.studyPost.id = :studyBoardId and ss.id = :studyScheduleId")
-    Optional<StudySchedule> findSchedule(@Param("studyBoardId") Long studyBoardId, @Param("studyScheduleId") Long studyScheduleId);
 }

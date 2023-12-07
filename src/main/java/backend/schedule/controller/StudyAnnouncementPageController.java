@@ -3,7 +3,6 @@ package backend.schedule.controller;
 import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.dto.studyannouncement.AnnouncementAndCommentsDto;
-import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
 import backend.schedule.dto.studypost.AnnouncementsAndStudyMembersDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
@@ -23,9 +22,10 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 @RequiredArgsConstructor
 public class StudyAnnouncementPageController {
-    private final JwtTokenExtraction jwtTokenExtraction;
-    private final StudyMemberService studyMemberService;
+
     private final StudyPostService studyPostService;
+    private final StudyMemberService studyMemberService;
+    private final JwtTokenExtraction jwtTokenExtraction;
     private final StudyAnnouncementService studyAnnouncementService;
 
     @Value("${spring.jwt.secretkey}")
@@ -60,7 +60,5 @@ public class StudyAnnouncementPageController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
-
-
     }
 }

@@ -35,7 +35,7 @@ public class StudyCommentService {
     }
 
     public StudyComment writerCheck(Long studyAnnouncementId, Long studyCommentId, Long memberId) {
-        Optional<StudyComment> optionalStudyComment = studyCommentRepository.findByStudyAnnouncementIdAndIdAndMemberId(studyAnnouncementId, studyCommentId, memberId);
+        Optional<StudyComment> optionalStudyComment = studyCommentRepository.findStudyComment(studyAnnouncementId, studyCommentId, memberId);
 
         return optionalStudyComment.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.AUTHORITY));
     }

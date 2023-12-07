@@ -27,7 +27,7 @@ public class ApplicationMember {
     @JoinColumn(name = "studypost_id")
     private StudyPost studyPost;
 
-    public void setMember(Member member) {
+    public ApplicationMember(Member member) {
         this.member = member;
     }
 
@@ -35,7 +35,7 @@ public class ApplicationMember {
         this.studyPost = studyPost;
     }
 
-    public ApplicationMember(Member member) {
+    public void setMember(Member member) {
         this.member = member;
     }
 }

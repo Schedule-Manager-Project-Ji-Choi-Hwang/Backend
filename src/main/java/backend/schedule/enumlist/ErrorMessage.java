@@ -20,6 +20,8 @@ public class ErrorMessage {
 
     public static final String DUPLICATENICKNAME = "닉네임이 중복됩니다.";
 
+    public static final String DUPLICATEEMAIL = "이메일이 중복됩니다.";
+
     public static final String DUPLICATE = "중복입니다.";
 
     public static final String LOGINFAIL = "로그인 아이디 또는 비밀번호가 잘못되었습니다.";

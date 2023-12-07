@@ -1,12 +1,11 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.*;
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.member.*;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.jwt.JwtTokenUtil;
-import backend.schedule.repository.MemberRepository;
 import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.MemberService;
 import backend.schedule.service.RefreshTokenService;
@@ -16,26 +15,26 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ErrorMessage.*;
+import static backend.schedule.enumlist.ErrorMessage.TOKEN;
+import static backend.schedule.validation.RequestDataValidation.beanValidation;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
 
     private final MemberService memberService;
-    private final RefreshTokenService refreshTokenService;
     private final JwtTokenExtraction jwtTokenExtraction;
     private final StudyMemberService studyMemberService;
+    private final RefreshTokenService refreshTokenService;
     private final ApplicationMemberService applicationMemberService;
+
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
     @Value("${spring.jwt.token.access.expire}")
@@ -47,25 +46,19 @@ public class MemberController {
      * 회원 가입 기능
      * 요청 데이터 : 로그인 아이디, 비밀번호, 비밀번호 재확인, 닉네임, 이메일
      * 요청 횟수 : 3회
-     *          1. 로그인 아이디 중복 체크
-     *          2. 닉네임 중복 체크
-     *          3. 회원 저장
+     * 1. 로그인 아이디 중복 체크
+     * 2. 닉네임 중복 체크
+     * 3. 회원 저장
      */
     @PostMapping("/member/sign-up")
     public ResponseEntity<?> join(@Validated @RequestBody MemberJoinReqDto memberJoinReqDto, BindingResult bindingResult) {
         try {
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(ObjectError::getDefaultMessage)
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 로그인 아이디 및 닉네임 중복 검증
             memberService.checkLoginIdDuplicate(memberJoinReqDto.getLoginId());
             memberService.checkNicknameDuplicate(memberJoinReqDto.getNickname());
+            memberService.checkEmailDuplicate(memberJoinReqDto.getEmail());
 
             // 회원 가입
             memberService.join(memberJoinReqDto);
@@ -81,20 +74,13 @@ public class MemberController {
      * 로그인 기능
      * 요청 데이터 : 로그인 아이디, 비밀번호
      * 요청 횟수 : 2회
-     *          1. loginId 이용 멤버 조회
-     *          2. Refresh 토큰 저장
+     * 1. loginId 이용 멤버 조회
+     * 2. Refresh 토큰 저장
      */
     @PostMapping("/member/log-in")
     public ResponseEntity<?> login(@Validated @RequestBody MemberLoginReqDto memberLoginReqDto, BindingResult bindingResult) {
         try {
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(objectError -> objectError.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
-            }
+            if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 로그인 아이디 및 비밀번호 통해 멤버 식별 (로그인)
             Member member = memberService.login(memberLoginReqDto);
@@ -127,16 +113,15 @@ public class MemberController {
      * 액세스 토큰 재발급 기능 (로그인 유지)
      * 요청 데이터 : AccessToken(헤더), RefreshToken(헤더)
      * 요청 횟수 : 2회
-     *          1. 로그인 아이디 이용 멤버 조회
-     *          2. 해당 회원의 DB Refresh 토큰 조회
+     * 1. 로그인 아이디 이용 멤버 조회
+     * 2. 해당 회원의 DB Refresh 토큰 조회
      */
     @GetMapping("/member/refresh")
     public ResponseEntity<?> tokenRefresh(HttpServletRequest request) {
         try {
             // 요청 헤더의 토큰 포함 여부 확인
-            if (!validateHeader(request)) {
+            if (!validateHeader(request))
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(TOKEN));
-            }
 
             // 요청 헤더의 토큰 추출
             String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION).substring(7);
@@ -168,19 +153,12 @@ public class MemberController {
      * 아이디 찾기 기능
      * 요청 데이터 : 이메일
      * 요청 횟수 : 1회
-     *          1. 이메일 이용해 멤버 조회
+     * 1. 이메일 이용해 멤버 조회
      */
-    @PostMapping("/member/findLoginId")
+    @PostMapping("/member/find-loginid")
     public ResponseEntity<?> findLoginId(@Validated @RequestBody MemberFindLoginIdReqDto memberFindLoginIdReqDto, BindingResult bindingResult) {
         try {
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(objectError -> objectError.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors()) return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 멤버 조회 및 아이디값 조회
             Member member = memberService.findMemberByEmail(memberFindLoginIdReqDto.getEmail());
@@ -198,20 +176,14 @@ public class MemberController {
     /**
      * 비밀번호 찾기 기능 (임시 비밀번호 발급)
      * 요청 횟수 : 2회
-     *          1. 로그인 아이디 및 이메일 이용해 멤버 조회
-     *          2. 멤버 비밀번호 변경 (임시 비밀번호)
+     * 1. 로그인 아이디 및 이메일 이용해 멤버 조회
+     * 2. 멤버 비밀번호 변경 (임시 비밀번호)
      */
-    @PostMapping("/member/findPassword")
+    @PostMapping("/member/find-password")
     public ResponseEntity<?> findPassword(@Validated @RequestBody MemberFindPasswordReqDto memberFindPasswordReqDto, BindingResult bindingResult) {
         try {
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(objectError -> objectError.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(DUPLICATELOGINID));
-            }
+            if (bindingResult.hasErrors())
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 멤버 식별
             Member findMember = memberService.findMemberByLoginIdAndEmail(memberFindPasswordReqDto.getLoginId(), memberFindPasswordReqDto.getEmail());
@@ -230,20 +202,14 @@ public class MemberController {
      * 회원 정보 변경 기능 (현재 비밀번호만 가능)
      * 요청 데이터 : AccessToken(헤더), 비밀번호
      * 요청 횟수 : 2회
-     *          1. 로그인 아이디 이용해 멤버 조회
-     *          2. 멤버 비밀번호 변경
+     * 1. 로그인 아이디 이용해 멤버 조회
+     * 2. 멤버 비밀번호 변경
      */
     @PatchMapping("/member/edit")
     public ResponseEntity<?> changePassword(HttpServletRequest request, @Validated @RequestBody MemberChangePasswordReqDto memberChangePasswordReqDto, BindingResult bindingResult) {
         try {
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(objectError -> objectError.getDefaultMessage())
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors())
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 토큰 추출 및 멤버 식별
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
@@ -277,7 +243,6 @@ public class MemberController {
             // 신청 회원 조회 및 삭제
             applicationMemberService.ApplicationMembersWithdrawal(findMember.getId());
 
-
             // 멤버 삭제
             memberService.deleteMember(findMember);
 
@@ -291,10 +256,8 @@ public class MemberController {
     public boolean validateHeader(HttpServletRequest request) {
         String accessToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         String refreshToken = request.getHeader("Refresh-Token");
-        if (Objects.isNull(accessToken) || Objects.isNull(refreshToken)) {
-            return false;
-        } else {
-            return true;
-        }
+
+        if (Objects.isNull(accessToken) || Objects.isNull(refreshToken)) return false;
+        else return true;
     }
 }

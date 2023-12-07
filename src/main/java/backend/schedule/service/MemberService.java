@@ -35,7 +35,7 @@ public class MemberService {
      * loginId 중복 체크
      */
     public boolean checkLoginIdDuplicate(String loginId) {
-        // 로그인 아이디 중복 체크
+
         if (memberRepository.existsByLoginId(loginId)) {
             throw new IllegalArgumentException(DUPLICATELOGINID);
         }
@@ -47,9 +47,17 @@ public class MemberService {
      * nickname 중복 체크
      */
     public boolean checkNicknameDuplicate(String nickname) {
-        // 닉네임 중복 체크
+
         if (memberRepository.existsByNickname(nickname)) {
             throw new IllegalArgumentException(DUPLICATENICKNAME);
+        }
+        return false;
+    }
+
+    public boolean checkEmailDuplicate(String email) {
+
+        if (memberRepository.existsByAndEmail(email)) {
+            throw new IllegalArgumentException(DUPLICATEEMAIL);
         }
         return false;
     }

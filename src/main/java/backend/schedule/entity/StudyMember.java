@@ -35,20 +35,20 @@ public class StudyMember {
         this.confirmAuthor = confirmAuthor;
     }
 
-    public void setMember(Member member) {
+    public StudyMember(Member member, ConfirmAuthor confirmAuthor) {
         this.member = member;
+        this.confirmAuthor = confirmAuthor;
     }
 
     public void setStudyPost(StudyPost studyPost) {
         this.studyPost = studyPost;
     }
 
-    public StudyMember(Member member, ConfirmAuthor confirmAuthor) {
-        this.member = member;
-        this.confirmAuthor = confirmAuthor;
-    }
-
     public void changeLeader() {
         this.confirmAuthor = ConfirmAuthor.LEADER;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
     }
 }

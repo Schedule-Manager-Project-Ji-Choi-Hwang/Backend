@@ -1,37 +1,27 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.applicationmember.ApplicationMemberDto;
 import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
-import backend.schedule.entity.ApplicationMember;
+import backend.schedule.dto.applicationmember.ApplicationMemberDto;
 import backend.schedule.entity.Member;
-import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
-import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.jwt.JwtTokenExtraction;
-import backend.schedule.jwt.JwtTokenUtil;
 import backend.schedule.service.ApplicationMemberService;
-import backend.schedule.service.MemberService;
 import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static backend.schedule.enumlist.ErrorMessage.*;
 
 @RestController
 @RequiredArgsConstructor
 public class ApplicationMemberController {
 
-    private final MemberService memberService;
     private final StudyPostService studyPostService;
     private final StudyMemberService studyMemberService;
     private final JwtTokenExtraction jwtTokenExtraction;
@@ -49,8 +39,8 @@ public class ApplicationMemberController {
      * 4. 중복 신청인지 체크
      * 5. 신청 멤버 저장
      */
-    @PostMapping("/studyboard/{studyBoardId}/application-member/add")
-    public ResponseEntity<?> save(HttpServletRequest request, @PathVariable Long studyBoardId) {
+    @PostMapping("/study-board/{studyBoardId}/application-member/add")
+    public ResponseEntity<?> save(@PathVariable Long studyBoardId, HttpServletRequest request) {
         try {
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
@@ -77,9 +67,8 @@ public class ApplicationMemberController {
      * 4. 신청 멤버들 조회
      * 5. 신청 멤버 닉네임 조회 (Dto 생성 부분인듯)
      */
-    @GetMapping("/studyboard/{studyBoardId}/application-members")
-    public ResponseEntity<?> applicationMembers(HttpServletRequest request, @PathVariable Long studyBoardId) {
-        //재검토
+    @GetMapping("/study-board/{studyBoardId}/application-members")
+    public ResponseEntity<?> applicationMembers(@PathVariable Long studyBoardId, HttpServletRequest request) {
         try {
             Member findMember = jwtTokenExtraction.extractionMember(request, mySecretkey);
 
@@ -88,7 +77,6 @@ public class ApplicationMemberController {
 
             // 스터디 게시글 조회 (민현 추가 - join fetch 버전)
             StudyPost studyPost = studyPostService.findStudyPostByApplicationMembers(studyBoardId);
-
 
             // 반환할 신청 멤버들 Dto 준비 (페치조인으로 바꿔야함 멤버가 3명이면 멤버 닉네임을 가져오기 위해 3번 쿼리가 더 나가고 100명이면 100번 더 나감)
             List<ApplicationMemberDto> applicationMemberDtos = applicationMemberService.applicationMemberList(studyPost);
@@ -111,7 +99,7 @@ public class ApplicationMemberController {
      * 4. 스터디 게시글 id로 신청 멤버 조회 (deleteBy로 인해 한번 더 조회하는 듯)
      * 5. 신청 멤버 삭제
      */
-    @DeleteMapping("/studyboard/{studyBoardId}/application-members/{apMemberId}/delete")
+    @DeleteMapping("/study-board/{studyBoardId}/application-members/{apMemberId}/delete")
     public ResponseEntity<?> rejectMember(@PathVariable Long studyBoardId, @PathVariable Long apMemberId, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);

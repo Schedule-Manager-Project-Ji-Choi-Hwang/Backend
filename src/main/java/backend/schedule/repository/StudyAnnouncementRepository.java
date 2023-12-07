@@ -12,11 +12,6 @@ public interface StudyAnnouncementRepository extends JpaRepository<StudyAnnounce
     @Query("select sa from StudyAnnouncement sa join fetch sa.studyComments sc where sa.id = :announcementId and sa.studyPost.id = :studyBoardId")
     Optional<StudyAnnouncement> findAnnouncementGetComments(@Param("announcementId") Long announcementId, @Param("studyBoardId") Long studyBoardId);
 
-    //@Modifying
-    //@Query("delete from StudyAnnouncement sa where sa.studyPost.id = :studyBoardId and sa.id = :announcementId")
-    //int removeAnnouncement(@Param("studyBoardId") Long studyBoardId, @Param("announcementId") Long announcementId);
-
     @Query("select sa from StudyAnnouncement sa where sa.id = :studyAnnouncementId and sa.studyPost.id = :studyBoardId")
     Optional<StudyAnnouncement> findStudyAnnouncement(@Param("studyAnnouncementId") Long studyAnnouncementId, @Param("studyBoardId") Long studyBoardId);
-
 }

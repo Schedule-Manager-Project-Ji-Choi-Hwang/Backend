@@ -1,6 +1,5 @@
 package backend.schedule.jwt;
 
-import backend.schedule.entity.Member;
 import backend.schedule.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -20,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    private final MemberService memberService;
     private final String secretKey;
 
     @Override

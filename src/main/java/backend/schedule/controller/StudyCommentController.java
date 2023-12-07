@@ -1,34 +1,24 @@
 package backend.schedule.controller;
 
 import backend.schedule.dto.MessageReturnDto;
-import backend.schedule.dto.Result;
 import backend.schedule.dto.studycomment.StudyCommentDto;
-import backend.schedule.dto.studycomment.StudyCommentSetDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyComment;
-import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenExtraction;
-import backend.schedule.jwt.JwtTokenUtil;
-import backend.schedule.service.MemberService;
 import backend.schedule.service.StudyAnnouncementService;
 import backend.schedule.service.StudyCommentService;
 import backend.schedule.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ErrorMessage.*;
+import static backend.schedule.validation.RequestDataValidation.beanValidation;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +28,7 @@ public class StudyCommentController {
     private final JwtTokenExtraction jwtTokenExtraction;
     private final StudyCommentService studyCommentService;
     private final StudyAnnouncementService studyAnnouncementService;
+
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
@@ -49,20 +40,14 @@ public class StudyCommentController {
     @PostMapping("study-board/{studyBoardId}/study-announcements/{announcementId}/comment/add")//스터디 공지 댓글 추가
     public ResponseEntity<?> studyCommentPost(@Validated @RequestBody StudyCommentDto studyCommentDto, BindingResult bindingResult,
                                               @PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
-
         try {
             Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(member.getId(), studyBoardId);
 
             StudyAnnouncement findAnnouncement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
 
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors().stream()
-                        .map(ObjectError::getDefaultMessage)
-                        .collect(Collectors.toList());
-
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors())
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             studyCommentService.save(studyCommentDto, findAnnouncement, member);
 
@@ -79,11 +64,10 @@ public class StudyCommentController {
      */
     @GetMapping("/study-board/study-announcements/{announcementId}/comment/{commentId}/edit")
     public ResponseEntity<?> studyCommentUpdateForm(@PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
-        //스터디 멤버 확인하는 로직 없는 이유는 댓글 작성했을때 확인했으니 굳이 할필요 있나해서 없음
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
-            StudyComment comment = studyCommentService.writerCheck(announcementId, commentId, memberId); //작성한 사람 맞는지 확인
+            StudyComment comment = studyCommentService.writerCheck(announcementId, commentId, memberId);
 
             return ResponseEntity.ok().body(new StudyCommentDto(comment));
         } catch (IllegalArgumentException e) {
@@ -117,22 +101,15 @@ public class StudyCommentController {
      */
 //    @Transactional
     @PatchMapping("/study-board/study-announcements/{announcementId}/comment/{commentId}/edit")
-    public ResponseEntity<?> studyCommentUpdate(
-            @Validated @RequestBody StudyCommentDto studyCommentDto, BindingResult bindingResult,
-            @PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
-
+    public ResponseEntity<?> studyCommentUpdate(@Validated @RequestBody StudyCommentDto studyCommentDto, BindingResult bindingResult,
+                                                @PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
             StudyComment comment = studyCommentService.writerCheck(announcementId, commentId, memberId);
 
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors().stream()
-                        .map(ObjectError::getDefaultMessage)
-                        .collect(Collectors.toList());
-
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors())
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             studyCommentService.updateComment(comment, studyCommentDto);
 
@@ -149,7 +126,6 @@ public class StudyCommentController {
      */
     @DeleteMapping("/study-announcements/{announcementId}/comment/{commentId}/delete")
     public ResponseEntity<?> studyCommentDelete(@PathVariable Long announcementId, @PathVariable Long commentId, HttpServletRequest request) {
-        //댓글 작성한 사람만 삭제가능한 로직 필요
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 

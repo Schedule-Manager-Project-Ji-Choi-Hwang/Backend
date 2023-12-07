@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +26,6 @@ public class StudyPost extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     private FieldTag tag;
-
-    private LocalDate period;
 
     private int recruitMember;
 
@@ -75,25 +72,22 @@ public class StudyPost extends BaseTimeEntity {
     public StudyPost(StudyPostDto studyPostDto) {
         this.studyName = studyPostDto.getStudyName();
         this.tag = studyPostDto.getTag();
-        this.period = studyPostDto.getPeriod();
         this.recruitMember = studyPostDto.getRecruitMember();
         this.onOff = studyPostDto.isOnOff();
         this.area = studyPostDto.getArea();
         this.post = studyPostDto.getPost();
+    }
+
+    public StudyPost(String studyName) {
+        this.studyName = studyName;
     }
 
     public void updatePost(StudyPostDto studyPostDto) {
         this.studyName = studyPostDto.getStudyName();
         this.tag = studyPostDto.getTag();
-        this.period = studyPostDto.getPeriod();
         this.recruitMember = studyPostDto.getRecruitMember();
         this.onOff = studyPostDto.isOnOff();
         this.area = studyPostDto.getArea();
         this.post = studyPostDto.getPost();
-    }
-
-    public StudyPost(String studyName, LocalDate period) {
-        this.studyName = studyName;
-        this.period = period;
     }
 }

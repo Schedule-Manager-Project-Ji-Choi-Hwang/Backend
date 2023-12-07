@@ -3,6 +3,7 @@ package backend.schedule.configuration;
 import backend.schedule.jwt.JwtTokenFilter;
 import backend.schedule.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +27,10 @@ import java.util.Arrays;
 public class SpringSecurityConfig {
 
     private final MemberService memberService;
-    private static String secretKey = "secret-key-456456";
+//    private static String secretKey = "secret-key-456456";
+    @Value("${spring.jwt.secretkey}")
+    private String secretKey;
+
 
     //CORS 설정
     @Bean
@@ -57,7 +61,7 @@ public class SpringSecurityConfig {
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .addFilterBefore(new JwtTokenFilter(memberService, secretKey), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtTokenFilter(secretKey), UsernamePasswordAuthenticationFilter.class)
                 .requestMatcher(notRefreshEndpoint)
                 .authorizeRequests()
                 .antMatchers("/member/sign-up", "/member/log-in", "/member/refresh", "/member/findLoginId", "/member/findPassword", "/studyboard").permitAll()

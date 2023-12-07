@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @SequenceGenerator(name = "STUDYANNOUNCEMENT_SEQ_GENERATOR",
         sequenceName = "STUDYANNOUNCEMENT_SEQ")
-public class StudyAnnouncement extends BaseTimeEntity{
+public class StudyAnnouncement extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYANNOUNCEMENT_SEQ_GENERATOR")
@@ -33,21 +33,7 @@ public class StudyAnnouncement extends BaseTimeEntity{
     @OneToMany(mappedBy = "studyAnnouncement", cascade = CascadeType.REMOVE)
     private List<StudyComment> studyComments = new ArrayList<>();
 
-    public void addStudyComment(StudyComment studyComment) {
-        studyComments.add(studyComment);
-        studyComment.setStudyAnnouncement(this);
-    }
-
-    public void setStudyPost(StudyPost studyPost) {
-        this.studyPost = studyPost;
-    }
-
     public StudyAnnouncement(StudyAnnouncementDto announcementDto) {
-        this.announcementTitle = announcementDto.getAnnouncementTitle();
-        this.announcementPost = announcementDto.getAnnouncementPost();
-    }
-
-    public void announcementUpdate(StudyAnnouncementDto announcementDto) {
         this.announcementTitle = announcementDto.getAnnouncementTitle();
         this.announcementPost = announcementDto.getAnnouncementPost();
     }
@@ -55,5 +41,19 @@ public class StudyAnnouncement extends BaseTimeEntity{
     public StudyAnnouncement(String announcementTitle, String announcementPost) {
         this.announcementTitle = announcementTitle;
         this.announcementPost = announcementPost;
+    }
+
+    public void addStudyComment(StudyComment studyComment) {
+        studyComments.add(studyComment);
+        studyComment.setStudyAnnouncement(this);
+    }
+
+    public void announcementUpdate(StudyAnnouncementDto announcementDto) {
+        this.announcementTitle = announcementDto.getAnnouncementTitle();
+        this.announcementPost = announcementDto.getAnnouncementPost();
+    }
+
+    public void setStudyPost(StudyPost studyPost) {
+        this.studyPost = studyPost;
     }
 }

@@ -31,18 +31,20 @@ public class Subject {
     @OneToMany(mappedBy = "subject", cascade = CascadeType.REMOVE)
     private List<Schedule> schedules = new ArrayList<>();
 
-    public void addSchedule(Schedule schedule) {
+    public void addSchedules(Schedule schedule) {
         schedules.add(schedule);
         schedule.setSubject(this);
+    }
+
+    public Subject(Member member, String subjectName) {
+        this.member = member;
+        this.subjectName = subjectName;
     }
 
     public Subject(String subjectName) {
         this.subjectName = subjectName;
     }
 
-    public void removeSchedule(Schedule schedule) {
-        schedules.remove(schedule);
-    }
 
     public void setMember(Member member) {
         this.member = member;
@@ -50,15 +52,5 @@ public class Subject {
 
     public void subjectNameUpdate(SubjectReqDto subjectReqDto) {
         this.subjectName = subjectReqDto.getSubjectName();
-    }
-
-    public void addSchedules(Schedule schedule) {
-        this.schedules.add(schedule);
-        schedule.setSubject(this);
-    }
-
-    public Subject(Member member, String subjectName) {
-        this.member = member;
-        this.subjectName = subjectName;
     }
 }

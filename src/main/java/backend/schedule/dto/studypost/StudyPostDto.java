@@ -22,9 +22,6 @@ public class StudyPostDto {
 
     private FieldTag tag;
 
-    @NotNull(message = "일정을 입력해 주세요.")
-    private LocalDate period;
-
     @NotNull(message = "모집 인원을 설정해 주세요.")
     @Range(min = 1, max = 20, message = "1명 이상 20명 이하만 모집 가능합니다.")
     private int recruitMember;
@@ -41,7 +38,6 @@ public class StudyPostDto {
     public StudyPostDto(StudyPost studyPost) {
         this.studyName = studyPost.getStudyName();
         this.tag = studyPost.getTag();
-        this.period = studyPost.getPeriod();
         this.recruitMember = studyPost.getRecruitMember();
         this.onOff = studyPost.isOnOff();
         this.area = studyPost.getArea();

@@ -1,6 +1,5 @@
 package backend.schedule.repository;
 
-import backend.schedule.dto.studypost.SearchPostCondition;
 import backend.schedule.dto.studypost.QStudyPostResDto;
 import backend.schedule.dto.studypost.StudyPostResDto;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -36,7 +35,7 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
     public Slice<StudyPostResDto> searchPost(Long lastPostId, String studyName, Pageable pageable) {
         List<StudyPostResDto> results =
                 query.select(new QStudyPostResDto(studyPost.id, studyPost.studyName,
-                                studyPost.tag, studyPost.period, studyPost.recruitMember,
+                                studyPost.tag, studyPost.recruitMember,
                                 studyPost.onOff, studyPost.area, studyPost.post))
                         .from(studyPost)
                         .where(ltPostId(lastPostId),

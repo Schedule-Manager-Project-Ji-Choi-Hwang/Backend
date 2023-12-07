@@ -1,37 +1,35 @@
 package backend.schedule.controller;
 
-import backend.schedule.dto.*;
+import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.schedule.ScheduleDto;
 import backend.schedule.dto.schedule.ScheduleEditReqDto;
 import backend.schedule.dto.schedule.ScheduleReqDto;
 import backend.schedule.entity.Schedule;
 import backend.schedule.entity.Subject;
 import backend.schedule.jwt.JwtTokenExtraction;
-import backend.schedule.service.MemberService;
-import backend.schedule.service.SubjectService;
 import backend.schedule.service.ScheduleService;
+import backend.schedule.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.stream.Collectors;
+
+import static backend.schedule.validation.RequestDataValidation.beanValidation;
 
 @RestController
 @RequiredArgsConstructor
 @Slf4j
 public class ScheduleController {
 
-    private final ScheduleService scheduleService;
-    private final MemberService memberService;
     private final SubjectService subjectService;
+    private final ScheduleService scheduleService;
     private final JwtTokenExtraction jwtTokenExtraction;
+
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
@@ -43,20 +41,15 @@ public class ScheduleController {
      * 2. 일정 갯수 만큼 추가
      */
     @PostMapping("/subjects/{subjectId}/schedules/add") // 반복 등록 시 시작 및 종료 날짜 DB에도 넣기.
-    public ResponseEntity<?> addSchedule(HttpServletRequest request, @PathVariable Long subjectId, @Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult) {
+    public ResponseEntity<?> addSchedule(@Validated @RequestBody ScheduleReqDto scheduleReqDto, BindingResult bindingResult,
+                                         @PathVariable Long subjectId, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
             Subject findSubject = subjectService.findSubjectById(subjectId, memberId);
 
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(ObjectError::getDefaultMessage)
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors())
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 스케쥴 저장
             scheduleService.addSchedule(scheduleReqDto, findSubject);
@@ -118,21 +111,16 @@ public class ScheduleController {
      * 2. 일정 제목 변경
      */
     @PatchMapping("/subjects/{subjectId}/schedules/{scheduleId}/edit")
-    public ResponseEntity<?> updateSchedule(@PathVariable Long subjectId, @PathVariable Long scheduleId, @Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult, HttpServletRequest request) {
+    public ResponseEntity<?> updateSchedule(@Validated @RequestBody ScheduleEditReqDto scheduleEditReqDto, BindingResult bindingResult,
+                                            @PathVariable Long subjectId, @PathVariable Long scheduleId, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             subjectService.findSubjectById(subjectId, memberId);
 
             Schedule findSchedule = scheduleService.findScheduleById(scheduleId, subjectId);
 
-            // 빈 검증
-            if (bindingResult.hasErrors()) {
-                List<String> errorMessages = bindingResult.getAllErrors()
-                        .stream()
-                        .map(ObjectError::getDefaultMessage)
-                        .collect(Collectors.toList());
-                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(errorMessages));
-            }
+            if (bindingResult.hasErrors())
+                return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
             // 스케쥴 변경
             scheduleService.updateSchedule(findSchedule, scheduleEditReqDto);

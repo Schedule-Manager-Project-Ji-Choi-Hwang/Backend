@@ -44,9 +44,9 @@ public class InitData {
             Member testMember = new Member("hji1235", encoder.encode("456456"), "CMH", "hji1235@naver.com");
             em.persist(testMember);
 
-            Member testMember2 = new Member("hji1234", encoder.encode("456456"), "CM", "hji1235@naver.com");
+            Member testMember2 = new Member("hji1234", encoder.encode("456456"), "CM", "hji1234@naver.com");
             em.persist(testMember2);
-            Member testMember3 = new Member("hji1233", encoder.encode("456456"), "C", "hji1235@naver.com");
+            Member testMember3 = new Member("hji1233", encoder.encode("456456"), "C", "hji1233@naver.com");
             em.persist(testMember3);
             for (String subject : subjectList) {
                 Subject testSubject = new Subject(testMember, subject);
@@ -59,7 +59,7 @@ public class InitData {
                     em.persist(testSchedule);
                 }
             }
-            StudyPost testStudyPost1 = new StudyPost("프로젝트!!", LocalDate.now());
+            StudyPost testStudyPost1 = new StudyPost("프로젝트!!");
             em.persist(testStudyPost1);
             // 스터디 멤버 추가 부분
             StudyMember testStudyMember = new StudyMember(testMember, ConfirmAuthor.LEADER);
@@ -92,7 +92,7 @@ public class InitData {
                 em.persist(testSchedule);
             }
 
-            StudyPost testStudyPost2 = new StudyPost("프로젝트2!!", LocalDate.now());
+            StudyPost testStudyPost2 = new StudyPost("프로젝트2!!");
             em.persist(testStudyPost2);
             StudyMember testStudyMember2 = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost2.addStudyMember(testStudyMember2);
@@ -113,7 +113,7 @@ public class InitData {
                 em.persist(testSchedule);
             }
 
-            StudyPost testStudyPost3 = new StudyPost("프로젝트2!!", LocalDate.now());
+            StudyPost testStudyPost3 = new StudyPost("프로젝트2!!");
             em.persist(testStudyPost3);
             StudyMember testStudyMember3 = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost3.addStudyMember(testStudyMember3);

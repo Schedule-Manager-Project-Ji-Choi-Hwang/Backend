@@ -20,8 +20,6 @@ public class StudyPostResDto {
 
     private FieldTag tag;
 
-    private LocalDate period;
-
     private int recruitMember;
 
     private boolean onOff;
@@ -31,11 +29,10 @@ public class StudyPostResDto {
     private String post;
 
     @QueryProjection
-    public StudyPostResDto(Long id, String studyName, FieldTag tag, LocalDate period, int recruitMember, boolean onOff, String area, String post) {
+    public StudyPostResDto(Long id, String studyName, FieldTag tag, int recruitMember, boolean onOff, String area, String post) {
         this.id = id;
         this.studyName = studyName;
         this.tag = tag;
-        this.period = period;
         this.recruitMember = recruitMember;
         this.onOff = onOff;
         this.area = area;

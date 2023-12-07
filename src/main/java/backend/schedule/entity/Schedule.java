@@ -25,9 +25,6 @@ public class Schedule {
 
     private LocalDate period;
 
-//    @Enumerated(EnumType.STRING)
-//    private RepeatedDate repeatedDate;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ps_id")
     private Subject subject;
@@ -37,7 +34,9 @@ public class Schedule {
         this.period = date;
     }
 
-    public void setSubject(Subject subject) {
+    public Schedule(String scheduleName, LocalDate period, Subject subject) {
+        this.scheduleName = scheduleName;
+        this.period = period;
         this.subject = subject;
     }
 
@@ -46,9 +45,7 @@ public class Schedule {
         this.period = scheduleEditReqDto.getPeriod();
     }
 
-    public Schedule(String scheduleName, LocalDate period, Subject subject) {
-        this.scheduleName = scheduleName;
-        this.period = period;
+    public void setSubject(Subject subject) {
         this.subject = subject;
     }
 }
