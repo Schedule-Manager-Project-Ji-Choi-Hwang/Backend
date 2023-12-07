@@ -11,26 +11,23 @@ import java.util.Optional;
 
 public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, StudyPostRepositoryCustom {
 
-    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId and sc.period = :date")
-    StudyPost DetailPageStudySchedules(@Param("boardId") Long boardId, @Param("date")LocalDate date);
+    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :studyBoardId and sc.period = :date")
+    StudyPost DetailPageStudySchedules(@Param("studyBoardId") Long studyBoardId, @Param("date")LocalDate date);
 
-    @Query("select s from StudyPost s join fetch s.studyAnnouncements sa where s.id = :boardId and sa.id = :id")
-    Optional<StudyPost> studyAnnouncement(@Param("boardId") Long boardId, @Param("id") Long id);
+    @Query("select s from StudyPost s join fetch s.studyAnnouncements sa where s.id = :studyBoardId and sa.id = :studyAnnouncementId")
+    Optional<StudyPost> studyAnnouncement(@Param("studyBoardId") Long studyBoardId, @Param("studyAnnouncementId") Long studyAnnouncementId);
 
-    @Query("select s from StudyPost s join fetch s.studyAnnouncements sa where s.id = :boardId")
-    Optional<StudyPost> studyAnnouncements(@Param("boardId") Long boardId);
+    @Query("select s from StudyPost s join fetch s.studyAnnouncements sa where s.id = :studyBoardId")
+    Optional<StudyPost> studyAnnouncements(@Param("studyBoardId") Long studyBoardId); //이거
 
-    @Query("select s from StudyPost s join fetch s.studySchedules ss where s.id = :boardId")
-    List<StudyPost> detailPage(@Param("boardId") Long boardId);
+    @Query("select s from StudyPost s join fetch s.studySchedules ss where s.id = :studyBoardId")
+    List<StudyPost> detailPage(@Param("studyBoardId") Long studyBoardId);
 
-    @Query("select s from StudyPost s join fetch s.applicationMembers am join fetch am.member where s.id = :boardId ")
-    Optional<StudyPost> findStudyPostByApplicationMembers(@Param("boardId") Long studyBoardId);
+    @Query("select s from StudyPost s join fetch s.applicationMembers am join fetch am.member where s.id = :studyBoardId ")
+    Optional<StudyPost> findStudyPostByApplicationMembers(@Param("studyBoardId") Long studyBoardId);
 
     @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sm.member where sp.id = :studyBoardId")
-    Optional<StudyPost> findStudyPostGetStudyMembers(@Param("studyBoardId") Long studyBoardId);
-
-    @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sp.studyAnnouncements where sp.id = :studyBoardId")
-    Optional<StudyPost> findStudyPostGetSmAndSa(@Param("studyBoardId") Long studyBoardId);
+    Optional<StudyPost> findStudyPostGetStudyMembers(@Param("studyBoardId") Long studyBoardId); //이거
 
     //    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId")
 //    Optional<StudyPost> studyScheduleList(@Param("boardId") Long boardId);

@@ -21,13 +21,13 @@ public class AnnouncementsAndStudyMembersDto {
 
     private List<StudyGroupMembersResDto> studyMemberList;
 
-    public AnnouncementsAndStudyMembersDto(StudyPost studyPost) {
-        this.studyPostId = studyPost.getId();
-        this.studyName = studyPost.getStudyName();
-        this.announcementList = studyPost.getStudyAnnouncements().stream()
+    public AnnouncementsAndStudyMembersDto(StudyPost studyPostSa, StudyPost studyPostSm) {
+        this.studyPostId = studyPostSa.getId();
+        this.studyName = studyPostSa.getStudyName();
+        this.announcementList = studyPostSa.getStudyAnnouncements().stream()
                 .map(StudyGroupAnnouncementsResDto::new)
                 .collect(Collectors.toList());
-        this.studyMemberList = studyPost.getStudyMembers().stream()
+        this.studyMemberList = studyPostSm.getStudyMembers().stream()
                 .map(StudyGroupMembersResDto::new)
                 .collect(Collectors.toList());
     }

@@ -51,8 +51,10 @@ public class StudyAnnouncementPageController {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
-            StudyPost findStudyPost = studyPostService.findStudyGroupDetailPage(studyBoardId);
-            AnnouncementsAndStudyMembersDto returnData = studyPostService.returnToStudyGroupInfo(findStudyPost);
+            StudyPost findStudyPostAndSa = studyPostService.studyAnnouncements(studyBoardId);
+            StudyPost findStudyPostAndSm = studyPostService.returnToStudyMembers(studyBoardId);
+
+            AnnouncementsAndStudyMembersDto returnData = studyPostService.returnToStudyGroupInfo(findStudyPostAndSa, findStudyPostAndSm);
 
             return ResponseEntity.ok().body(new Result(returnData));
         } catch (IllegalArgumentException e) {

@@ -90,14 +90,8 @@ public class StudyPostService {
         studyPost.updatePost(studyPostDto);
     }
 
-    public StudyPost findStudyGroupDetailPage(Long studyBoardId) {
-        Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostGetSmAndSa(studyBoardId);
-
-        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(POST));
-    }
-
-    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPost) {
-        return new AnnouncementsAndStudyMembersDto(studyPost);
+    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPostSa,StudyPost studyPostSm) {
+        return new AnnouncementsAndStudyMembersDto(studyPostSa, studyPostSm);
     }
 
 //    public StudyPost studyScheduleList(Long id) {
