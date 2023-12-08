@@ -39,7 +39,7 @@ public class SpringSecurityConfig {
 
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList("http://localhost:19006"));
-        config.setAllowedMethods(Arrays.asList("HEAD", "POST", "GET", "DELETE", "PUT"));
+        config.setAllowedMethods(Arrays.asList("HEAD", "POST", "GET", "DELETE", "PUT", "PATCH"));
         config.setAllowedHeaders(Arrays.asList("*"));
 
         config.setExposedHeaders(Arrays.asList("Your-Custom-Header-1", "Your-Custom-Header-2"));
