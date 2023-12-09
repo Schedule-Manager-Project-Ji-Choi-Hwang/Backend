@@ -54,7 +54,7 @@ public class InitData {
                 em.persist(testSubject);
 
                 for (int i = 1; i < 4; i++) {
-                    Schedule testSchedule = new Schedule(subject + " 공부" + i, LocalDate.now().plusDays(i), testSubject);
+                    Schedule testSchedule = new Schedule(subject + " 공부" + i, LocalDate.now(), testSubject);
                     testSubject.addSchedules(testSchedule);
                     em.persist(testSchedule);
                 }
