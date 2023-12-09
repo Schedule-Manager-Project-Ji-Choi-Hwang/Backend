@@ -87,7 +87,7 @@ public class InitData {
 
 
             for (int i = 1; i < 7; i++) {
-                StudySchedule testSchedule = new StudySchedule().testSchedule("" + i, LocalDate.now());
+                StudySchedule testSchedule = new StudySchedule().testSchedule(testStudyPost1.getStudyName() + i, LocalDate.now());
                 testStudyPost1.addStudySchedule(testSchedule);
                 em.persist(testSchedule);
             }
@@ -108,12 +108,12 @@ public class InitData {
             em.persist(testApplicationMember2);
 
             for (int i = 1; i < 7; i++) {
-                StudySchedule testSchedule = new StudySchedule().testSchedule("" + i, LocalDate.now());
+                StudySchedule testSchedule = new StudySchedule().testSchedule(testStudyPost2.getStudyName() + i, LocalDate.now());
                 testStudyPost2.addStudySchedule(testSchedule);
                 em.persist(testSchedule);
             }
 
-            StudyPost testStudyPost3 = new StudyPost("프로젝트2!!");
+            StudyPost testStudyPost3 = new StudyPost("프로젝트3!!");
             em.persist(testStudyPost3);
             StudyMember testStudyMember3 = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost3.addStudyMember(testStudyMember3);
@@ -125,7 +125,7 @@ public class InitData {
 
 
             for (int i = 1; i < 7; i++) {
-                StudySchedule testSchedule = new StudySchedule().testSchedule("" + i, LocalDate.now());
+                StudySchedule testSchedule = new StudySchedule().testSchedule(testStudyPost3.getStudyName() + i, LocalDate.now());
                 testStudyPost3.addStudySchedule(testSchedule);
                 em.persist(testSchedule);
             }
