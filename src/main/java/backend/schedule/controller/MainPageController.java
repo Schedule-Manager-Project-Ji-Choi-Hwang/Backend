@@ -32,7 +32,7 @@ public class MainPageController {
     private String mySecretkey;
 
     @GetMapping("/main")
-    public ResponseEntity<?> test(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date, HttpServletRequest request) {
+    public ResponseEntity<?> test(@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
