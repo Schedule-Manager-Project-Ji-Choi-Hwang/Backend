@@ -13,6 +13,8 @@ public class StudyCommentDto {
 
     private Long commentId;
 
+    private String nickname;
+
     @NotBlank(message = "댓글을 입력해 주세요")
     private String comment;
 
@@ -22,6 +24,7 @@ public class StudyCommentDto {
 
     public StudyCommentDto(StudyComment comment) {
         this.commentId = comment.getId();
+        this.nickname = comment.getMember().getNickname();
         this.comment = comment.getComment();
         this.createdDate = comment.getCreatedDate();
         this.lastModifiedDate = comment.getLastModifiedDate();

@@ -6,6 +6,7 @@ import backend.schedule.dto.Result;
 import backend.schedule.dto.ReturnIdDto;
 import backend.schedule.dto.studypost.StudyMemberToPostReqDto;
 import backend.schedule.dto.studypost.StudyPostDto;
+import backend.schedule.dto.studypost.StudyPostResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.jwt.JwtTokenExtraction;
@@ -90,6 +91,21 @@ public class StudyPostController {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
 
+    }
+
+    /**
+     * 스터디 게시글 전체 조회 (멤버별)
+     * 12/12 민현 추가
+     */
+    @GetMapping("/my-study-board")
+    public ResponseEntity<?> myStudies(HttpServletRequest request) {
+        try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            List<StudyMemberToPostReqDto> studyMemberToPostReqDtos = studyMemberService.memberPostList(memberId);
+            return ResponseEntity.ok().body(new Result(studyMemberToPostReqDtos));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
     }
 
     /**

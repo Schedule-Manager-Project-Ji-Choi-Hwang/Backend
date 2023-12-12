@@ -89,6 +89,12 @@ public class StudyMemberService {
                 .collect(Collectors.toList());
     }
 
+    public List<StudyMemberToPostReqDto> memberPostList(Long memberId) {
+        return studyMemberRepository.memberPostList(memberId).stream()
+                .map(StudyMemberToPostReqDto::new)
+                .collect(Collectors.toList());
+    }
+
     public void delete(StudyMember studyMember) {
 //        studyPost.removeStudyMember(studyMember);
         studyMemberRepository.delete(studyMember);
