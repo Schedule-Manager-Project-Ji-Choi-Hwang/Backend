@@ -12,6 +12,8 @@ public class StudyMemberToPostReqDto {
 
     private String studyName;
 
+    private ConfirmAuthor authority;
+
     private FieldTag tag;
 
     private int currentMember;
@@ -21,6 +23,7 @@ public class StudyMemberToPostReqDto {
     public StudyMemberToPostReqDto(StudyMember studyMember) {
         this.studyPostId = studyMember.getStudyPost().getId();
         this.studyName = studyMember.getStudyPost().getStudyName();
+        this.authority = studyMember.getConfirmAuthor();
         this.tag = studyMember.getStudyPost().getTag();
         this.currentMember = studyMember.getStudyPost().getStudyMembers().size();
         this.recruitMember = studyMember.getStudyPost().getRecruitMember();
