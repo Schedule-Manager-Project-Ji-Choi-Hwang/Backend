@@ -3,6 +3,7 @@ package backend.schedule.service;
 
 import backend.schedule.dto.studymember.StudyMemberResDto;
 import backend.schedule.dto.studypost.StudyMemberToPostReqDto;
+import backend.schedule.dto.studypost.StudyPostNameResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
@@ -96,6 +97,12 @@ public class StudyMemberService {
     public List<StudyMemberToPostReqDto> memberPostList(Long memberId) {
         return studyMemberRepository.memberPostList(memberId).stream()
                 .map(StudyMemberToPostReqDto::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<StudyPostNameResDto> myPostNameList(Long memberId) {
+        return studyMemberRepository.myPostList(memberId, LEADER).stream()
+                .map(StudyPostNameResDto::new)
                 .collect(Collectors.toList());
     }
 
