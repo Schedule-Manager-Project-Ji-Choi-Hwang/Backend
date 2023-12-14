@@ -42,6 +42,10 @@ public class StudyMemberService {
         return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.STUDY));
     }
 
+    public boolean myAuthority(Member member, StudyPost studyPost, ConfirmAuthor confirmAuthor) {
+        return studyMemberRepository.existsByMemberAndStudyPostAndAndConfirmAuthor(member, studyPost, confirmAuthor);
+    }
+
     public StudyMember studyMemberSearch(Long memberId, Long studyBoardId, ConfirmAuthor confirmAuthor) {
         Optional<StudyMember> optionalStudyMember = studyMemberRepository.studyMemberSearch(memberId, studyBoardId, confirmAuthor);
 

@@ -1,6 +1,8 @@
 package backend.schedule.repository;
 
+import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
+import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -40,6 +42,8 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
 
     @Query("select distinct sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId")
     List<StudyMember> MainPageStudyMembers(@Param("memberId") Long memberId);
+
+    boolean existsByMemberAndStudyPostAndAndConfirmAuthor(Member member, StudyPost studyPost, ConfirmAuthor confirmAuthor);
 
     @Modifying
     @Query("delete from StudyMember sm where sm.studyPost.id = :studyBoardId and sm.id = :studyMemberId and sm.confirmAuthor = :confirmAuthor")

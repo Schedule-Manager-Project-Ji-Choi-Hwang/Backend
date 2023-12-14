@@ -90,8 +90,8 @@ public class StudyPostService {
         studyPost.updatePost(studyPostDto);
     }
 
-    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPostSa,StudyPost studyPostSm) {
-        return new AnnouncementsAndStudyMembersDto(studyPostSa, studyPostSm);
+    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPostSa,StudyPost studyPostSm, boolean myAuthority) {
+        return new AnnouncementsAndStudyMembersDto(studyPostSa, studyPostSm, myAuthority);
     }
 
 //    public StudyPost studyScheduleList(Long id) {

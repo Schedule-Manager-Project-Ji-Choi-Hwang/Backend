@@ -4,8 +4,10 @@ import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.dto.studyannouncement.AnnouncementAndCommentsDto;
 import backend.schedule.dto.studypost.AnnouncementsAndStudyMembersDto;
+import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.service.StudyAnnouncementService;
 import backend.schedule.service.StudyMemberService;
@@ -49,12 +51,16 @@ public class StudyAnnouncementPageController {
     @GetMapping("/study-board/{studyBoardId}/detail")
     public ResponseEntity<?> studyGroupDetailPage(@PathVariable Long studyBoardId, HttpServletRequest request) {
         try {
-            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
+//            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
+            studyMemberService.studyMemberSearchNoAuthority(member.getId(), studyBoardId);
             StudyPost findStudyPostAndSa = studyPostService.studyAnnouncements(studyBoardId);
             StudyPost findStudyPostAndSm = studyPostService.returnToStudyMembers(studyBoardId);
 
-            AnnouncementsAndStudyMembersDto returnData = studyPostService.returnToStudyGroupInfo(findStudyPostAndSa, findStudyPostAndSm);
+            boolean myAuthority = studyMemberService.myAuthority(member, findStudyPostAndSa, ConfirmAuthor.LEADER);
+//            System.out.println("myAuthority = " + myAuthority);
+
+            AnnouncementsAndStudyMembersDto returnData = studyPostService.returnToStudyGroupInfo(findStudyPostAndSa, findStudyPostAndSm, myAuthority);
 
             return ResponseEntity.ok().body(new Result(returnData));
         } catch (IllegalArgumentException e) {
