@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface StudyAnnouncementRepository extends JpaRepository<StudyAnnouncement, Long> {
 
-    @Query("select sa from StudyAnnouncement sa join fetch sa.studyComments sc join fetch sc.member where sa.id = :announcementId and sa.studyPost.id = :studyBoardId")
+    @Query("select sa from StudyAnnouncement sa left join fetch sa.studyComments sc left join fetch sc.member where sa.id = :announcementId and sa.studyPost.id = :studyBoardId")
     Optional<StudyAnnouncement> findAnnouncementGetComments(@Param("announcementId") Long announcementId, @Param("studyBoardId") Long studyBoardId);
 
     @Query("select sa from StudyAnnouncement sa where sa.id = :studyAnnouncementId and sa.studyPost.id = :studyBoardId")
