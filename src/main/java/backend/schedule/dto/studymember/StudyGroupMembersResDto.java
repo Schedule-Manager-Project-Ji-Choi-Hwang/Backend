@@ -17,14 +17,9 @@ public class StudyGroupMembersResDto {
 
     private ConfirmAuthor authority;
 
-    private boolean leader;
-
     public StudyGroupMembersResDto(StudyMember studyMember) {
         this.studyMemberId = studyMember.getId();
         this.nickname = studyMember.getMember().getNickname();
         this.authority = studyMember.getConfirmAuthor();
-
-        if (studyMember.getConfirmAuthor() == LEADER) leader = true;
-        else leader = false;
     }
 }
