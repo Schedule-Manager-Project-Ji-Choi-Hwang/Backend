@@ -3,6 +3,7 @@ package backend.schedule.service;
 
 import backend.schedule.dto.studyannouncement.AnnouncementAndCommentsDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
+import backend.schedule.dto.studyannouncement.StudyAnnouncementEditDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ErrorMessage;
@@ -43,13 +44,14 @@ public class StudyAnnouncementService {
         //}
     //}
 
+    @Transactional
     public void removeAnnouncement(StudyAnnouncement studyAnnouncement) {
         studyAnnouncementRepository.delete(studyAnnouncement);
     }
 
     @Transactional
-    public void updateStudyAnnouncement(StudyAnnouncement studyAnnouncement, StudyAnnouncementDto studyAnnouncementDto) {
-        studyAnnouncement.announcementUpdate(studyAnnouncementDto);
+    public void updateStudyAnnouncement(StudyAnnouncement studyAnnouncement, StudyAnnouncementEditDto studyAnnouncementEditDto) {
+        studyAnnouncement.announcementUpdate(studyAnnouncementEditDto);
     }
 
     public void delete(Long id) {

@@ -4,6 +4,7 @@ import backend.schedule.dto.MessageReturnDto;
 import backend.schedule.dto.Result;
 import backend.schedule.dto.ReturnIdDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
+import backend.schedule.dto.studyannouncement.StudyAnnouncementEditDto;
 import backend.schedule.dto.studyannouncement.StudyAnnouncementSetDto;
 import backend.schedule.entity.StudyAnnouncement;
 import backend.schedule.entity.StudyPost;
@@ -119,7 +120,7 @@ public class StudyAnnouncementController {
      * Query: 2번
      */
     @PatchMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/edit")
-    public ResponseEntity<?> studyAnnouncementUpdate(@Validated @RequestBody StudyAnnouncementDto announcementDto, BindingResult bindingResult,
+    public ResponseEntity<?> studyAnnouncementUpdate(@Validated @RequestBody StudyAnnouncementEditDto announcementEditDto, BindingResult bindingResult,
                                                      @PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
@@ -129,7 +130,7 @@ public class StudyAnnouncementController {
             if (bindingResult.hasErrors())
                 return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(beanValidation(bindingResult)));
 
-            studyAnnouncementService.updateStudyAnnouncement(announcement, announcementDto);
+            studyAnnouncementService.updateStudyAnnouncement(announcement, announcementEditDto);
 
             return ResponseEntity.ok().body(new ReturnIdDto(studyBoardId, announcementId));
         } catch (IllegalArgumentException e) {

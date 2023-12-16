@@ -20,7 +20,7 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     @Query("select sp from StudyPost sp join fetch sp.studyMembers sm join fetch sm.member where sp.id = :studyBoardId")
     Optional<StudyPost> findStudyPostGetStudyMembers(@Param("studyBoardId") Long studyBoardId);
 
-    @Query("select s from StudyPost s join fetch s.studyAnnouncements sa where s.id = :studyBoardId")
+    @Query("select s from StudyPost s left join fetch s.studyAnnouncements sa where s.id = :studyBoardId")
     Optional<StudyPost> studyAnnouncements(@Param("studyBoardId") Long studyBoardId); //이거
 
     @Query("select s from StudyPost s join fetch s.studySchedules ss where s.id = :studyBoardId")
