@@ -37,6 +37,7 @@ public class StudyPostService {
 //        return new StudyPostScheduleSetDto(studyPost);
 //    }
 
+    @Transactional
     public void save(StudyPostDto studyPostDto, Member member) {
         StudyPost studyPost = new StudyPost(studyPostDto);
         StudyMember studyMember = new StudyMember(member, ConfirmAuthor.LEADER);

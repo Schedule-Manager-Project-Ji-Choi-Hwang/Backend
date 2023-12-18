@@ -1,5 +1,6 @@
 package backend.schedule.dto.studypost;
 
+import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.FieldTag;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
@@ -38,4 +39,16 @@ public class StudyPostResDto {
         this.area = area;
         this.post = post;
     }
+
+    public StudyPostResDto(StudyPost studyPost) {
+        this.id = studyPost.getId();
+        this.studyName = studyPost.getStudyName();
+        this.tag = studyPost.getTag();
+        this.recruitMember = studyPost.getRecruitMember();
+        this.onOff = studyPost.isOnOff();
+        this.area = studyPost.getArea();
+        this.post = studyPost.getPost();
+    }
+
+
 }

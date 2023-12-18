@@ -69,7 +69,7 @@ public class StudyPostController {
         try {
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
 
-            return ResponseEntity.ok().body(new StudyPostDto(findStudyPost));
+            return ResponseEntity.ok().body(new StudyPostResDto(findStudyPost));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }
