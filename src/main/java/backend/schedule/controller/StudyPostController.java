@@ -10,6 +10,7 @@ import backend.schedule.dto.studypost.StudyPostNameResDto;
 import backend.schedule.dto.studypost.StudyPostResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenExtraction;
 import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
@@ -65,11 +66,13 @@ public class StudyPostController {
      * Query: 1번
      */
     @GetMapping("/study-board/{studyBoardId}")
-    public ResponseEntity<?> findStudyBoard(@PathVariable Long studyBoardId) {
+    public ResponseEntity<?> findStudyBoard(@PathVariable Long studyBoardId, HttpServletRequest request) {
         try {
+            Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
+            boolean myAuthority = studyMemberService.myAuthority(member, findStudyPost, LEADER);
 
-            return ResponseEntity.ok().body(new StudyPostResDto(findStudyPost));
+            return ResponseEntity.ok().body(new StudyPostResDto(findStudyPost, myAuthority));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

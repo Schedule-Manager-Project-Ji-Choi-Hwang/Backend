@@ -130,8 +130,9 @@ public class InitData {
                 em.persist(testSchedule);
             }
 
-
-
+            for (int i = 0; i < 1000; i++) {
+                em.persist(new StudyPost("" + i));
+            }
         }
     }
 }

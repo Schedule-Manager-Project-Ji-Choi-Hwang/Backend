@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class StudyMemberToPostReqDto {
 
-    private Long studyPostId;
+    private Long id;
 
     private String studyName;
 
@@ -21,7 +21,7 @@ public class StudyMemberToPostReqDto {
     private int recruitMember;
 
     public StudyMemberToPostReqDto(StudyMember studyMember) {
-        this.studyPostId = studyMember.getStudyPost().getId();
+        this.id = studyMember.getStudyPost().getId();
         this.studyName = studyMember.getStudyPost().getStudyName();
         this.authority = studyMember.getConfirmAuthor();
         this.tag = studyMember.getStudyPost().getTag();
