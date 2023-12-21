@@ -16,6 +16,12 @@ public class StudyMemberToPostReqDto {
 
     private FieldTag tag;
 
+    private boolean onOff;
+
+    private String area;
+
+    private String post;
+
     private int currentMember;
 
     private int recruitMember;
@@ -25,6 +31,9 @@ public class StudyMemberToPostReqDto {
         this.studyName = studyMember.getStudyPost().getStudyName();
         this.authority = studyMember.getConfirmAuthor();
         this.tag = studyMember.getStudyPost().getTag();
+        this.onOff = studyMember.getStudyPost().isOnOff();
+        this.area = studyMember.getStudyPost().getArea();
+        this.post = studyMember.getStudyPost().getPost();
         this.currentMember = studyMember.getStudyPost().getStudyMembers().size();
         this.recruitMember = studyMember.getStudyPost().getRecruitMember();
     }
