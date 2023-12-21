@@ -31,6 +31,10 @@ public class StudyPostResDto {
 
     private boolean authority;
 
+    private boolean applicationAuthority;
+
+    private boolean studyMemberAuthority;
+
     @QueryProjection
     public StudyPostResDto(Long id, String studyName, FieldTag tag, int recruitMember, boolean onOff, String area, String post) {
         this.id = id;
@@ -42,17 +46,7 @@ public class StudyPostResDto {
         this.post = post;
     }
 
-    public StudyPostResDto(StudyPost studyPost) {
-        this.id = studyPost.getId();
-        this.studyName = studyPost.getStudyName();
-        this.tag = studyPost.getTag();
-        this.recruitMember = studyPost.getRecruitMember();
-        this.onOff = studyPost.isOnOff();
-        this.area = studyPost.getArea();
-        this.post = studyPost.getPost();
-    }
-
-    public StudyPostResDto(StudyPost studyPost, boolean authority) {
+    public StudyPostResDto(StudyPost studyPost, boolean authority, boolean applicationAuthority, boolean studyMemberAuthority) {
         this.id = studyPost.getId();
         this.studyName = studyPost.getStudyName();
         this.tag = studyPost.getTag();
@@ -61,6 +55,8 @@ public class StudyPostResDto {
         this.area = studyPost.getArea();
         this.post = studyPost.getPost();
         this.authority = authority;
+        this.applicationAuthority = applicationAuthority;
+        this.studyMemberAuthority = studyMemberAuthority;
     }
 
 

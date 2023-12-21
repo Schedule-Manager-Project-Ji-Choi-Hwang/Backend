@@ -12,6 +12,7 @@ import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.jwt.JwtTokenExtraction;
+import backend.schedule.service.ApplicationMemberService;
 import backend.schedule.service.StudyMemberService;
 import backend.schedule.service.StudyPostService;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class StudyPostController {
     private final StudyPostService studyPostService;
     private final JwtTokenExtraction jwtTokenExtraction;
     private final StudyMemberService studyMemberService;
+    private final ApplicationMemberService applicationMemberService;
 
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
@@ -71,8 +73,10 @@ public class StudyPostController {
             Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
             StudyPost findStudyPost = studyPostService.findById(studyBoardId);
             boolean myAuthority = studyMemberService.myAuthority(member, findStudyPost, LEADER);
+            boolean myApplication = applicationMemberService.applicationButtonCheck(member.getId(), studyBoardId);
+            boolean myStudyMember = applicationMemberService.studyMemberButtonCheck(member.getId(), studyBoardId);
 
-            return ResponseEntity.ok().body(new StudyPostResDto(findStudyPost, myAuthority));
+            return ResponseEntity.ok().body(new StudyPostResDto(findStudyPost, myAuthority, myApplication, myStudyMember));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
         }

@@ -60,6 +60,20 @@ public class ApplicationMemberService {
     }
 
     /**
+     *
+     * 권한 체크용
+     */
+    public boolean applicationButtonCheck(Long memberId, Long studyPostId) {
+        return applicationMemberRepository.existsApplicationMember(memberId, studyPostId);
+
+    }
+
+    public boolean studyMemberButtonCheck(Long memberId, Long studyBoardId) {
+        return studyMemberRepository.existsStudyMember(memberId, studyBoardId);
+
+    }
+
+    /**
      * (스터디 멤버 저장)
      * 신청 멤버 삭제
      */
