@@ -103,6 +103,15 @@ public class InitData {
             testStudyPost2.addApplicationMember(testApplicationMember1);
             em.persist(testApplicationMember1);
 
+            // 신청 회원 반복 추가
+            for (int i=0; i<20; i++) {
+                Member member = new Member("" + i, encoder.encode("456456"), "CMH" + i, "hji1235@naver.com" + i);
+                ApplicationMember applicationMember = new ApplicationMember(member);
+                em.persist(member);
+                em.persist(applicationMember);
+                testStudyPost1.addApplicationMember(applicationMember);
+            }
+
             ApplicationMember testApplicationMember2 = new ApplicationMember(testMember3);
             testStudyPost2.addApplicationMember(testApplicationMember2);
             em.persist(testApplicationMember2);
