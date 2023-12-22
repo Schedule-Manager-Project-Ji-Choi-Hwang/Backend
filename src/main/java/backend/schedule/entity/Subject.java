@@ -38,9 +38,10 @@ public class Subject {
         schedule.setSubject(this);
     }
 
-    public Subject(Member member, String subjectName) {
+    public Subject(Member member, String subjectName, String color) {
         this.member = member;
         this.subjectName = subjectName;
+        this.color = color;
     }
 
     public Subject(SubjectReqDto subjectReqDto) {

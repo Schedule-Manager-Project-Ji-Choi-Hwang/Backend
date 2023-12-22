@@ -90,4 +90,13 @@ public class StudyPost extends BaseTimeEntity {
         this.area = studyPostDto.getArea();
         this.post = studyPostDto.getPost();
     }
+
+    public StudyPost(String studyName, FieldTag tag, int recruitMember, boolean onOff, String area, String post) {
+        this.studyName = studyName;
+        this.tag = tag;
+        this.recruitMember = recruitMember;
+        this.onOff = onOff;
+        this.area = area;
+        this.post = post;
+    }
 }
