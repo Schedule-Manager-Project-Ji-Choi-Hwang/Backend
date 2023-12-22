@@ -14,9 +14,12 @@ public class SubjectResDto {
 
     private String subjectName;
 
+    private String color;
+
 
     public SubjectResDto(Subject subject) {
         this.subjectId = subject.getId();
         this.subjectName = subject.getSubjectName();
+        this.color = subject.getColor();
     }
 }

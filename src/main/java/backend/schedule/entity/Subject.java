@@ -28,6 +28,8 @@ public class Subject {
 
     private String subjectName;
 
+    private String color;
+
     @OneToMany(mappedBy = "subject", cascade = CascadeType.REMOVE)
     private List<Schedule> schedules = new ArrayList<>();
 
@@ -41,8 +43,9 @@ public class Subject {
         this.subjectName = subjectName;
     }
 
-    public Subject(String subjectName) {
-        this.subjectName = subjectName;
+    public Subject(SubjectReqDto subjectReqDto) {
+        this.subjectName = subjectReqDto.getSubjectName();
+        this.color = subjectReqDto.getColor();
     }
 
 

@@ -31,7 +31,7 @@ public class SubjectService {
      */
     public void save(SubjectReqDto subjectReqDto, Member member) {
         // 개인 과목 객체 생성 및 연관 관계 설정
-        Subject subject = new Subject(subjectReqDto.getSubjectName());
+        Subject subject = new Subject(subjectReqDto);
         member.addPersonalSubject(subject);
         
         // 개인 과목 객체 저장

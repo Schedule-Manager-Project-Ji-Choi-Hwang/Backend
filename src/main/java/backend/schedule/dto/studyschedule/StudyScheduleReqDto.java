@@ -18,13 +18,15 @@ public class StudyScheduleReqDto {
     @NotBlank(message = "일정 이름을 입력해 주세요.")
     private String studyScheduleName;
 
-    @NotEmpty(message = "반복 주기를 선택해 주세요.")
+//    @NotEmpty(message = "반복 주기를 선택해 주세요.")
     private String repeat;
 
-    @NotNull(message = "시작일을 선택해 주세요.")
+//    @NotNull(message = "시작일을 선택해 주세요.")
     private LocalDate startDate;
 
-    @NotNull(message = "종료일을 선택해 주세요.")
+//    @NotNull(message = "종료일을 선택해 주세요.")
     private LocalDate endDate;
+
+    private LocalDate period;
 
 }

@@ -29,8 +29,8 @@ public class StudyScheduleService {
     @Transactional
     public void addStudySchedule(StudyScheduleReqDto scheduleReqDto, StudyPost studyPost) {
 
-        if (scheduleReqDto.getStartDate().equals(scheduleReqDto.getEndDate())) { // 단일 등록
-            StudySchedule studySchedule = new StudySchedule(scheduleReqDto, scheduleReqDto.getStartDate());
+        if (scheduleReqDto.getPeriod() != null) { // 단일 등록
+            StudySchedule studySchedule = new StudySchedule(scheduleReqDto, scheduleReqDto.getPeriod());
             studyPost.addStudySchedule(studySchedule);
             studyScheduleRepository.save(studySchedule);
 

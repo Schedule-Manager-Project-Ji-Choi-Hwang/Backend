@@ -33,8 +33,9 @@ public class ScheduleService {
      * 단일 저장 및 반복 저장
      */
     public void addSchedule(ScheduleReqDto scheduleReqDto, Subject subject) {
-        if (scheduleReqDto.getStartDate().equals(scheduleReqDto.getEndDate())) { // 단일 등록
-            Schedule schedule = new Schedule(scheduleReqDto, scheduleReqDto.getStartDate());
+        if (scheduleReqDto.getPeriod() != null) { // 단일 등록
+            log.info("period : {}" ,scheduleReqDto.getPeriod());
+            Schedule schedule = new Schedule(scheduleReqDto, scheduleReqDto.getPeriod());
             subject.addSchedules(schedule);
             scheduleRepository.save(schedule);
 
