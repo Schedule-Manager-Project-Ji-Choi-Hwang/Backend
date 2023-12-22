@@ -116,7 +116,7 @@ public class MemberController {
      * 1. 로그인 아이디 이용 멤버 조회
      * 2. 해당 회원의 DB Refresh 토큰 조회
      */
-    @GetMapping("/member/refresh")
+    @PostMapping("/member/refresh")
     public ResponseEntity<?> tokenRefresh(HttpServletRequest request) {
         try {
             // 요청 헤더의 토큰 포함 여부 확인

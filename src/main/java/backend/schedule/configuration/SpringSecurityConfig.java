@@ -63,7 +63,7 @@ public class SpringSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterBefore(new JwtTokenFilter(secretKey), UsernamePasswordAuthenticationFilter.class)
-                .requestMatcher(notRefreshEndpoint)
+//                .requestMatcher(notRefreshEndpoint)
                 .authorizeRequests()
                 .antMatchers("/member/sign-up", "/member/log-in", "/member/refresh", "/member/findLoginId", "/member/findPassword", "/study-board").permitAll()
                 .anyRequest().authenticated()

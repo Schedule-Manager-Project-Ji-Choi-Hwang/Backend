@@ -23,7 +23,7 @@ spring:
     secretkey: "secret-key-456456"
     token:
       access:
-        expire: 36000000
+        expire: 10000
       refresh:
         expire: 1209600000
   mail:
