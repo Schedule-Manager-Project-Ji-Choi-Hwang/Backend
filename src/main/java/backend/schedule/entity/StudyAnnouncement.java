@@ -14,12 +14,10 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@SequenceGenerator(name = "STUDYANNOUNCEMENT_SEQ_GENERATOR",
-        sequenceName = "STUDYANNOUNCEMENT_SEQ")
 public class StudyAnnouncement extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYANNOUNCEMENT_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "studyannouncement_id", updatable = false)
     private Long id;
 

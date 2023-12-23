@@ -12,12 +12,10 @@ import java.time.LocalDate;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@SequenceGenerator(name = "SCHEDULE_SEQ_GENERATOR",
-        sequenceName = "SCHEDULE_SEQ")
 public class Schedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SCHEDULE_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "schedule_id", updatable = false)
     private Long id;
 

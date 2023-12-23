@@ -11,12 +11,10 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@SequenceGenerator(name = "STUDYCOMMENT_SEQ_GENERATOR",
-        sequenceName = "STUDYCOMMENT_SEQ")
 public class StudyComment extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYCOMMENT_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "studycommnet_id", updatable = false)
     private Long id;
 

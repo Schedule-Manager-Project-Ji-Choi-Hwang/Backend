@@ -11,12 +11,10 @@ import javax.persistence.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@SequenceGenerator(name = "STUDYMEMBER_SEQ_GENERATOR",
-        sequenceName = "STUDYMEMBER_SEQ")
 public class StudyMember {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STUDYMEMBER_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "studymember_id", updatable = false)
     private Long id;
 

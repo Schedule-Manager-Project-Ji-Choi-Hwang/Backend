@@ -13,12 +13,10 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@SequenceGenerator(name = "PERSONALSUBJECT_SEQ_GENERATOR",
-        sequenceName = "PERSONALSUBJECT_SEQ")
 public class Subject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "PERSONALSUBJECT_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ps_id", updatable = false)
     private Long id;
 

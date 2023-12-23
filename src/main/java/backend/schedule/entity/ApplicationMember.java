@@ -9,13 +9,11 @@ import javax.persistence.*;
 
 @Entity
 @Getter
-@SequenceGenerator(name = "APPLICATIONMEMBER_SEQ_GENERATOR",
-        sequenceName = "APPLICATIONMEMBER_SEQ")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApplicationMember {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "APPLICATIONMEMBER_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "application_id", updatable = false)
     private Long id;
 

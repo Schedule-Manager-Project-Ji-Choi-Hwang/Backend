@@ -11,12 +11,10 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@SequenceGenerator(name = "REFRESHTOKEN_SEQ_GENERATOR",
-        sequenceName = "REFRESHTOKEN_SEQ")
 public class RefreshToken {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "REFRESHTOKEN_SEQ_GENERATOR")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "refreshToken_id", updatable = false)
     private Long id;
 
