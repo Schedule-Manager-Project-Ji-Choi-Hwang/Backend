@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ConfirmAuthor.*;
 import static backend.schedule.enumlist.ConfirmAuthor.LEADER;
+import static backend.schedule.enumlist.ConfirmAuthor.MEMBER;
 
 @Service
 @Transactional
@@ -38,12 +38,6 @@ public class StudyMemberService {
         StudyMember studyMember = new StudyMember(member, MEMBER);
         studyPost.addStudyMember(studyMember);
         studyMemberRepository.save(studyMember);
-    }
-
-    public StudyMember findById(Long StudyMemberId) {
-        Optional<StudyMember> optionalStudyMember = studyMemberRepository.findById(StudyMemberId);
-
-        return optionalStudyMember.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.STUDY));
     }
 
     public boolean myAuthority(Member member, StudyPost studyPost, ConfirmAuthor confirmAuthor) {
@@ -72,11 +66,11 @@ public class StudyMemberService {
 
         if (studyMember.getConfirmAuthor() == LEADER) {
             if (studyMember.getStudyPost().getStudyMembers().size() == 1) {
-                studyPostRepository.delete(studyMember.getStudyPost()); // 추후에 연관관계 더 세팅하고 삭제되는지 확인(cascade or 연관관계 관련된거 다 딜리트)
+                studyPostRepository.delete(studyMember.getStudyPost());
             } else {
-                StudyMember secondStudyMember = studyMember.getStudyPost().getStudyMembers().get(1); // 2번째 멤버 찾아오기
-                secondStudyMember.changeLeader(); // 2번째 멤버 리더권한 양도
-                studyMemberRepository.delete(studyMember); // 원래 리더는 탈퇴
+                StudyMember secondStudyMember = studyMember.getStudyPost().getStudyMembers().get(1);
+                secondStudyMember.changeLeader();
+                studyMemberRepository.delete(studyMember);
             }
         } else {
             studyMemberRepository.delete(studyMember);

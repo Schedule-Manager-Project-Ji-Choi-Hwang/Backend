@@ -1,6 +1,5 @@
 package backend.schedule.jwt;
 
-import backend.schedule.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -44,7 +43,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
         String loginId = JwtTokenUtil.getLoginId(token, secretKey);
 
-//        Member loginMember = memberService.getLoginMemberByLoginId(loginId);
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                 loginId, null, List.of(new SimpleGrantedAuthority("USER")));

@@ -51,14 +51,12 @@ public class StudyAnnouncementPageController {
     @GetMapping("/study-board/{studyBoardId}/detail")
     public ResponseEntity<?> studyGroupDetailPage(@PathVariable Long studyBoardId, HttpServletRequest request) {
         try {
-//            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             Member member = jwtTokenExtraction.extractionMember(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(member.getId(), studyBoardId);
             StudyPost findStudyPostAndSa = studyPostService.studyAnnouncements(studyBoardId);
             StudyPost findStudyPostAndSm = studyPostService.returnToStudyMembers(studyBoardId);
 
             boolean myAuthority = studyMemberService.myAuthority(member, findStudyPostAndSa, ConfirmAuthor.LEADER);
-//            System.out.println("myAuthority = " + myAuthority);
 
             AnnouncementsAndStudyMembersDto returnData = studyPostService.returnToStudyGroupInfo(findStudyPostAndSa, findStudyPostAndSm, myAuthority);
 

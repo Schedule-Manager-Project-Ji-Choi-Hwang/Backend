@@ -30,7 +30,6 @@ public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> 
     @Query("select sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId and sm.confirmAuthor = :confirmAuthor")
     List<StudyMember> myPostList(@Param("memberId") Long memberId, @Param("confirmAuthor") ConfirmAuthor confirmAuthor);
 
-    // 12/12 민현 추가
     @Query("select sm from StudyMember sm join fetch  sm.studyPost where sm.member.id = :memberId")
     List<StudyMember> memberPostList(@Param("memberId") Long memberId);
 

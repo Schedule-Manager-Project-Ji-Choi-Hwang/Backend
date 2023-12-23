@@ -34,16 +34,6 @@ public class StudyAnnouncementService {
         return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
-    //public String removeAnnouncement(Long studyBoardId, Long announcementId) {
-       // int removeAnnouncement = studyAnnouncementRepository.removeAnnouncement(studyBoardId, announcementId);
-//
-       // if (removeAnnouncement == 1) {
-       //     return ErrorMessage.DELETE;
-       // } else {
-       //     throw new IllegalArgumentException(ErrorMessage.NOTDELETE);
-        //}
-    //}
-
     @Transactional
     public void removeAnnouncement(StudyAnnouncement studyAnnouncement) {
         studyAnnouncementRepository.delete(studyAnnouncement);

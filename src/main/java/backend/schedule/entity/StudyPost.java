@@ -30,7 +30,7 @@ public class StudyPost extends BaseTimeEntity {
 
     private boolean onOff;
 
-    private String area; //이거도 나중에 enum으로 바꿀예정
+    private String area;
 
     @Lob
     private String post;

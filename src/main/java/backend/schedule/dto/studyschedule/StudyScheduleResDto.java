@@ -1,6 +1,5 @@
 package backend.schedule.dto.studyschedule;
 
-import backend.schedule.entity.StudyPost;
 import backend.schedule.entity.StudySchedule;
 import lombok.Getter;
 import lombok.Setter;

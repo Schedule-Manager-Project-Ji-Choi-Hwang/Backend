@@ -5,7 +5,6 @@ import backend.schedule.dto.applicationmember.ApplicationMemberDto;
 import backend.schedule.entity.ApplicationMember;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyPost;
-import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.ApplicationMemberRepository;
 import backend.schedule.repository.StudyMemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +59,6 @@ public class ApplicationMemberService {
     }
 
     /**
-     *
      * 권한 체크용
      */
     public boolean applicationButtonCheck(Long memberId, Long studyPostId) {

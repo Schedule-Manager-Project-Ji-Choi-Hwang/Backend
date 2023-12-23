@@ -29,29 +29,29 @@ public class StudyScheduleService {
     @Transactional
     public void addStudySchedule(StudyScheduleReqDto scheduleReqDto, StudyPost studyPost) {
 
-        if (scheduleReqDto.getPeriod() != null) { // 단일 등록
+        if (scheduleReqDto.getPeriod() != null) {
             StudySchedule studySchedule = new StudySchedule(scheduleReqDto, scheduleReqDto.getPeriod());
             studyPost.addStudySchedule(studySchedule);
             studyScheduleRepository.save(studySchedule);
 
         } else { // 반복 등록
-            LocalDate nextDate = scheduleReqDto.getStartDate(); // 저장될 날짜를 가지고 있는 놈. for문의 i 변수같은 존재.
+            LocalDate nextDate = scheduleReqDto.getStartDate();
 
             StudySchedule startStudySchedule = new StudySchedule(scheduleReqDto, nextDate);
             studyPost.addStudySchedule(startStudySchedule);
             studyScheduleRepository.save(startStudySchedule);
 
-            while (!nextDate.isAfter(scheduleReqDto.getEndDate())) { // nextDate가 endDate를 지났는가? (서로 날짜가 같으면 통과해버림. 지나야 반복 종료됨)
+            while (!nextDate.isAfter(scheduleReqDto.getEndDate())) {
 
                 switch (scheduleReqDto.getRepeat()) {
                     case "DAILY":
-                        nextDate = nextDate.plusDays(1); // 하루 +
+                        nextDate = nextDate.plusDays(1);
                         break;
                     case "WEEKLY":
-                        nextDate = nextDate.plusWeeks(1); // 일주일 +
+                        nextDate = nextDate.plusWeeks(1);
                         break;
                     case "MONTHLY":
-                        nextDate = nextDate.plusMonths(1); // 한달 +
+                        nextDate = nextDate.plusMonths(1);
                         break;
                 }
 
@@ -59,7 +59,7 @@ public class StudyScheduleService {
                 studyPost.addStudySchedule(repeatStudySchedule);
                 studyScheduleRepository.save(repeatStudySchedule);
 
-                if (nextDate.isEqual(scheduleReqDto.getEndDate())) break; //nextDate == endDate 종료 ex)12-01 == 12-01
+                if (nextDate.isEqual(scheduleReqDto.getEndDate())) break;
             }
         }
     }
@@ -75,7 +75,6 @@ public class StudyScheduleService {
                 .map(StudyPostScheduleSetDto::new)
                 .collect(Collectors.toList());
     }
-
 
 
     @Transactional

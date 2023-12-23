@@ -5,8 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 
 public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, StudyPostRepositoryCustom {
@@ -21,14 +19,5 @@ public interface StudyPostRepository extends JpaRepository<StudyPost, Long>, Stu
     Optional<StudyPost> findStudyPostGetStudyMembers(@Param("studyBoardId") Long studyBoardId);
 
     @Query("select s from StudyPost s left join fetch s.studyAnnouncements sa where s.id = :studyBoardId")
-    Optional<StudyPost> studyAnnouncements(@Param("studyBoardId") Long studyBoardId); //이거
-
-    @Query("select s from StudyPost s join fetch s.studySchedules ss where s.id = :studyBoardId")
-    List<StudyPost> detailPage(@Param("studyBoardId") Long studyBoardId);
-
-//    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :boardId")
-//    Optional<StudyPost> studyScheduleList(@Param("boardId") Long boardId);
-
-//    @Query("select s from StudyPost s join fetch s.studySchedules sc where s.id = :studyBoardId and sc.period = :date")
-//    StudyPost DetailPageStudySchedules(@Param("studyBoardId") Long studyBoardId, @Param("date")LocalDate date);
+    Optional<StudyPost> studyAnnouncements(@Param("studyBoardId") Long studyBoardId);
 }

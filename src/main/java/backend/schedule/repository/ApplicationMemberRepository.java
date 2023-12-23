@@ -21,8 +21,7 @@ public interface ApplicationMemberRepository extends JpaRepository<ApplicationMe
 
     @Modifying
     @Query("delete from ApplicationMember a where a.id = :apMemberId and a.studyPost.id = :studyBoardId")
-    void deleteByIdAndStudyPost(@Param("apMemberId") Long apMemberId, @Param("studyBoardId") Long studyBoardId); //반환방식 int로
-
+    void deleteByIdAndStudyPost(@Param("apMemberId") Long apMemberId, @Param("studyBoardId") Long studyBoardId);
 
     @Modifying
     @Query("delete from ApplicationMember ap where ap.member.id = :memberId")

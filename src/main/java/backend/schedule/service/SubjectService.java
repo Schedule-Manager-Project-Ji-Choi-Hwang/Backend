@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static backend.schedule.enumlist.ErrorMessage.*;
+import static backend.schedule.enumlist.ErrorMessage.AUTHORITY;
 
 @Service
 @Transactional
@@ -30,11 +30,9 @@ public class SubjectService {
      * 개인 과목 저장
      */
     public void save(SubjectReqDto subjectReqDto, Member member) {
-        // 개인 과목 객체 생성 및 연관 관계 설정
         Subject subject = new Subject(subjectReqDto);
         member.addPersonalSubject(subject);
-        
-        // 개인 과목 객체 저장
+
         subjectRepository.save(subject);
     }
 
@@ -43,7 +41,6 @@ public class SubjectService {
      * 개인 과목 단일 조회
      */
     public Subject findSubjectById(Long subjectId, Long memberId) {
-        // id값 이용해 개인 과목 조회
         Optional<Subject> optionalPersonalSubject = subjectRepository.findSubject(subjectId, memberId);
 
         return optionalPersonalSubject.orElseThrow(() -> new IllegalArgumentException(AUTHORITY));
@@ -54,7 +51,7 @@ public class SubjectService {
      * 개인 과목 전체 조회 (멤버별)
      */
     public List<SubjectResDto> findSubjects(Long memberId) {
-         return subjectRepository.findByMember(memberId)
+        return subjectRepository.findByMember(memberId)
                 .stream()
                 .map(SubjectResDto::new)
                 .collect(Collectors.toList());

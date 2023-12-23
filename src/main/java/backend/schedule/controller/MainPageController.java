@@ -31,13 +31,16 @@ public class MainPageController {
     @Value("${spring.jwt.secretkey}")
     private String mySecretkey;
 
+    /**
+     * 메인 페이지
+     * @param date 조회할 날짜
+     */
     @GetMapping("/main")
     public ResponseEntity<?> test(@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, HttpServletRequest request) {
         try {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
 
             List<Object> return_data = new ArrayList();
-
             List<ScheduleResDto> scheduleResDtos = scheduleService.findSchedulesByMemberId(memberId, date);
             return_data.addAll(scheduleResDtos);
 

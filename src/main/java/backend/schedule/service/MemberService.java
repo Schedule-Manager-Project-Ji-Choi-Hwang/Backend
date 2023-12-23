@@ -1,9 +1,9 @@
 package backend.schedule.service;
 
+import backend.schedule.dto.member.MemberChangePasswordReqDto;
 import backend.schedule.dto.member.MemberFindPasswordReqDto;
 import backend.schedule.dto.member.MemberJoinReqDto;
 import backend.schedule.dto.member.MemberLoginReqDto;
-import backend.schedule.dto.member.MemberChangePasswordReqDto;
 import backend.schedule.entity.Member;
 import backend.schedule.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.Optional;
@@ -67,7 +68,6 @@ public class MemberService {
      * 회원 저장 (비밀번호 암호화)
      */
     public void join(MemberJoinReqDto memberJoinReqDto) {
-        // 비밀번호 암호화
         String encodedPassword = encoder.encode(memberJoinReqDto.getPassword());
         memberRepository.save(new Member(memberJoinReqDto, encodedPassword));
     }
@@ -77,10 +77,8 @@ public class MemberService {
      * 로그인 아이디 이용 멤버 식별 및 비밀번호 일치 여부 확인
      */
     public Member login(MemberLoginReqDto memberLoginReqDto) {
-        // 로그인 아이디 이용 멤버 조회
         Member findMember = getLoginMemberByLoginId(memberLoginReqDto.getLoginId());
 
-        // 비밀번호 비교
         if (!encoder.matches(memberLoginReqDto.getPassword(), findMember.getPassword())) {
             throw new IllegalArgumentException(LOGINFAIL);
         }
@@ -92,7 +90,6 @@ public class MemberService {
      * 로그인 아이디 이용 멤버 식별
      */
     public Member getLoginMemberByLoginId(String loginId) {
-        // 로그인 아이디 이용해 멤버 조회
         Optional<Member> optionalMember = memberRepository.findByLoginId(loginId);
 
         return optionalMember.orElseThrow(() -> new IllegalArgumentException(MEMBER));
@@ -103,10 +100,9 @@ public class MemberService {
      * 이메일 이용 멤버 식별
      */
     public Member findMemberByEmail(String email) {
-        // 이메일 이용해 멤버 조회
         Optional<Member> optionalMember = memberRepository.findByEmail(email);
 
-        return  optionalMember.orElseThrow(() -> new IllegalArgumentException(MEMBER));
+        return optionalMember.orElseThrow(() -> new IllegalArgumentException(MEMBER));
     }
 
     /**
@@ -114,22 +110,18 @@ public class MemberService {
      * 임시 비밀번호 발급 및 이메일 발송
      */
     public void sendMail(MemberFindPasswordReqDto memberFindPasswordReqDto, Member findMember) {
-        // 임시 비밀번호 생성
         String tempPassword = createTempPassword();
 
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
-        // 비밀번호 변경 (임시 비밀번호)(비밀번호 암호화)
         findMember.changePassword(encoder.encode(tempPassword));
 
         try {
-            // 이메일 설정
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(memberFindPasswordReqDto.getEmail());
             mimeMessageHelper.setSubject("[일정관리 앱] 임시 비밀번호 발급");
             mimeMessageHelper.setText(tempPassword);
 
-            // 이메일 발송
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
             throw new IllegalArgumentException(SENDEMAILFAIL);
@@ -141,7 +133,6 @@ public class MemberService {
      * 비밀번호 변경 (비밀번호 암호화)
      */
     public void changePassword(Member member, MemberChangePasswordReqDto memberChangePasswordReqDto) {
-        // 멤버 비밀번호 변경(비밀번호 암호화)
         member.changePassword(encoder.encode(memberChangePasswordReqDto.getPassword()));
     }
 
@@ -150,7 +141,6 @@ public class MemberService {
      * 로그인 아이디 및 이메일 정보로 멤버 식별
      */
     public Member findMemberByLoginIdAndEmail(String loginId, String email) {
-        // 로그인 아이디 및 이메일 이용해 멤버 조회
         Optional<Member> findMember = memberRepository.findByLoginIdAndEmail(loginId, email);
 
         return findMember.orElseThrow(() -> new IllegalArgumentException(MEMBER));
@@ -164,7 +154,6 @@ public class MemberService {
         memberRepository.delete(member);
     }
 
-    // 임시 비밀번호 생성 메서드
     public String createTempPassword() {
         Random random = new Random();
         StringBuffer tempPassword = new StringBuffer();

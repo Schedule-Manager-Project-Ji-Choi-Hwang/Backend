@@ -2,15 +2,12 @@ package backend.schedule.service;
 
 
 import backend.schedule.dto.studypost.AnnouncementsAndStudyMembersDto;
-import backend.schedule.dto.studypost.SearchPostCondition;
 import backend.schedule.dto.studypost.StudyPostDto;
-import backend.schedule.dto.studyschedule.StudyPostScheduleSetDto;
 import backend.schedule.dto.studypost.StudyPostResDto;
 import backend.schedule.entity.Member;
 import backend.schedule.entity.StudyMember;
 import backend.schedule.entity.StudyPost;
 import backend.schedule.enumlist.ConfirmAuthor;
-import backend.schedule.enumlist.ErrorMessage;
 import backend.schedule.repository.StudyMemberRepository;
 import backend.schedule.repository.StudyPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +16,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static backend.schedule.enumlist.ErrorMessage.*;
@@ -32,18 +28,13 @@ public class StudyPostService {
     private final StudyPostRepository studyPostRepository;
     private final StudyMemberRepository studyMemberRepository;
 
-//    public StudyPostScheduleSetDto detailStudySchedules(Long studyboardId, LocalDate date) {
-//        StudyPost studyPost = studyPostRepository.DetailPageStudySchedules(studyboardId, date);
-//        return new StudyPostScheduleSetDto(studyPost);
-//    }
-
     @Transactional
     public void save(StudyPostDto studyPostDto, Member member) {
         StudyPost studyPost = new StudyPost(studyPostDto);
         StudyMember studyMember = new StudyMember(member, ConfirmAuthor.LEADER);
 
         studyPost.addStudyMember(studyMember);
-        studyPostRepository.save(studyPost);//스터디 멤버 리더 지정
+        studyPostRepository.save(studyPost);
         studyMemberRepository.save(studyMember);
     }
 
@@ -83,7 +74,7 @@ public class StudyPostService {
     public StudyPost returnToStudyMembers(Long studyBoardId) {
         Optional<StudyPost> optionalStudyPost = studyPostRepository.findStudyPostGetStudyMembers(studyBoardId);
 
-        return optionalStudyPost.orElseThrow(()-> new IllegalArgumentException(POST));
+        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(POST));
     }
 
     @Transactional
@@ -91,13 +82,8 @@ public class StudyPostService {
         studyPost.updatePost(studyPostDto);
     }
 
-    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPostSa,StudyPost studyPostSm, boolean myAuthority) {
+    public AnnouncementsAndStudyMembersDto returnToStudyGroupInfo(StudyPost studyPostSa, StudyPost studyPostSm, boolean myAuthority) {
         return new AnnouncementsAndStudyMembersDto(studyPostSa, studyPostSm, myAuthority);
     }
 
-//    public StudyPost studyScheduleList(Long id) {
-//        Optional<StudyPost> optionalStudyPost = studyPostRepository.studyScheduleList(id);
-//
-//        return optionalStudyPost.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.SCHEDULE));
-//    }
 }

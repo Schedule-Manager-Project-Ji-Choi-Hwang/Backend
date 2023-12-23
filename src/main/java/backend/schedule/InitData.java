@@ -1,7 +1,6 @@
 package backend.schedule;
 
 
-import backend.schedule.dto.studyannouncement.StudyAnnouncementDto;
 import backend.schedule.entity.*;
 import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.enumlist.FieldTag;
@@ -36,10 +35,6 @@ public class InitData {
 
         @Transactional
         public void init() {
-//            for (int i = 0; i < 10000; i++) {
-//                em.persist(new StudyPost("" + i, LocalDate.now()));
-//            }
-            // 민현 추가
 
             // 개인 과목 리스트
             String[] subjectList = {"Java", "Python", "C++"};
@@ -76,28 +71,28 @@ public class InitData {
             }
 
             // 개인 과목 리스트 순회 및 등록
-            for (int i=0; i<3; i++) {
+            for (int i = 0; i < 3; i++) {
                 Subject testSubject = new Subject(testMember, subjectList[i], colorList[i]);
                 testMember.addPersonalSubject(testSubject);
                 em.persist(testSubject);
 
                 // 개인 과목 순회 및 일정 등록 (오늘 날짜)
                 for (int j = 1; j < 4; j++) {
-                    Schedule testSchedule = new Schedule( j + "장 공부하기", LocalDate.now(), testSubject);
+                    Schedule testSchedule = new Schedule(j + "장 공부하기", LocalDate.now(), testSubject);
                     testSubject.addSchedules(testSchedule);
                     em.persist(testSchedule);
                 }
 
                 // 개인 과목 순회 및 일정 등록 (내일 날짜)
                 for (int j = 1; j < 4; j++) {
-                    Schedule testSchedule = new Schedule( (j + 4) + "장 공부하기", LocalDate.now().plusDays(1), testSubject);
+                    Schedule testSchedule = new Schedule((j + 4) + "장 공부하기", LocalDate.now().plusDays(1), testSubject);
                     testSubject.addSchedules(testSchedule);
                     em.persist(testSchedule);
                 }
 
                 // 개인 과목 순회 및 일정 등록 (다음 주 날짜)
                 for (int j = 1; j < 4; j++) {
-                    Schedule testSchedule = new Schedule( (j + 8) + "장 공부하기", LocalDate.now().plusWeeks(1), testSubject);
+                    Schedule testSchedule = new Schedule((j + 8) + "장 공부하기", LocalDate.now().plusWeeks(1), testSubject);
                     testSubject.addSchedules(testSchedule);
                     em.persist(testSchedule);
                 }
@@ -120,7 +115,7 @@ public class InitData {
             em.persist(testStudyMember5);
 
             // 스터디 게시글1에 대한 공지 및 댓글 등록
-            for (int i=0; i<5; i++) {
+            for (int i = 0; i < 5; i++) {
                 StudyAnnouncement testStudyAnnouncement = new StudyAnnouncement("온라인 줌 회의 링크" + i, "http://naver.com" + i);
                 testStudyPost1.addStudyAnnouncements(testStudyAnnouncement);
                 StudyComment testStudyComment = new StudyComment("네 알겠습니다. 확인했습니다." + i);
@@ -138,7 +133,7 @@ public class InitData {
             }
 
             // 스터디 게시글1에 대한 신청멤버 대량 등록
-            for (int i=0; i<20; i++) {
+            for (int i = 0; i < 20; i++) {
                 Member member = new Member("" + i, encoder.encode("456456"), "CMH" + i, "hji1235@naver.com" + i);
                 ApplicationMember applicationMember = new ApplicationMember(member);
                 em.persist(member);
@@ -178,7 +173,7 @@ public class InitData {
 
             // 스터디 게시글3에 대한 일정 등록
             for (int i = 1; i < 4; i++) {
-                StudySchedule testSchedule = new StudySchedule().testSchedule("백준 " + i +"번 문제 발표하기", LocalDate.now());
+                StudySchedule testSchedule = new StudySchedule().testSchedule("백준 " + i + "번 문제 발표하기", LocalDate.now());
                 testStudyPost3.addStudySchedule(testSchedule);
                 em.persist(testSchedule);
             }

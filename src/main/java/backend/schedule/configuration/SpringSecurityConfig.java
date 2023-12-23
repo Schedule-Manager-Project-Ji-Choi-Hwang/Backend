@@ -27,7 +27,6 @@ import java.util.Arrays;
 public class SpringSecurityConfig {
 
     private final MemberService memberService;
-//    private static String secretKey = "secret-key-456456";
     @Value("${spring.jwt.secretkey}")
     private String secretKey;
 

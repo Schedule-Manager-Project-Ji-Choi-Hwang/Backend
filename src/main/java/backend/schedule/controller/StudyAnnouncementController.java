@@ -39,9 +39,8 @@ public class StudyAnnouncementController {
 
     /**
      * 스터디 공지 추가
-     * Query: 2번
      */
-    @PostMapping("/study-board/{studyBoardId}/study-announcements/add")//스터디 공지 추가
+    @PostMapping("/study-board/{studyBoardId}/study-announcements/add")
     public ResponseEntity<?> studyAnnouncementPost(@Validated @RequestBody StudyAnnouncementDto announcementDto, BindingResult bindingResult,
                                                    @PathVariable Long studyBoardId, HttpServletRequest request) {
         try {
@@ -63,43 +62,7 @@ public class StudyAnnouncementController {
     }
 
     /**
-     * 스터디 공지 수정 조회
-     * Query: 1번
-     */
-    @GetMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/edit")
-    public ResponseEntity<?> studyAnnouncementUpdateForm(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
-        try {
-            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-            studyMemberService.studyMemberSearch(memberId, studyBoardId, LEADER);
-            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
-
-            return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
-        }
-
-    }
-
-//    /**
-//     * 스터디 공지 조회
-//     */
-//    @GetMapping("/studyboard/{studyBoardId}/study-announcements/{announcementId}") //공지 단건 조회
-//    public ResponseEntity<?> studyAnnouncement(@PathVariable Long studyBoardId, @PathVariable Long announcementId, HttpServletRequest request) {
-//        //스터디에 속한 회원이 맞으면 단건조회
-//        try {
-//            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-//            studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId); // 리더,멤버가 다볼 수 있게 하려면 어떻게?
-//            StudyAnnouncement announcement = studyAnnouncementService.findStudyAnnouncement(announcementId, studyBoardId);
-//
-//            return ResponseEntity.ok().body(new StudyAnnouncementDto(announcement));
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
-//        }
-//    }
-
-    /**
      * 스터디 공지 전체 조회
-     * Query: Fetch join이용 1번
      */
     @GetMapping("/study-board/{studyBoardId}/study-announcements")
     public ResponseEntity<?> studyAnnouncementList(@PathVariable Long studyBoardId, HttpServletRequest request) {
@@ -117,7 +80,6 @@ public class StudyAnnouncementController {
 
     /**
      * 스터디 공지 수정
-     * Query: 2번
      */
     @PatchMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/edit")
     public ResponseEntity<?> studyAnnouncementUpdate(@Validated @RequestBody StudyAnnouncementEditDto announcementEditDto, BindingResult bindingResult,
@@ -141,7 +103,6 @@ public class StudyAnnouncementController {
 
     /**
      * 스터디 공지 삭제
-     * Query: 5번
      */
     @Transactional
     @DeleteMapping("/study-board/{studyBoardId}/study-announcements/{announcementId}/delete")

@@ -43,7 +43,6 @@ public class JwtTokenUtil {
         try {
             return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
         } catch (ExpiredJwtException e) {
-            // 유효기간이 만료된 경우, 여전히 claims를 가져옴.
             return e.getClaims();
         }
     }

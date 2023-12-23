@@ -32,10 +32,6 @@ public class ErrorMessage {
 
     public static final String SENDEMAILFAIL = "이메일 발송이 실패하였습니다.";
 
-    public static final String SUBJECT = "과목을 찾을 수 없습니다.";
-
-    public static final String SCHEDULEFAIL = "일정 등록이 실패하였습니다.";
-
     public static final String ALREADY = "이미 가입된 회원입니다.";
 
     public static final String MEMBERFULL = "스터디 회원을 더이상 추가할 수 없습니다.";

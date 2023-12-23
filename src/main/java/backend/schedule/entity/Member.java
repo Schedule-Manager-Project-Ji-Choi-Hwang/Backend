@@ -36,12 +36,6 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
     private List<Subject> subjects = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "member")
-//    private List<StudyMember> studyMembers = new ArrayList<>();
-
-//    @OneToMany(mappedBy = "member")
-//    private List<ApplicationMember> applicationMembers = new ArrayList();
-
     @OneToMany(mappedBy = "member", cascade = CascadeType.REMOVE)
     private List<StudyComment> studyComments = new ArrayList<>();
 
@@ -54,17 +48,6 @@ public class Member extends BaseTimeEntity {
         studyComments.add(studyComment);
         studyComment.setMember(this);
     }
-
-//    public void addStudyMember(StudyMember studyMember) {
-//        studyMembers.add(studyMember);
-//        studyMember.setMember(this);
-
-//    }
-//    public void addApplicationMember(ApplicationMember applicationMember) {
-//        applicationMembers.add(applicationMember);
-//        applicationMember.setMember(this);
-
-//    }
 
     public Member(MemberJoinReqDto memberJoinReqDto, String encodedPassword) {
         this.loginId = memberJoinReqDto.getLoginId();
