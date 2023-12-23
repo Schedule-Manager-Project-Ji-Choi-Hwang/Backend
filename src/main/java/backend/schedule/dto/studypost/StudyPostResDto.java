@@ -23,6 +23,8 @@ public class StudyPostResDto {
 
     private int recruitMember;
 
+    private int currentMember;
+
     private boolean onOff;
 
     private String area;
@@ -36,11 +38,12 @@ public class StudyPostResDto {
     private boolean studyMemberAuthority;
 
     @QueryProjection
-    public StudyPostResDto(Long id, String studyName, FieldTag tag, int recruitMember, boolean onOff, String area, String post) {
+    public StudyPostResDto(Long id, String studyName, FieldTag tag, int recruitMember, int currentMember, boolean onOff, String area, String post) {
         this.id = id;
         this.studyName = studyName;
         this.tag = tag;
         this.recruitMember = recruitMember;
+        this.currentMember = currentMember;
         this.onOff = onOff;
         this.area = area;
         this.post = post;
@@ -51,6 +54,7 @@ public class StudyPostResDto {
         this.studyName = studyPost.getStudyName();
         this.tag = studyPost.getTag();
         this.recruitMember = studyPost.getRecruitMember();
+        this.currentMember = studyPost.getStudyMembers().size();
         this.onOff = studyPost.isOnOff();
         this.area = studyPost.getArea();
         this.post = studyPost.getPost();

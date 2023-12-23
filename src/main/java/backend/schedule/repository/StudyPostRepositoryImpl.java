@@ -35,7 +35,7 @@ public class StudyPostRepositoryImpl implements StudyPostRepositoryCustom {
     public Slice<StudyPostResDto> searchPost(Long lastPostId, String studyName, Pageable pageable) {
         List<StudyPostResDto> results =
                 query.select(new QStudyPostResDto(studyPost.id, studyPost.studyName,
-                                studyPost.tag, studyPost.recruitMember,
+                                studyPost.tag, studyPost.recruitMember, studyPost.studyMembers.size(),
                                 studyPost.onOff, studyPost.area, studyPost.post))
                         .from(studyPost)
                         .where(ltPostId(lastPostId),

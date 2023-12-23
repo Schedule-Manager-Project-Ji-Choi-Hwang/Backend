@@ -23,7 +23,7 @@ public class StudyPostDto {
     private FieldTag tag;
 
     @NotNull(message = "모집 인원을 설정해 주세요.")
-    @Range(min = 1, max = 20, message = "1명 이상 20명 이하만 모집 가능합니다.")
+    @Range(min = 2, max = 20, message = "2명 이상 20명 이하만 모집 가능합니다.")
     private int recruitMember;
 
     @NotNull(message = "온라인/오프라인 설정")

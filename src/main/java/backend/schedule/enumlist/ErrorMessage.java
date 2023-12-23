@@ -38,6 +38,8 @@ public class ErrorMessage {
 
     public static final String ALREADY = "이미 가입된 회원입니다.";
 
+    public static final String MEMBERFULL = "스터디 회원을 더이상 추가할 수 없습니다.";
+
     public static final String AUTHORITY = "권한이 없습니다.";
 
     public static final String STUDY = "스터디 멤버를 찾을 수 없습니다.";

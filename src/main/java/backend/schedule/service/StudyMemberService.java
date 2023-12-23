@@ -32,6 +32,9 @@ public class StudyMemberService {
 
 
     public void save(Member member, StudyPost studyPost) {
+        if (studyPost.getStudyMembers().size() == studyPost.getRecruitMember()) {
+            throw new IllegalArgumentException(ErrorMessage.MEMBERFULL);
+        }
         StudyMember studyMember = new StudyMember(member, MEMBER);
         studyPost.addStudyMember(studyMember);
         studyMemberRepository.save(studyMember);

@@ -17,11 +17,14 @@ public class ScheduleResDto {
 
     private String subjectName;
 
+    private String color;
+
     private List<ScheduleDto> schedules;
 
     public ScheduleResDto(Subject subject) {
         this.subjectId = subject.getId();
         this.subjectName = subject.getSubjectName();
+        this.color = subject.getColor();
         this.schedules = subject.getSchedules().stream()
                 .map(ScheduleDto::new)
                 .collect(Collectors.toList());
