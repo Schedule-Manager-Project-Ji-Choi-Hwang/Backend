@@ -46,6 +46,7 @@ public class StudyCommentService {
     }
 
 
+    @Transactional
     public String commentRemove(Long studyAnnouncementId, Long studyCommentId, Long memberId) {
         int removeComment = studyCommentRepository.commentRemove(studyAnnouncementId, studyCommentId, memberId);
 

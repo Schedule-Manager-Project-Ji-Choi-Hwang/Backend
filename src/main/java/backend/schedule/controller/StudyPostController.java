@@ -95,21 +95,20 @@ public class StudyPostController {
         }
     }
 
-//    /**
-//     * 스터디 게시글 전체 조회 (멤버별)
-//     * 필요한 고민
-//     */
-//    @GetMapping("/my-study-board")
-//    public ResponseEntity<?> myStudies(HttpServletRequest request) {
-//        try {
-//            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
-//            List<StudyMemberToPostReqDto> studyMemberToPostReqDtos = studyMemberService.memberPostList(memberId);
-//
-//            return ResponseEntity.ok().body(new Result(studyMemberToPostReqDtos));
-//        } catch (IllegalArgumentException e) {
-//            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
-//        }
-//    }
+    /**
+     * 스터디 게시글 전체 조회 (멤버별)
+     */
+    @GetMapping("/my-study-board")
+    public ResponseEntity<?> myStudies(HttpServletRequest request) {
+        try {
+            Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
+            List<StudyMemberToPostReqDto> studyMemberToPostReqDtos = studyMemberService.memberPostList(memberId);
+
+            return ResponseEntity.ok().body(new Result(studyMemberToPostReqDtos));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new MessageReturnDto().badRequestFail(e.getMessage()));
+        }
+    }
 
     /**
      * 내가 작성한 스터디 게시글 조회
