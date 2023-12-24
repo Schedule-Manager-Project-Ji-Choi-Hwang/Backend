@@ -23,7 +23,7 @@ public class InitData {
 
     @PostConstruct
     public void init() {
-        initDataService.init();
+//        initDataService.init();
     }
 
 
