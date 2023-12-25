@@ -54,5 +54,6 @@ public class Subject {
 
     public void subjectNameUpdate(SubjectReqDto subjectReqDto) {
         this.subjectName = subjectReqDto.getSubjectName();
+        this.color = subjectReqDto.getColor();
     }
 }
