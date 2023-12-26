@@ -63,7 +63,7 @@ public class InitData {
 
             // 멤버 4의 대량 스터디 게시글 등록
             for (int i = 0; i < 100; i++) {
-                StudyPost initStudyPost = new StudyPost("테스트공부(스터디)" + i, FieldTag.DEVELOP, 20, false, "부산", "테스트용 스터디 입니다. 가입 탈퇴 자유!!");
+                StudyPost initStudyPost = new StudyPost("테스트공부(스터디)" + i, FieldTag.개발, 20, false, "부산", "테스트용 스터디 입니다. 가입 탈퇴 자유!!");
                 em.persist(initStudyPost);
                 StudyMember initStudyMember = new StudyMember(testMember4, ConfirmAuthor.LEADER);
                 initStudyPost.addStudyMember(initStudyMember);
@@ -98,7 +98,7 @@ public class InitData {
                 }
             }
             // hji1235 멤버의 스터디 게시글1 등록
-            StudyPost testStudyPost1 = new StudyPost("정보처리기사(스터디)", FieldTag.DEVELOP, 20, false, "부산", "부산 정처기 스터디입니다. 부산사람 환영");
+            StudyPost testStudyPost1 = new StudyPost("정보처리기사(스터디)", FieldTag.개발, 20, false, "부산", "부산 정처기 스터디입니다. 부산사람 환영");
             em.persist(testStudyPost1);
             StudyMember testStudyMember = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost1.addStudyMember(testStudyMember);
@@ -142,7 +142,7 @@ public class InitData {
             }
 
             // hji1235 멤버의 스터디 게시글2 등록
-            StudyPost testStudyPost2 = new StudyPost("AWS 자격증(스터디)", FieldTag.ETC, 15, true, "온라인", "AWS 자격증 스터디입니다. 경험자 환영");
+            StudyPost testStudyPost2 = new StudyPost("AWS 자격증(스터디)", FieldTag.개발, 15, true, "온라인", "AWS 자격증 스터디입니다. 경험자 환영");
             em.persist(testStudyPost2);
             StudyMember testStudyMember2 = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost2.addStudyMember(testStudyMember2);
@@ -165,7 +165,7 @@ public class InitData {
                 em.persist(testSchedule);
             }
 
-            StudyPost testStudyPost3 = new StudyPost("코딩 테스트(스터디)", FieldTag.TOEIC, 5, false, "서울", "백준 실버3 이상 구해요.");
+            StudyPost testStudyPost3 = new StudyPost("코딩 테스트(스터디)", FieldTag.개발, 5, false, "서울", "백준 실버3 이상 구해요.");
             em.persist(testStudyPost3);
             StudyMember testStudyMember3 = new StudyMember(testMember, ConfirmAuthor.LEADER);
             testStudyPost3.addStudyMember(testStudyMember3);

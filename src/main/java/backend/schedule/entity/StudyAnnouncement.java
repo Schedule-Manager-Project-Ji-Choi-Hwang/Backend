@@ -48,6 +48,7 @@ public class StudyAnnouncement extends BaseTimeEntity {
     }
 
     public void announcementUpdate(StudyAnnouncementEditDto studyAnnouncementEditDto) {
+        this.announcementTitle = studyAnnouncementEditDto.getAnnouncementTitle();
         this.announcementPost = studyAnnouncementEditDto.getAnnouncementPost();
     }
 

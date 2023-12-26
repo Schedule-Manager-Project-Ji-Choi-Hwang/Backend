@@ -22,11 +22,18 @@ public class StudyCommentDto {
 
     private LocalDateTime lastModifiedDate;
 
-    public StudyCommentDto(StudyComment comment) {
+    private boolean myAuthority;
+
+    public StudyCommentDto(StudyComment comment, Long memberId) {
         this.commentId = comment.getId();
         this.nickname = comment.getMember().getNickname();
         this.comment = comment.getComment();
         this.createdDate = comment.getCreatedDate();
         this.lastModifiedDate = comment.getLastModifiedDate();
+        if (comment.getMember().getId() == memberId) {
+            this.myAuthority = true;
+        } else {
+            this.myAuthority = false;
+        }
     }
 }

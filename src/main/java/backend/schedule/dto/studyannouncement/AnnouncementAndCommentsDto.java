@@ -24,13 +24,13 @@ public class AnnouncementAndCommentsDto {
 
     private List<StudyCommentDto> commentList;
 
-    public AnnouncementAndCommentsDto(StudyAnnouncement studyAnnouncement) {
+    public AnnouncementAndCommentsDto(StudyAnnouncement studyAnnouncement, Long memberId) {
         this.announcementId = studyAnnouncement.getId();
         this.announcementTitle = studyAnnouncement.getAnnouncementTitle();
         this.announcementPost = studyAnnouncement.getAnnouncementPost();
         this.createDate = studyAnnouncement.getCreatedDate();
         this.commentList = studyAnnouncement.getStudyComments().stream()
-                .map(StudyCommentDto::new)
+                .map(comment -> new StudyCommentDto(comment, memberId))
                 .collect(Collectors.toList());
     }
 }

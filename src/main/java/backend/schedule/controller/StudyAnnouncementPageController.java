@@ -39,7 +39,7 @@ public class StudyAnnouncementPageController {
             Long memberId = jwtTokenExtraction.extractionMemberId(request, mySecretkey);
             studyMemberService.studyMemberSearchNoAuthority(memberId, studyBoardId);
             StudyAnnouncement announcement = studyAnnouncementService.announcementCommentList(announcementId, studyBoardId);
-            AnnouncementAndCommentsDto returnData = studyAnnouncementService.returnAnnouncementAndComments(announcement);
+            AnnouncementAndCommentsDto returnData = studyAnnouncementService.returnAnnouncementAndComments(announcement, memberId);
 
 
             return ResponseEntity.ok().body(new Result(returnData));

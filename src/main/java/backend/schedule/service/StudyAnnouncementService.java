@@ -54,7 +54,7 @@ public class StudyAnnouncementService {
         return optionalStudyAnnouncement.orElseThrow(() -> new IllegalArgumentException(ErrorMessage.ANNOUNCEMENT));
     }
 
-    public AnnouncementAndCommentsDto returnAnnouncementAndComments(StudyAnnouncement studyAnnouncement) {
-        return new AnnouncementAndCommentsDto(studyAnnouncement);
+    public AnnouncementAndCommentsDto returnAnnouncementAndComments(StudyAnnouncement studyAnnouncement, Long memberId) {
+        return new AnnouncementAndCommentsDto(studyAnnouncement, memberId);
     }
 }
