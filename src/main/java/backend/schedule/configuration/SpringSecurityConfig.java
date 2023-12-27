@@ -63,7 +63,7 @@ public class SpringSecurityConfig {
                 .addFilterBefore(new JwtTokenFilter(secretKey), UsernamePasswordAuthenticationFilter.class)
 //                .requestMatcher(notRefreshEndpoint)
                 .authorizeRequests()
-                .antMatchers("/member/sign-up", "/member/log-in", "/member/refresh", "/member/findLoginId", "/member/findPassword", "/study-board").permitAll()
+                .antMatchers("/member/sign-up", "/member/log-in", "/member/refresh", "/member/find-loginId", "/member/find-password", "/study-board").permitAll()
                 .anyRequest().authenticated()
                 .and().build();
     }
