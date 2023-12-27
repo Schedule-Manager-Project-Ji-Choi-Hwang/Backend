@@ -2,6 +2,7 @@ package backend.schedule.entity;
 
 
 import backend.schedule.dto.studypost.StudyPostDto;
+import backend.schedule.enumlist.Area;
 import backend.schedule.enumlist.FieldTag;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,7 +31,8 @@ public class StudyPost extends BaseTimeEntity {
 
     private boolean onOff;
 
-    private String area;
+    @Enumerated(EnumType.STRING)
+    private Area area;
 
     @Lob
     private String post;
@@ -90,7 +92,7 @@ public class StudyPost extends BaseTimeEntity {
         this.post = studyPostDto.getPost();
     }
 
-    public StudyPost(String studyName, FieldTag tag, int recruitMember, boolean onOff, String area, String post) {
+    public StudyPost(String studyName, FieldTag tag, int recruitMember, boolean onOff, Area area, String post) {
         this.studyName = studyName;
         this.tag = tag;
         this.recruitMember = recruitMember;

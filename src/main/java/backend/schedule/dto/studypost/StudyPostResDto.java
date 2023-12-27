@@ -1,6 +1,7 @@
 package backend.schedule.dto.studypost;
 
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.Area;
 import backend.schedule.enumlist.FieldTag;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Getter;
@@ -27,7 +28,7 @@ public class StudyPostResDto {
 
     private boolean onOff;
 
-    private String area;
+    private Area area;
 
     private String post;
 
@@ -38,7 +39,7 @@ public class StudyPostResDto {
     private boolean studyMemberAuthority;
 
     @QueryProjection
-    public StudyPostResDto(Long id, String studyName, FieldTag tag, int recruitMember, int currentMember, boolean onOff, String area, String post) {
+    public StudyPostResDto(Long id, String studyName, FieldTag tag, int recruitMember, int currentMember, boolean onOff, Area area, String post) {
         this.id = id;
         this.studyName = studyName;
         this.tag = tag;

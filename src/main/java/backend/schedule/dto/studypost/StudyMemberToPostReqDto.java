@@ -1,6 +1,7 @@
 package backend.schedule.dto.studypost;
 
 import backend.schedule.entity.StudyMember;
+import backend.schedule.enumlist.Area;
 import backend.schedule.enumlist.ConfirmAuthor;
 import backend.schedule.enumlist.FieldTag;
 import lombok.Data;
@@ -18,7 +19,7 @@ public class StudyMemberToPostReqDto {
 
     private boolean onOff;
 
-    private String area;
+    private Area area;
 
     private String post;
 

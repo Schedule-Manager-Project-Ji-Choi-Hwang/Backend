@@ -2,6 +2,7 @@ package backend.schedule.dto.studypost;
 
 
 import backend.schedule.entity.StudyPost;
+import backend.schedule.enumlist.Area;
 import backend.schedule.enumlist.FieldTag;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,8 +30,8 @@ public class StudyPostDto {
     @NotNull(message = "온라인/오프라인 설정")
     private boolean onOff;
 
-    @NotBlank(message = "지역을 선택해 주세요.")
-    private String area;
+    @NotNull(message = "지역을 선택해 주세요.")
+    private Area area;
 
     @NotBlank(message = "글을 작성해 주세요.")
     private String post;
